@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: 추가하고자 하는 기능을 올려주세요!
-title: 'feature: '
+title: ''
 labels: "✨ Feature"
 assignees: ''
 

@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: 우리가 도울 수 있도록 발생한 버그에 대해 설명해주세요!
-title: 'bug:'
+title: ''
 labels: "\U0001F41E BugFix"
 assignees: ''
 
