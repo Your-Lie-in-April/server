@@ -16,9 +16,18 @@ public class Member extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String email;  // socialId?
+
+    @Column(nullable = false)
+    private String nickname;
+
+    @Column(nullable = false)
+    private String email;
+
     private String state;
-    private String image;
+
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
+
     @OneToMany(mappedBy = "member")
     private List<MemberProject> memberProjects = new ArrayList<>();
 
