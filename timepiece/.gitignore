@@ -1,8 +1,11 @@
 # Created by https://www.toptal.com/developers/gitignore/api/java,intellij+all,macos,windows,gradle
 # Edit at https://www.toptal.com/developers/gitignore?templates=java,intellij+all,macos,windows,gradle
 
-**/application.yaml
-**/application.properties
+docker/
+application.yml
+application.properties
+
+application-oauth.yaml
 
 ### Intellij+all ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
