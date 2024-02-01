@@ -15,9 +15,10 @@ public class Cover {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String color;
-    @Column(name="cover_image")
-    private String coverImage;
+
+    @Column(name="cover_image_url")
+    private String coverImageUrl;
+
     @OneToMany(mappedBy = "cover")
     private List<Project> projects = new ArrayList<>();
 }

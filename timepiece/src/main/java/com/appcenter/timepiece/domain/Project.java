@@ -55,4 +55,7 @@ public class Project extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cover_id")
     private Cover cover;
+
+    private String color;
+
 }
