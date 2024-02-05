@@ -6,9 +6,13 @@ import lombok.Getter;
 public class ProjectThumbnailResponse {
 
     private Long projectId;
+
     private String title;
+
     private String description;
+
     private String color;
+
     private String coverImageUrl;
 
     public ProjectThumbnailResponse(Long projectId, String title, String description,

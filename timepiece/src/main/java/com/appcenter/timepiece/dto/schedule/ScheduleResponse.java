@@ -6,7 +6,9 @@ import java.time.LocalDateTime;
 
 @Getter
 public class ScheduleResponse {
+
     private LocalDateTime startTime;
+
     private LocalDateTime endTime;
 
     public ScheduleResponse(LocalDateTime startTime, LocalDateTime endTime) {
