@@ -1,12 +1,13 @@
 package com.appcenter.timepiece.dto.schedule;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ScheduleCreateUpdateRequest {
 
     private Long projectId;
