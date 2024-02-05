@@ -8,6 +8,7 @@ import java.util.List;
 public class ScheduleDayResponse {
 
     private String daysOfWeek;
+
     private List<ScheduleResponse> schedule;
 
     public ScheduleDayResponse(String daysOfWeek, List<ScheduleResponse> schedule) {
