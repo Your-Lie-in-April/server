@@ -3,9 +3,11 @@ package com.appcenter.timepiece.domain;
 import com.appcenter.timepiece.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.management.relation.Role;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +20,8 @@ public class Member extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String provider;
+
     @Column(nullable = false)
     private String nickname;
 
@@ -29,7 +33,21 @@ public class Member extends BaseTimeEntity {
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(nullable = false)
+    private List<String> role;
+
     @OneToMany(mappedBy = "member")
     private List<MemberProject> memberProjects = new ArrayList<>();
+
+    @Builder
+    public Member(String provider, String nickname, String email, String state, String profileImageUrl, List<String> role){
+        this.provider = provider;
+        this.nickname = nickname;
+        this.email = email;
+        this.state = state;
+        this.profileImageUrl = profileImageUrl;
+        this.role = role;
+    }
 
 }
