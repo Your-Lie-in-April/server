@@ -22,6 +22,8 @@ repositories {
 }
 
 dependencies {
+
+
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -29,7 +31,14 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+	//데이터베이스 : mysql 사용
 	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	//oauth2 관련 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+	//security 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 }
 
 tasks.named('test') {
