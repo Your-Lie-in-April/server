@@ -39,6 +39,14 @@ dependencies {
 
 	//security 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	//redis 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.3.1.RELEASE'
+
+	//jwt 토큰 의존성
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
 }
 
 tasks.named('test') {

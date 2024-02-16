@@ -101,7 +101,7 @@ public class OAuth2Service {
 
         role.add("ROLE_USER");
 
-        if(!(member.isPresent())){
+        if(!member.isPresent()){
 
             Member registerMember = Member.builder()
                     .role(role)
@@ -113,6 +113,7 @@ public class OAuth2Service {
                     .build();
 
             memberRepository.save(registerMember);
+
         }
 
 
