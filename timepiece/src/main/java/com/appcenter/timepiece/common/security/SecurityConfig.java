@@ -1,7 +1,7 @@
 package com.appcenter.timepiece.common.security;
 
-import com.appcenter.timepiece.common.ex.MyAccessDeniedHandler;
-import com.appcenter.timepiece.common.ex.MyAuthenticationEntryPoint;
+import com.appcenter.timepiece.service.CustomOAuth2UserService;
+import com.appcenter.timepiece.service.OAuth2Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +21,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final CustomOAuth2UserService oAuth2UserService;
+    private final OAuth2SuccessHandler successHandler;
+    private final TokenService tokenService;
+
     @Bean
     protected SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception{
         httpSecurity.httpBasic((basic)->
@@ -32,10 +36,17 @@ public class SecurityConfig {
                 sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        httpSecurity.authorizeHttpRequests(authorize -> authorize.requestMatchers("/user/**").authenticated()
+        httpSecurity.authorizeHttpRequests(authorize -> authorize.requestMatchers("/members/**").authenticated()
                 .requestMatchers("/v1/oauth2/**").permitAll()
                 .requestMatchers("/admin/**")
                 .hasAnyRole("ADMIN").anyRequest().permitAll());
+
+        httpSecurity.oauth2Login(httpSecurityOAuth2LoginConfigurer -> httpSecurityOAuth2LoginConfigurer
+                .successHandler(successHandler)
+                .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig.userService(oAuth2UserService)));
+
+        httpSecurity.addFilterBefore(new JwtAuthFilter(tokenService), UsernamePasswordAuthenticationFilter.class);
+
 
         return httpSecurity.build();
     }

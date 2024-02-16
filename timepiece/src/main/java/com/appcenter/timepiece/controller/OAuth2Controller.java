@@ -1,5 +1,8 @@
 package com.appcenter.timepiece.controller;
 
+
+import com.appcenter.timepiece.common.security.Token;
+import com.appcenter.timepiece.common.security.TokenService;
 import com.appcenter.timepiece.dto.CommonResponseDto;
 import com.appcenter.timepiece.dto.member.GoogleOAuthRequest;
 import com.appcenter.timepiece.dto.member.GoogleOAuthResponse;
@@ -26,10 +29,12 @@ public class OAuth2Controller {
 
     OAuth2Service oAuth2Service;
 
+    TokenService tokenService;
 
     @Autowired
-    public OAuth2Controller(OAuth2Service oAuth2Service){
+    public OAuth2Controller(OAuth2Service oAuth2Service, TokenService tokenService){
         this.oAuth2Service = oAuth2Service;
+        this.tokenService = tokenService;
     }
 
     @GetMapping(value = "/login/getGoogleAuthUrl")
@@ -47,5 +52,28 @@ public class OAuth2Controller {
 
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, " 성공", oAuth2Service.getGoogleInfo(authCode)));
 
+    }
+
+    @GetMapping("/token/expired")
+    public String auth() {
+        throw new RuntimeException();
+    }
+
+    @GetMapping("/token/refresh")
+    public String refreshAuth(HttpServletRequest request, HttpServletResponse response) {
+        String token = request.getHeader("Refresh");
+
+        if (token != null && tokenService.verifyToken(token)) {
+            String email = tokenService.getUid(token);
+            Token newToken = tokenService.generateToken(email, "USER");
+
+            response.addHeader("Auth", newToken.getToken());
+            response.addHeader("Refresh", newToken.getRefreshToken());
+            response.setContentType("application/json;charset=UTF-8");
+
+            return "HAPPY NEW TOKEN";
+        }
+
+        throw new RuntimeException();
     }
 }
