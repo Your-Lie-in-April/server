@@ -8,11 +8,11 @@ import lombok.ToString;
 @NoArgsConstructor
 @Getter
 public class Token {
-    private String token;
+    private String accessToken;
     private String refreshToken;
 
-    public Token(String token, String refreshToken) {
-        this.token = token;
+    public Token(String accessToken, String refreshToken) {
+        this.accessToken = accessToken;
         this.refreshToken = refreshToken;
     }
 }

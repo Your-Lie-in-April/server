@@ -1,6 +1,9 @@
 package com.appcenter.timepiece.common.security;
 
+import com.appcenter.timepiece.domain.Member;
 import com.appcenter.timepiece.dto.TokenDto;
+import com.appcenter.timepiece.repository.MemberRepository;
+import com.appcenter.timepiece.service.CustomOAuth2UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,24 +16,48 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
 @Component
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final TokenService tokenService;
-    private final MemberRequestMapper memberRequestMapper;
+
     private final ObjectMapper objectMapper;
+    private final MemberRepository memberRepository;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {
+
+        log.info("[onAuthenticationSuccess] 회원가입 로직 시작");
         OAuth2User oAuth2User = (OAuth2User)authentication.getPrincipal();
-        TokenDto userDto = memberRequestMapper.toDto(oAuth2User);
 
-        // 최초 로그인이라면 회원가입 처리를 한다.
+        Optional<Member> member = memberRepository.findByEmail(oAuth2User.getAttributes().get("email").toString());
+        List<String> role = new ArrayList<>();
 
-        Token token = tokenService.generateToken(userDto.getEmail(), "USER");
+        role.add("ROLE_USER");
+
+        if(!member.isPresent()){
+
+            Member registerMember = Member.builder()
+                    .role(role)
+                    .provider("Google")
+                    .nickname(String.valueOf(oAuth2User.getAttributes().get("name")))
+                    .profileImageUrl(String.valueOf(oAuth2User.getAttributes().get("picture")))
+                    .state("")
+                    .email(String.valueOf(oAuth2User.getAttributes().get("email")))
+                    .build();
+
+            memberRepository.save(registerMember);
+
+        }
+
+        Token token = tokenService.generateToken(oAuth2User.getAttributes().get("email").toString(), "USER");
         log.info("{}", token);
 
         writeTokenResponse(response, token);
@@ -40,8 +67,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             throws IOException {
         response.setContentType("text/html;charset=UTF-8");
 
-        response.addHeader("Auth", token.getToken());
+        response.addHeader("Access", token.getAccessToken());
         response.addHeader("Refresh", token.getRefreshToken());
+
+        log.info("access token: {}", token.getAccessToken());
+        log.info("Refresh token: {}", token.getRefreshToken());
+
         response.setContentType("application/json;charset=UTF-8");
 
         var writer = response.getWriter();
