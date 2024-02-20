@@ -1,6 +1,9 @@
 package com.appcenter.timepiece.service;
 
+import com.appcenter.timepiece.domain.MemberProject;
 import com.appcenter.timepiece.dto.project.ProjectResponse;
+import com.appcenter.timepiece.dto.project.ProjectThumbnailResponse;
+import com.appcenter.timepiece.repository.MemberProjectRepository;
 import com.appcenter.timepiece.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,8 +15,20 @@ import java.util.List;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final MemberProjectRepository memberProjectRepository;
 
     public List<ProjectResponse> findAll() {
-        return projectRepository.findAllWithCover().stream().map(e -> ProjectResponse.from(e, e.getCover().getCoverImageUrl())).toList();
+        return projectRepository.findAllWithCover().stream().map(e ->
+                ProjectResponse.from(e, e.getCover().getCoverImageUrl())).toList();
+    }
+
+    /**
+     *
+     * @param memberId 자동생성되는 멤버 식별자(PK)
+     * @return 메인페이지에 나타나는 프로젝트 썸네일 정보를 담은 dto 리스트를 리턴합니다.
+     */
+    public List<ProjectThumbnailResponse> findProjects(Long memberId) {
+        return memberProjectRepository.findByMemberId(memberId).stream().map(MemberProject::getProject)
+                .map(e -> ProjectThumbnailResponse.from(e, e.getCover().getCoverImageUrl())).toList();
     }
 }
