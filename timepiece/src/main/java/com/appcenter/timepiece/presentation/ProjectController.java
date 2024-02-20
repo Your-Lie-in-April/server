@@ -49,9 +49,20 @@ public class ProjectController {
                 projectService.findMembers(projectId)));
     }
 
+    // todo: 리턴값이 Void인 경우 CommonResponse를 어떻게 사용할 것인가?
     @PostMapping("/v1/projects")
     public ResponseEntity<Void> createProject(@RequestBody ProjectCreateUpdateRequest request) {
         projectService.createProject(request);
         return ResponseEntity.accepted().build();
     }
+
+    // todo: Security와 통합, 요청자가 프로젝트 소유자인지 확인하는 로직 필요. 프로젝트 엔티티에 owner 속성 추가
+    /*
+    @DeleteMapping("/v1/projects/{projectId}")
+    public ResponseEntity<Void> createProject(@PathVariable Long projectId,
+                                              @AuthenticationPrinciple CustomUserDetails customUserDetails) {
+        projectService.deleteProject(projectId, customUserDetails);
+        return ResponseEntity.noContent().build();
+    }
+     */
 }
