@@ -37,5 +37,17 @@ public class ProjectController {
                 projectService.findPinProjects(memberId)));
     }
 
+    @GetMapping("/v1/projects/members/{memberId}/{keyword}")
+    public ResponseEntity<CommonResponse<?>> searchProjects(@PathVariable Long memberId,
+                                                            @PathVariable String keyword) {
+        return ResponseEntity.ok().body(new CommonResponse<>("SUCCESS", "",
+                projectService.searchProjects(memberId, keyword)));
+    }
 
+    // todo: 해당 기능은 Project가 아닌 Member의 책임이 아닐까?
+    @GetMapping("/v1/projects/{projectId}/members")
+    public ResponseEntity<CommonResponse<?>> findMembersInProject(@PathVariable Long projectId) {
+        return ResponseEntity.ok().body(new CommonResponse<>("SUCCESS", "",
+                projectService.findMembers(projectId)));
+    }
 }
