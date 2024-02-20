@@ -10,4 +10,6 @@ import java.util.List;
 public interface MemberProjectRepository extends JpaRepository<MemberProject, Long> {
 
     List<MemberProject> findByMemberId(Long memberId);
+
+    List<MemberProject> findByMemberIdAndIsPinnedIsTrue(Long memberId);
 }

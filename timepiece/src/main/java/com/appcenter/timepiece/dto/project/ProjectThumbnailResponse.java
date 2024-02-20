@@ -28,7 +28,7 @@ public class ProjectThumbnailResponse {
         this.coverImageUrl = coverImageUrl;
     }
 
-    public static ProjectThumbnailResponse from(Project project, String coverImageUrl) {
+    public static ProjectThumbnailResponse of(Project project, String coverImageUrl) {
         return ProjectThumbnailResponse.builder()
                 .projectId(project.getId())
                 .title(project.getTitle())

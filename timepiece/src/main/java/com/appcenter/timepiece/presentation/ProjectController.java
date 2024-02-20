@@ -30,4 +30,12 @@ public class ProjectController {
         return ResponseEntity.ok().body(new CommonResponse<>("SUCCESS", "",
                 projectService.findProjects(memberId)));
     }
+
+    @GetMapping("/v1/projects/members/{memberId}/pin")
+    public ResponseEntity<CommonResponse<?>> findPinProjects(@PathVariable Long memberId) {
+        return ResponseEntity.ok().body(new CommonResponse<>("SUCCESS", "",
+                projectService.findPinProjects(memberId)));
+    }
+
+
 }
