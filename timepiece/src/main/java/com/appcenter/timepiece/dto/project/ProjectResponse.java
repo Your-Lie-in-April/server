@@ -71,7 +71,7 @@ public class ProjectResponse {
         this.color = color;
     }
 
-    public static ProjectResponse from(Project project, String coverImageUrl) {
+    public static ProjectResponse of(Project project, String coverImageUrl) {
         return ProjectResponse.builder()
                 .projectId(project.getId())
                 .title(project.getTitle())
