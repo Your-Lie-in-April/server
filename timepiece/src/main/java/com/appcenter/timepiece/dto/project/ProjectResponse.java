@@ -1,5 +1,7 @@
 package com.appcenter.timepiece.dto.project;
 
+import com.appcenter.timepiece.domain.Project;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -43,7 +45,7 @@ public class ProjectResponse {
 
     private String color;
 
-    @Builder
+    @Builder(access = AccessLevel.PRIVATE)
     private ProjectResponse(String projectId, String title, String description,
                             LocalDate startDate, LocalDate endDate,
                             LocalTime startTime, LocalTime endTime,
@@ -67,5 +69,27 @@ public class ProjectResponse {
         this.isStored = isStored;
         this.coverImageUrl = coverImageUrl;
         this.color = color;
+    }
+
+    public static ProjectResponse from(Project project, String coverImageUrl) {
+        return ProjectResponse.builder()
+                .projectId(project.getId())
+                .title(project.getTitle())
+                .description(project.getDescription())
+                .startDate(project.getStartDate())
+                .endDate(project.getEndDate())
+                .startTime(project.getStartTime())
+                .endTime(project.getEndTime())
+                .mon(project.getMon())
+                .tue(project.getTue())
+                .wed(project.getWed())
+                .thu(project.getThu())
+                .fri(project.getFri())
+                .sat(project.getSat())
+                .sun(project.getSun())
+                .isStored(project.getIsStored())
+                .coverImageUrl(coverImageUrl)
+                .color(project.getColor())
+                .build();
     }
 }
