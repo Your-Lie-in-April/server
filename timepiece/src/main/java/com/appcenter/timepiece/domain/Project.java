@@ -1,8 +1,10 @@
 package com.appcenter.timepiece.domain;
 
 import com.appcenter.timepiece.common.BaseTimeEntity;
+import com.appcenter.timepiece.dto.project.ProjectCreateUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -58,5 +60,45 @@ public class Project extends BaseTimeEntity {
     private Cover cover;
 
     private String color;
+
+    @Builder(access = AccessLevel.PRIVATE)
+    private Project(String title, String description,
+                   LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime,
+                   Boolean mon, Boolean tue, Boolean wed, Boolean thu, Boolean fri, Boolean sat, Boolean sun,
+                   Boolean isStored, List<MemberProject> memberProjects, List<Invitation> invitations,
+                   Cover cover, String color) {
+        this.title = title;
+        this.description = description;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.mon = mon;
+        this.tue = tue;
+        this.wed = wed;
+        this.thu = thu;
+        this.fri = fri;
+        this.sat = sat;
+        this.sun = sun;
+        this.isStored = isStored;
+        this.memberProjects = memberProjects;
+        this.invitations = invitations;
+        this.cover = cover;
+        this.color = color;
+    }
+
+    public static Project of(ProjectCreateUpdateRequest request, Cover cover) {
+        return Project.builder()
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .startDate(request.getStartDate()).endDate(request.getEndDate())
+                .startTime(request.getStartTime()).endTime(request.getEndTime())
+                .mon(request.getMon()).tue(request.getTue()).wed(request.getWed())
+                .thu(request.getThu()).fri(request.getFri()).sat(request.getSat()).sun(request.getSun())
+                .isStored(request.getIsStored())
+                .color(request.getColor())
+                .cover(cover)
+                .build();
+    }
 
 }

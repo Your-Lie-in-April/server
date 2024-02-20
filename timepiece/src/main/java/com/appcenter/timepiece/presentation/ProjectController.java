@@ -1,13 +1,11 @@
 package com.appcenter.timepiece.presentation;
 
 import com.appcenter.timepiece.common.dto.CommonResponse;
+import com.appcenter.timepiece.dto.project.ProjectCreateUpdateRequest;
 import com.appcenter.timepiece.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("")
 @RestController
@@ -49,5 +47,11 @@ public class ProjectController {
     public ResponseEntity<CommonResponse<?>> findMembersInProject(@PathVariable Long projectId) {
         return ResponseEntity.ok().body(new CommonResponse<>("SUCCESS", "",
                 projectService.findMembers(projectId)));
+    }
+
+    @PostMapping("/v1/projects")
+    public ResponseEntity<Void> createProject(@RequestBody ProjectCreateUpdateRequest request) {
+        projectService.createProject(request);
+        return ResponseEntity.accepted().build();
     }
 }

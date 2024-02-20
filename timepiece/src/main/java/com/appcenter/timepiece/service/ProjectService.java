@@ -1,11 +1,14 @@
 package com.appcenter.timepiece.service;
 
+import com.appcenter.timepiece.domain.Cover;
 import com.appcenter.timepiece.domain.MemberProject;
 import com.appcenter.timepiece.domain.Project;
 import com.appcenter.timepiece.dto.member.MemberResponse;
 import com.appcenter.timepiece.dto.project.PinProjectResponse;
+import com.appcenter.timepiece.dto.project.ProjectCreateUpdateRequest;
 import com.appcenter.timepiece.dto.project.ProjectResponse;
 import com.appcenter.timepiece.dto.project.ProjectThumbnailResponse;
+import com.appcenter.timepiece.repository.CoverRepository;
 import com.appcenter.timepiece.repository.MemberProjectRepository;
 import com.appcenter.timepiece.repository.ProjectRepository;
 import jakarta.transaction.Transactional;
@@ -21,6 +24,7 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final MemberProjectRepository memberProjectRepository;
+    private final CoverRepository coverRepository;
 
     public List<ProjectResponse> findAll() {
         return projectRepository.findAllWithCover().stream().map(p ->
@@ -59,5 +63,11 @@ public class ProjectService {
     public List<MemberResponse> findMembers(Long projectId) {
         return memberProjectRepository.findByProjectId(projectId).stream().map(MemberProject::getMember)
                 .map(MemberResponse::from).toList();
+    }
+
+    public void createProject(ProjectCreateUpdateRequest request) {
+        Cover cover = coverRepository.findById(request.getCoverId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 커버이미지입니다."));
+        projectRepository.save(Project.of(request, cover));
     }
 }
