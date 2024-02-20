@@ -65,4 +65,11 @@ public class ProjectController {
         return ResponseEntity.noContent().build();
     }
      */
+
+    @PutMapping("/v1/projects/{projectId}")
+    public ResponseEntity<Void> updateProject(@PathVariable Long projectId,
+                                              @RequestBody ProjectCreateUpdateRequest request) {
+        projectService.updateProject(projectId, request);
+        return ResponseEntity.ok().build();
+    }
 }

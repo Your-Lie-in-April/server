@@ -11,6 +11,7 @@ import com.appcenter.timepiece.dto.project.ProjectThumbnailResponse;
 import com.appcenter.timepiece.repository.CoverRepository;
 import com.appcenter.timepiece.repository.MemberProjectRepository;
 import com.appcenter.timepiece.repository.ProjectRepository;
+import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -82,5 +83,14 @@ public class ProjectService {
             }
             throw new AccessDeniedException("프로젝트 소유자가 아닙니다.");
         }
+    }
+
+    @Transactional
+    public void updateProject(Long projectId, ProjectCreateUpdateRequest request) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalStateException("존재하지 않는 프로젝트입니다."));
+        Cover cover = coverRepository.findById(request.getCoverId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 커버이미지입니다."));
+        project.updateFrom(request, cover);
     }
 }
