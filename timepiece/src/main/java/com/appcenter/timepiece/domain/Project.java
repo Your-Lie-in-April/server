@@ -101,4 +101,21 @@ public class Project extends BaseTimeEntity {
                 .build();
     }
 
+    public void updateFrom(ProjectCreateUpdateRequest request, Cover cover) {
+        this.title = request.getTitle();
+        this.description = request.getDescription();
+        this.startDate = request.getStartDate();
+        this.endDate = request.getEndDate();
+        this.startTime = request.getStartTime();
+        this.endTime = request.getEndTime();
+        this.mon = request.getMon();
+        this.tue = request.getTue();
+        this.wed = request.getWed();
+        this.thu = request.getThu();
+        this.fri = request.getFri();
+        this.sat = request.getSat();
+        this.sun = request.getSun();
+        this.color = request.getColor();
+        this.cover = cover;
+    }
 }
