@@ -5,6 +5,7 @@ import com.appcenter.timepiece.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,5 +23,11 @@ public class ProjectController {
     @GetMapping("/v1/projects/all")
     public ResponseEntity<CommonResponse<?>> findAllForTest() {
         return ResponseEntity.ok().body(new CommonResponse<>("SUCCESS", "", projectService.findAll()));
+    }
+
+    @GetMapping("/v1/projects/members/{memberId}")
+    public ResponseEntity<CommonResponse<?>> findProjects(@PathVariable Long memberId) {
+        return ResponseEntity.ok().body(new CommonResponse<>("SUCCESS", "",
+                projectService.findProjects(memberId)));
     }
 }
