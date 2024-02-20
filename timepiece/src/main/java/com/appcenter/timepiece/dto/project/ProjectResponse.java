@@ -11,7 +11,7 @@ import java.time.LocalTime;
 @Getter
 public class ProjectResponse {
 
-    private String projectId;
+    private Long projectId;
 
     private String title;
 
@@ -46,7 +46,7 @@ public class ProjectResponse {
     private String color;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private ProjectResponse(String projectId, String title, String description,
+    private ProjectResponse(Long projectId, String title, String description,
                             LocalDate startDate, LocalDate endDate,
                             LocalTime startTime, LocalTime endTime,
                             Boolean mon, Boolean tue, Boolean wed, Boolean thu, Boolean fri,
