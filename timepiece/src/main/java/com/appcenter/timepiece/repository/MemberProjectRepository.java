@@ -9,7 +9,10 @@ import java.util.List;
 @Repository
 public interface MemberProjectRepository extends JpaRepository<MemberProject, Long> {
 
+    List<MemberProject> findByProjectId(Long projectId);
+
     List<MemberProject> findByMemberId(Long memberId);
 
     List<MemberProject> findByMemberIdAndIsPinnedIsTrue(Long memberId);
+
 }

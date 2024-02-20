@@ -2,6 +2,7 @@ package com.appcenter.timepiece.service;
 
 import com.appcenter.timepiece.domain.MemberProject;
 import com.appcenter.timepiece.domain.Project;
+import com.appcenter.timepiece.dto.member.MemberResponse;
 import com.appcenter.timepiece.dto.project.PinProjectResponse;
 import com.appcenter.timepiece.dto.project.ProjectResponse;
 import com.appcenter.timepiece.dto.project.ProjectThumbnailResponse;
@@ -44,8 +45,19 @@ public class ProjectService {
         for (MemberProject mp: memberProject) {
             Project project = mp.getProject();
             // todo: List<ScheduleWeekResponse>를 생성하는 로직 작성
-            pinProjectResponses.add(PinProjectResponse.of(project, project.get, scheduleService.getSchedule()));
+//            pinProjectResponses.add(PinProjectResponse.of(project, project.get, scheduleService.getSchedule()));
         }
         return pinProjectResponses;
+    }
+
+    // todo: Q.반환 타입이 ProjectResponse가 아닌 썸네일이 되야하지 않을까?
+    public List<ProjectThumbnailResponse> searchProjects(Long memberId, String keyword) {
+        return projectRepository.findProjectByMemberIdAndTitleLikeKeyword(memberId, keyword)
+                .stream().map(p -> ProjectThumbnailResponse.of(p, p.getCover().getCoverImageUrl())).toList();
+    }
+
+    public List<MemberResponse> findMembers(Long projectId) {
+        return memberProjectRepository.findByProjectId(projectId).stream().map(MemberProject::getMember)
+                .map(MemberResponse::from).toList();
     }
 }
