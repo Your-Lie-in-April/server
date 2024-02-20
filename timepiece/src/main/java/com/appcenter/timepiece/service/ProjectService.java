@@ -15,8 +15,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -69,5 +71,16 @@ public class ProjectService {
         Cover cover = coverRepository.findById(request.getCoverId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 커버이미지입니다."));
         projectRepository.save(Project.of(request, cover));
+    }
+
+    public void deleteProject(Long projectId, CustomUserDetails userDetails) throws AccessDeniedException {
+        Optional<Project> maybeProject = projectRepository.findById(projectId);
+        if (maybeProject.isPresent()) {
+            Project project = maybeProject.get();
+            if (project.getOwner() == userDetails.getUser()) {
+                projectRepository.delete(project);
+            }
+            throw new AccessDeniedException("프로젝트 소유자가 아닙니다.");
+        }
     }
 }
