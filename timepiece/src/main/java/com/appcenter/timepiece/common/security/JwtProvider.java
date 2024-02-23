@@ -48,11 +48,6 @@ public class JwtProvider {
         refreshTokenRepository.save(new RefreshToken(Id, refreshToken));
     }
 
-//    @Transactional
-//    public void removeRefreshToken(Long memberId) {
-//        refreshTokenRepository.findByMemberId(memberId)
-//                .ifPresent(refreshToken -> refreshTokenRepository.delete(refreshToken));
-//    }
 
     public String createRefreshToken(Long id, String email,  List<String> roles) {
         Claims claims = Jwts

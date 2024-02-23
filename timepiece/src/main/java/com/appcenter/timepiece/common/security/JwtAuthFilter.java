@@ -1,5 +1,6 @@
 package com.appcenter.timepiece.common.security;
 
+import com.appcenter.timepiece.common.exception.TokenExpiredException;
 import com.appcenter.timepiece.common.redis.RefreshTokenRepository;
 import com.appcenter.timepiece.domain.Member;
 import com.appcenter.timepiece.repository.MemberRepository;
@@ -47,7 +48,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             log.info("[doFilterInternal] 토큰 값 검증 완료");
         }
         else{
-            new RuntimeException("[doFilterInternal] 토큰의 기한이 만료되었습니다.");
+            new TokenExpiredException("[doFilterInternal] 토큰의 기한이 만료되었습니다.");
         }
 
         filterChain.doFilter(servletRequest, servletResponse);

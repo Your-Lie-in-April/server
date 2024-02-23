@@ -1,4 +1,4 @@
-package com.appcenter.timepiece.common;
+package com.appcenter.timepiece.common.exception;
 
 import com.appcenter.timepiece.dto.CommonResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
