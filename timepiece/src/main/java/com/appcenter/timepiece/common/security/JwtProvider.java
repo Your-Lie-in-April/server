@@ -64,7 +64,7 @@ public class JwtProvider {
                 .builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + 1000L * 60 * 30))//유효시간
+                .setExpiration(new Date(now.getTime() + 1000L * 60 * 1))//유효시간
                 .signWith(SignatureAlgorithm.HS256, secretKey) //HS256알고리즘으로 key를 암호화 해줄것이다.
                 .compact();
     }

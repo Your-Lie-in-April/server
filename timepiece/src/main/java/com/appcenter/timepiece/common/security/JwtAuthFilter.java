@@ -47,7 +47,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             log.info("[doFilterInternal] 토큰 값 검증 완료");
         }
         else{
-            new RuntimeException("[doFilterInternal 토큰의 기한이 만료되었습니다.");
+            new RuntimeException("[doFilterInternal] 토큰의 기한이 만료되었습니다.");
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
