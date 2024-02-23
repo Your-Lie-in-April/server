@@ -1,7 +1,7 @@
 package com.appcenter.timepiece.common.security;
 
-import com.appcenter.timepiece.common.MemberAccessDeniedException;
-import com.appcenter.timepiece.common.MemberEntryPointException;
+import com.appcenter.timepiece.common.exception.MemberAccessDeniedException;
+import com.appcenter.timepiece.common.exception.MemberEntryPointException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

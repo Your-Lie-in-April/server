@@ -1,5 +1,7 @@
 package com.appcenter.timepiece.service;
 
+import com.appcenter.timepiece.common.exception.TokenCreateException;
+import com.appcenter.timepiece.common.exception.TokenExpiredException;
 import com.appcenter.timepiece.common.redis.RefreshToken;
 import com.appcenter.timepiece.common.redis.RefreshTokenRepository;
 import com.appcenter.timepiece.common.security.JwtProvider;
@@ -104,7 +106,7 @@ public class OAuth2Service {
 
         OAuthMemberResponse oAuthMemberResponse = objectMapper.readValue(resultJson, OAuthMemberResponse.class);
 
-
+        //로그인한 사람이 가입 이력이 있는지 DB 에서 찾아본다.
         Optional<Member> member = memberRepository.findByEmail(oAuthMemberResponse.getEmail());
         List<String> role = new ArrayList<>();
 
@@ -171,9 +173,9 @@ public class OAuth2Service {
         if(!(jwtProvider.validateToken(jwtProvider.resolveRefreshToken(request)))){
             log.error("[reissueAccessToken] 토큰의 기한이 만료되었습니다. 재로그인 해주세요.");
             refreshTokenRepository.delete(refreshToken);
-            new RuntimeException("토큰의 기한이 만료되었습니다. 재로그인 해주세요.");
+            new TokenExpiredException("토큰의 기한이 만료되었습니다. 재로그인 해주세요.");
         }
-
+        //refreshToken 의 유효 시간과, Header 에 담겨 온 RefreshToken 과 redis 에 저장되어있는 RefreshToken 과 일치하는지 비교한다.
         if(refreshToken.getRefreshToken().equals(jwtProvider.resolveRefreshToken(request))){
             String accessToken = jwtProvider.createAccessToken(memberId, member.getEmail(), member.getRole());
             log.info("[reissueAccessToken] accessToken 새로 발급 성공: {}", accessToken);
@@ -183,12 +185,12 @@ public class OAuth2Service {
             tokens.put("Access", accessToken);
             tokens.put("Refresh", newRefreshToken);
 
-            //redis에 토큰 저장
+            //redis 에 토큰 저장
             refreshTokenRepository.save(new RefreshToken(memberId, newRefreshToken));
 
         }
         else{
-            new RuntimeException("accessToken 제작 실패");
+            new TokenCreateException("accessToken 제작 실패");
         }
         return tokens;
     }
