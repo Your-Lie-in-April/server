@@ -11,6 +11,7 @@ import com.appcenter.timepiece.repository.MemberRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -21,9 +22,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -39,6 +38,8 @@ public class OAuth2Service {
     private final MemberRepository memberRepository;
 
     private final RefreshTokenRepository refreshTokenRepository;
+
+
     private String googleAuthUrl = "https://oauth2.googleapis.com";
 
     private String googleLoginUrl = "https://accounts.google.com";
@@ -72,7 +73,7 @@ public class OAuth2Service {
         return headers;
     }
 
-    public String getGoogleInfo(String authCode) throws JsonProcessingException {
+    public Map<String, String> getGoogleInfo(String authCode) throws JsonProcessingException {
 
         GoogleOAuthRequest googleOAuthRequest = GoogleOAuthRequest
                 .builder()
@@ -108,7 +109,9 @@ public class OAuth2Service {
         List<String> role = new ArrayList<>();
 
         role.add("ROLE_USER");
+        Map<String, String> tokens = new HashMap<>();
 
+        //만약 처음 로그인하는 사람이면 정보를 저장소에 저장해준다.
         if(!(member.isPresent())) {
 
             Member registerMember = Member.builder()
@@ -126,33 +129,68 @@ public class OAuth2Service {
 
             log.info("access: {}", accessToken);
             log.info("refresh: {}", refreshToken);
+            tokens.put("Access", accessToken);
+            tokens.put("Refresh", refreshToken);
 
-            //레디스에 Refresh 토큰을 저장한다. (사용자 기본키 Id, refresh 토큰, access 토큰 저장)
+            //레디스에 Refresh 토큰을 저장한다. (사용자 기본키 Id, refresh 토큰 저장)
             refreshTokenRepository.save(new RefreshToken(registerMember.getId(), refreshToken));
         }
 
+        //만약 로그인 한 전적이 있는 사람은 DB 에서 사용자 정보를 가져온다.
+        else{
+            Member serviceMember = memberRepository.getByEmail(String.valueOf(oAuthMemberResponse.getEmail()));
+            String accessToken = jwtProvider.createAccessToken(serviceMember.getId(),serviceMember.getEmail(), serviceMember.getRole());
+            String refreshToken = jwtProvider.createRefreshToken(serviceMember.getId(),serviceMember.getEmail(),serviceMember.getRole());
 
-        return resultJson;
+            log.info("access: {}", accessToken);
+            log.info("refresh: {}", refreshToken);
+            tokens.put("Access", accessToken);
+            tokens.put("Refresh", refreshToken);
+
+            //레디스에 Refresh 토큰을 저장한다. (사용자 기본키 Id, refresh 토큰 저장)
+            refreshTokenRepository.save(new RefreshToken(serviceMember.getId(), refreshToken));
+
+        }
+
+        return tokens;
 
     }
 
-    public String reissueAccessToken(HttpServletRequest request){
+    //accessToken 재발급과 동시에 refreshToken 도 새로 발급한다.(유효시간을 늘리기 위함.)
+    public Map<String, String> reissueAccessToken(HttpServletRequest request){
 
-        String accessToken = "";
+        Map<String, String> tokens = new HashMap<>();
+
         Long memberId = jwtProvider.getMemberId(jwtProvider.resolveRefreshToken(request));
         log.info("[reissueAccessToken] memberId 추출 성공. memberId = {}", memberId);
         Member member = memberRepository.findMemberById(memberId);
         log.info("[reissueAccessToken] member 찾기 성공. memberEmail = {}", member.getEmail());
 
-        if((refreshTokenRepository.findByMemberId(memberId)).getRefreshToken().equals(jwtProvider.resolveRefreshToken(request))){
-            accessToken = jwtProvider.createAccessToken(member.getId(), member.getEmail(), member.getRole());
-            log.info("[reissueAccessToken] accessToken 생성 성공: {}", accessToken);
+        final RefreshToken refreshToken = refreshTokenRepository.findByMemberId(memberId);
+
+        if(!(jwtProvider.validateToken(jwtProvider.resolveRefreshToken(request)))){
+            log.error("[reissueAccessToken] 토큰의 기한이 만료되었습니다. 재로그인 해주세요.");
+            refreshTokenRepository.delete(refreshToken);
+            new RuntimeException("토큰의 기한이 만료되었습니다. 재로그인 해주세요.");
+        }
+
+        if(refreshToken.getRefreshToken().equals(jwtProvider.resolveRefreshToken(request))){
+            String accessToken = jwtProvider.createAccessToken(memberId, member.getEmail(), member.getRole());
+            log.info("[reissueAccessToken] accessToken 새로 발급 성공: {}", accessToken);
+            String newRefreshToken = jwtProvider.createRefreshToken(memberId,member.getEmail(), member.getRole());
+            log.info("[reissueAccessToken] refreshToken 새로 발급 성공: {}", newRefreshToken);
+
+            tokens.put("Access", accessToken);
+            tokens.put("Refresh", newRefreshToken);
+
+            //redis에 토큰 저장
+            refreshTokenRepository.save(new RefreshToken(memberId, newRefreshToken));
+
         }
         else{
-            accessToken = null;
             new RuntimeException("accessToken 제작 실패");
         }
-        return accessToken;
+        return tokens;
     }
 
 
