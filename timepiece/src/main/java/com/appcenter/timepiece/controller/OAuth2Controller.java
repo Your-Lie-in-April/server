@@ -1,10 +1,8 @@
 package com.appcenter.timepiece.controller;
 
 
-import com.appcenter.timepiece.common.security.Token;
-import com.appcenter.timepiece.common.security.TokenService;
 import com.appcenter.timepiece.dto.CommonResponseDto;
-import com.appcenter.timepiece.service.CustomOAuth2UserService;
+import com.appcenter.timepiece.service.OAuth2Service;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -18,49 +16,38 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v1/oauth2")
 public class OAuth2Controller {
 
-    CustomOAuth2UserService customOAuth2UserService;
+    OAuth2Service oAuth2Service;
 
-    TokenService tokenService;
 
     @Autowired
-    public OAuth2Controller(CustomOAuth2UserService customOAuth2UserService, TokenService tokenService){
-        this.customOAuth2UserService = customOAuth2UserService;
-        this.tokenService = tokenService;
+    public OAuth2Controller(OAuth2Service oAuth2Service){
+        this.oAuth2Service = oAuth2Service;
     }
 
     @GetMapping(value = "/login/getGoogleAuthUrl")
     public ResponseEntity<?> getGoogleAuthUrl(HttpServletRequest request) throws Exception {
 
-       return new ResponseEntity<>(customOAuth2UserService.makeLoginURI(), HttpStatus.MOVED_PERMANENTLY);
+        return new ResponseEntity<>(oAuth2Service.makeLoginURI(), HttpStatus.MOVED_PERMANENTLY);
 
     }
 
     // 구글에서 리다이렉션
     @GetMapping(value = "/login/google")
-    public String sign(@RequestParam String code){
-        return "구글 로그인 리다이렉트, code: " + code;
+    public ResponseEntity<CommonResponseDto> sign(HttpServletRequest request,
+                                                  @RequestParam(value = "code") String authCode,
+                                                  HttpServletResponse response) throws Exception{
+
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, " 성공", oAuth2Service.getGoogleInfo(authCode)));
+
     }
 
-    @GetMapping("/token/expired")
-    public String auth() {
-        throw new RuntimeException();
+    @GetMapping(value = "/reissue")
+    public ResponseEntity<CommonResponseDto> reissueAccessToken(HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, " 성공", oAuth2Service.reissueAccessToken(request)));
     }
 
-    @GetMapping("/token/refresh")
-    public String refreshAuth(HttpServletRequest request, HttpServletResponse response) {
-        String token = request.getHeader("Refresh");
-
-        if (token != null && tokenService.verifyToken(token)) {
-            String email = tokenService.getUid(token);
-            Token newToken = tokenService.generateToken(email, "USER");
-
-            response.addHeader("Auth", newToken.getAccessToken());
-            response.addHeader("Refresh", newToken.getRefreshToken());
-            response.setContentType("application/json;charset=UTF-8");
-
-            return null;
-        }
-
-        throw new RuntimeException();
+    @GetMapping(value = "/test")
+    public ResponseEntity<CommonResponseDto> testApi(){
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, "테스트 성공", null));
     }
 }

@@ -50,4 +50,12 @@ public class Member extends BaseTimeEntity {
         this.role = role;
     }
 
+    public Member updateMember (String nickname, String profileImageUrl) {
+        this.nickname = nickname;
+        this.profileImageUrl = profileImageUrl;
+
+        return this;
+    }
+
+
 }
