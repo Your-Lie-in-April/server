@@ -13,9 +13,9 @@ import com.appcenter.timepiece.repository.MemberRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -30,9 +30,6 @@ import java.util.*;
 @Slf4j
 public class OAuth2Service {
 
-    private final Environment env;
-    private final RestTemplate restTemplate = new RestTemplate();
-
     private final JwtProvider jwtProvider;
 
     private ObjectMapper objectMapper;
@@ -46,15 +43,16 @@ public class OAuth2Service {
 
     private String googleLoginUrl = "https://accounts.google.com";
 
-    private String googleClientId = "1049946425106-ksl6upcn28epp3vvdoop92hnjr9do226.apps.googleusercontent.com";
-
     private String googleRedirectUrl = "http://localhost:8080/v1/oauth2/login/google";
 
-    private String googleClientSecret = "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";
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    private String googleClientId;
+
+    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
+    private String googleClientSecret;
 
     @Autowired
-    public OAuth2Service(RefreshTokenRepository refreshTokenRepository, JwtProvider jwtProvider , Environment env, MemberRepository memberRepository, ObjectMapper objectMapper){
-        this.env = env;
+    public OAuth2Service(RefreshTokenRepository refreshTokenRepository, JwtProvider jwtProvider ,MemberRepository memberRepository, ObjectMapper objectMapper){
         this.memberRepository = memberRepository;
         this.objectMapper = objectMapper;
         this.jwtProvider = jwtProvider;
@@ -64,10 +62,6 @@ public class OAuth2Service {
     public HttpHeaders makeLoginURI(){
         String reqUrl = googleLoginUrl + "/o/oauth2/v2/auth?client_id=" + googleClientId + "&redirect_uri=" + googleRedirectUrl
                 + "&response_type=code&scope=email%20profile%20openid&access_type=offline";
-
-        log.info("myLog-LoginUrl : {}",googleLoginUrl);
-        log.info("myLog-ClientId : {}",googleClientId);
-        log.info("myLog-RedirectUrl : {}",googleRedirectUrl);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(URI.create(reqUrl));
