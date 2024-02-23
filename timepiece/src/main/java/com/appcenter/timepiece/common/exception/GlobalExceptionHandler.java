@@ -21,13 +21,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = TokenCreateException.class)
     public ResponseEntity<CommonResponseDto> handleTokenCreateError(TokenCreateException ex) {
         log.error(ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CommonResponseDto(0, ex.getMessage(), null));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CommonResponseDto(0, ex.getMessage(), null));
     }
 
     @ExceptionHandler(value = TokenExpiredException.class)
     public ResponseEntity<CommonResponseDto> handleTokenExpiredError(TokenExpiredException ex) {
         log.error(ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CommonResponseDto(0, ex.getMessage(), null));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CommonResponseDto(0, ex.getMessage(), null));
     }
 
 }
