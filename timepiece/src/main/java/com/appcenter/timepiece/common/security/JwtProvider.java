@@ -1,5 +1,6 @@
 package com.appcenter.timepiece.common.security;
 
+import com.appcenter.timepiece.common.exception.TokenExpiredException;
 import com.appcenter.timepiece.common.redis.RefreshToken;
 import com.appcenter.timepiece.common.redis.RefreshTokenRepository;
 import io.jsonwebtoken.Jwts;
@@ -7,8 +8,9 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 
 
 import io.jsonwebtoken.Claims;
@@ -18,11 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Key;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
@@ -30,11 +29,20 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtProvider {
+
     private Key secretKey;
 
     private final RefreshTokenRepository refreshTokenRepository;
 
     private final CustomUserDetailsService customUserDetailsService;
+
+    @Value("${spring.jwt.refresh-token-valid-time}")
+    private Long refreshTokenValidTime;
+
+    @Value("${spring.jwt.access-token-valid-time}")
+    private Long accessTokenValidTime;
+
+
     @PostConstruct
     protected void init() {
         log.info("[init] 시크릿키 초기화 시작");
@@ -43,13 +51,14 @@ public class JwtProvider {
     }
 
 
-    @Transactional
+
     public void saveTokenInfo(Long Id, String refreshToken) {
         refreshTokenRepository.save(new RefreshToken(Id, refreshToken));
     }
 
 
-    public String createRefreshToken(Long id, String email,  List<String> roles) {
+
+    public String createRefreshToken(Long id, String email,  List<Role> roles) {
         Claims claims = Jwts
                 .claims().setSubject(email);
         claims.put("memberId", id);
@@ -59,12 +68,14 @@ public class JwtProvider {
                 .builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + 1000L * 60 * 1))//유효시간
+                .setExpiration(new Date(now.getTime() + refreshTokenValidTime))//유효시간
                 .signWith(SignatureAlgorithm.HS256, secretKey) //HS256알고리즘으로 key를 암호화 해줄것이다.
                 .compact();
     }
 
-    public String createAccessToken(Long id,String email, List<String> roles){
+
+
+    public String createAccessToken(Long id,String email, List<Role> roles){
         log.info("[createAccessToken] 토큰 생성 시작");
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("roles", roles);
@@ -74,7 +85,7 @@ public class JwtProvider {
         String token = Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + 1000L * 60 * 3))
+                .setExpiration(new Date(now.getTime() + accessTokenValidTime))
                 .signWith(SignatureAlgorithm.HS256, secretKey) // 암호화 알고리즘, secret 값 세팅
                 .compact();
 
@@ -93,38 +104,42 @@ public class JwtProvider {
                 userDetails.getAuthorities());
     }
 
-    public String getMemberEmail(String token) {
+
+
+    private String getMemberEmail(String token) {
         log.info("[getMemberEmail] 토큰 기반 회원 구별 정보 추출");
-        String info = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
-        log.info("[getMemberEmail] 토큰 기반 회원 구별 정보 추출 완료, info : {}", info);
-        return info;
+        String email = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+        log.info("[getMemberEmail] 토큰 기반 회원 구별 정보 추출 완료, info : {}", email);
+        return email;
     }
+
+
 
     public Long getMemberId(String token){
         log.info("[getUsername] 토큰 기반 회원 구별 정보 추출");
-        Long info = Long.valueOf(Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("memberId").toString());
-        log.info("[getUsername] 토큰 기반 회원 구별 정보 추출 완료, info : {}", info);
-        return info;
+        Long memberId = Long.valueOf(Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("memberId").toString());
+        log.info("[getUsername] 토큰 기반 회원 구별 정보 추출 완료, info : {}", memberId);
+        return memberId;
     }
 
-    public String resolveAccessToken(HttpServletRequest request) {
-        log.info("[resolveAccessToken] HTTP 헤더에서 AccessToken 값 추출");
-        return request.getHeader("Access");
-    }
 
-    public String resolveRefreshToken(HttpServletRequest request){
+
+    public String resolveToken(HttpServletRequest request){
         log.info("[resolveRefreshToken] HTTP 헤더에서 RefreshToken 값 추출");
-        return request.getHeader("Refresh");
+        return request.getHeader("Authorization");
     }
 
-    public boolean validateToken(String token) {
+
+
+    public boolean validDateToken(String token) {
         log.info("[validateToken] 토큰 유효 체크 시작");
-        try {
-            Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
-            log.info("[validateToken] 토큰 유효 체크 성공");
-            return !claims.getBody().getExpiration().before(new Date());
-        } catch (Exception e) {
-            log.info("[validateToken] 토큰 유효 체크 중 오류 발생");
+        Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+
+        if(!claims.getBody().getExpiration().before(new Date())){
+            log.info("[validDateToken] 토큰 유효성 체크 성공");
+            return true;
+        }
+        else{
             return false;
         }
     }

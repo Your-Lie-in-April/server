@@ -6,8 +6,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -15,29 +13,25 @@ import java.util.stream.Collectors;
 public class CustomUserDetails implements OAuth2User, UserDetails {
     private Long id;
     private String email;
-    private String password;
-    private Collection<? extends GrantedAuthority> authorities;
+    private List<? extends GrantedAuthority> authorities;
     private Map<String, Object> attributes;
 
-    public CustomUserDetails(Long id, String email, Collection<? extends GrantedAuthority> authorities) {
+    private CustomUserDetails(Long id, String email, List<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
         this.authorities = authorities;
     }
 
-    public static CustomUserDetails create(Member member) {
-        List<SimpleGrantedAuthority> authorities = member.getRole().stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+    public static CustomUserDetails of(Member member) {
+        List<SimpleGrantedAuthority> authorities = member.getRole().stream()
+                .map(role -> new SimpleGrantedAuthority(role.value()))
+                .collect(Collectors.toList());
 
         return new CustomUserDetails(member.getId(),
                 member.getEmail(),
                 authorities);
     }
 
-    public static CustomUserDetails create(Member member, Map<String, Object> attributes) {
-        CustomUserDetails userDetails = CustomUserDetails.create(member);
-        userDetails.setAttributes(attributes);
-        return userDetails;
-    }
 
     public Long getId() {
         return id;
@@ -46,7 +40,7 @@ public class CustomUserDetails implements OAuth2User, UserDetails {
     // UserDetail Override
     @Override
     public String getPassword() {
-        return password;
+        return " ";
     }
 
     @Override
@@ -76,7 +70,7 @@ public class CustomUserDetails implements OAuth2User, UserDetails {
 
     // OAuth2User Override
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public List<? extends GrantedAuthority> getAuthorities() {
         return authorities;
     }
 
@@ -90,8 +84,5 @@ public class CustomUserDetails implements OAuth2User, UserDetails {
         return String.valueOf(id);
     }
 
-    public void setAttributes(Map<String, Object> attributes) {
-        this.attributes = attributes;
-    }
 
 }

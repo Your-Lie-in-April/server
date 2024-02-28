@@ -37,18 +37,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         log.info("[doFilerInternal] access 토큰 얻어오기");
-        String accessToken = jwtProvider.resolveAccessToken(servletRequest);
+        String accessToken = jwtProvider.resolveToken(servletRequest);
         log.info("[doFilterInternal] access 토큰 얻어오기 성공");
 
         log.info("[doFilterInternal] accessToken = {}", accessToken);
 
-        if (accessToken != null && jwtProvider.validateToken(accessToken)) {
-            Authentication authentication = jwtProvider.getAuthentication(accessToken);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.info("[doFilterInternal] 토큰 값 검증 완료");
-        }
-        else{
-            new TokenExpiredException("[doFilterInternal] 토큰의 기한이 만료되었습니다.");
+        if (accessToken != null) {
+
+            if(jwtProvider.validDateToken(accessToken)){
+                Authentication authentication = jwtProvider.getAuthentication(accessToken);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                log.info("[doFilterInternal] 토큰 값 검증 완료");
+            }
+            else{
+                throw new TokenExpiredException("[doFilterInternal] 토큰의 기한이 만료되었습니다.");
+            } //사실 MemberEntryPointHandler 에서 expired 되었는지 확인해줘서 없어도 되지만... 혹시모르니까 로직 추가
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
