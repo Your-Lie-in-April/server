@@ -1,13 +1,14 @@
 package com.appcenter.timepiece.domain;
 
 import com.appcenter.timepiece.common.BaseTimeEntity;
+import com.appcenter.timepiece.common.security.Role;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.management.relation.Role;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,13 +36,13 @@ public class Member extends BaseTimeEntity {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(nullable = false)
-    private List<String> role;
+    private List<Role> role;
 
     @OneToMany(mappedBy = "member")
     private List<MemberProject> memberProjects = new ArrayList<>();
 
     @Builder
-    public Member(String provider, String nickname, String email, String state, String profileImageUrl, List<String> role){
+    public Member(String provider, String nickname, String email, String state, String profileImageUrl, List<Role> role){
         this.provider = provider;
         this.nickname = nickname;
         this.email = email;

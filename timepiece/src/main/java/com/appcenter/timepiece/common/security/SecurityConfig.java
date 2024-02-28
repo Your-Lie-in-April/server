@@ -1,7 +1,7 @@
 package com.appcenter.timepiece.common.security;
 
-import com.appcenter.timepiece.common.exception.MemberAccessDeniedException;
-import com.appcenter.timepiece.common.exception.MemberEntryPointException;
+import com.appcenter.timepiece.common.exception.MemberAccessDeniedHandler;
+import com.appcenter.timepiece.common.exception.MemberEntryPointHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +23,6 @@ public class SecurityConfig {
     private final JwtProvider jwtProvider;
 
 
-
     @Bean
     protected SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception{
         httpSecurity
@@ -40,12 +39,14 @@ public class SecurityConfig {
                         .requestMatchers("/v1/oauth2/test").hasRole("USER")
                 )
                 .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer
-                        .accessDeniedHandler(new MemberAccessDeniedException())
-                        .authenticationEntryPoint(new MemberEntryPointException())
+                        .accessDeniedHandler(new MemberAccessDeniedHandler())
+                        .authenticationEntryPoint(new MemberEntryPointHandler())
                 )
 
                 .addFilterBefore(new JwtAuthFilter(jwtProvider),
                         UsernamePasswordAuthenticationFilter.class);
+
+
 
 
         return httpSecurity.build();

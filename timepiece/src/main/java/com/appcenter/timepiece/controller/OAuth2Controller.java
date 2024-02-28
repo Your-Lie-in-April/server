@@ -5,27 +5,23 @@ import com.appcenter.timepiece.dto.CommonResponseDto;
 import com.appcenter.timepiece.service.OAuth2Service;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/v1/oauth2")
 public class OAuth2Controller {
 
-    OAuth2Service oAuth2Service;
+    private final OAuth2Service oAuth2Service;
 
-
-    @Autowired
-    public OAuth2Controller(OAuth2Service oAuth2Service){
-        this.oAuth2Service = oAuth2Service;
-    }
 
     @GetMapping(value = "/login/getGoogleAuthUrl")
-    public ResponseEntity<?> getGoogleAuthUrl(HttpServletRequest request) throws Exception {
+    public ResponseEntity<Void> getGoogleAuthUrl(HttpServletRequest request) throws Exception {
 
         return new ResponseEntity<>(oAuth2Service.makeLoginURI(), HttpStatus.MOVED_PERMANENTLY);
 
@@ -41,7 +37,7 @@ public class OAuth2Controller {
 
     }
 
-    @GetMapping(value = "/reissue")
+    @PostMapping(value = "/reissue")
     public ResponseEntity<CommonResponseDto> reissueAccessToken(HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, " 성공", oAuth2Service.reissueAccessToken(request)));
     }
