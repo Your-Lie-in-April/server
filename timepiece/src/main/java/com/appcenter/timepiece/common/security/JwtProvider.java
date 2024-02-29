@@ -21,7 +21,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
@@ -30,7 +32,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtProvider {
 
-    private Key secretKey;
+    @Value("${spring.jwt.secret}")
+    private String secretKey = "secretKey";
 
     private final RefreshTokenRepository refreshTokenRepository;
 
@@ -46,7 +49,7 @@ public class JwtProvider {
     @PostConstruct
     protected void init() {
         log.info("[init] 시크릿키 초기화 시작");
-        this.secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes(StandardCharsets.UTF_8));
         log.info("[init] 시크릿키 초기화 성공");
     }
 

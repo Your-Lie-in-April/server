@@ -40,7 +40,7 @@ public class CustomUserDetails implements OAuth2User, UserDetails {
     // UserDetail Override
     @Override
     public String getPassword() {
-        return " ";
+        return "";
     }
 
     @Override
