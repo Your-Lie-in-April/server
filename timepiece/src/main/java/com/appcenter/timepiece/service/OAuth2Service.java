@@ -1,6 +1,7 @@
 package com.appcenter.timepiece.service;
 
 import com.appcenter.timepiece.common.exception.FailedCreateTokenException;
+import com.appcenter.timepiece.common.exception.NotFoundMemberException;
 import com.appcenter.timepiece.common.exception.TokenExpiredException;
 import com.appcenter.timepiece.common.redis.RefreshToken;
 import com.appcenter.timepiece.common.redis.RefreshTokenRepository;
@@ -14,8 +15,8 @@ import com.appcenter.timepiece.repository.MemberRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 
@@ -28,6 +29,7 @@ import java.util.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class OAuth2Service {
 
     private final JwtProvider jwtProvider;
@@ -38,9 +40,9 @@ public class OAuth2Service {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
-    private final String googleAuthUrl = "https://oauth2.googleapis.com";
+    private String googleAuthUrl = "https://oauth2.googleapis.com";
 
-    private final String googleLoginUrl = "https://accounts.google.com";
+    private String googleLoginUrl = "https://accounts.google.com";
 
     @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String googleRedirectUrl;
@@ -51,13 +53,6 @@ public class OAuth2Service {
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String googleClientSecret;
 
-    @Autowired
-    public OAuth2Service(RefreshTokenRepository refreshTokenRepository, JwtProvider jwtProvider ,MemberRepository memberRepository, ObjectMapper objectMapper){
-        this.memberRepository = memberRepository;
-        this.objectMapper = objectMapper;
-        this.jwtProvider = jwtProvider;
-        this.refreshTokenRepository = refreshTokenRepository;
-    }
 
     public HttpHeaders makeLoginURI(){
         String reqUrl = googleLoginUrl + "/o/oauth2/v2/auth?client_id=" + googleClientId + "&redirect_uri=" + googleRedirectUrl
@@ -128,7 +123,7 @@ public class OAuth2Service {
         //만약 로그인 한 전적이 있는 사람은 DB 에서 사용자 정보를 가져온다.
         else{
             log.info("[getGoogleInfo] 이미 가입된 유저. 데이터베이스에서 사용자 정보 가져오기");
-            returnMember = memberRepository.getByEmail(oAuthMemberResponse.getEmail());
+            returnMember = member.get();
             log.info("[getGoogleInfo] 로그인 성공");
         }
 
@@ -156,10 +151,11 @@ public class OAuth2Service {
         Long memberId = jwtProvider.getMemberId(jwtProvider.resolveToken(request));
         log.info("[reissueAccessToken] memberId 추출 성공. memberId = {}", memberId);
 
-        Member member = memberRepository.findMemberById(memberId);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundMemberException("맴버를 찾을 수 없습니다."));
         log.info("[reissueAccessToken] member 찾기 성공. memberEmail = {}", member.getEmail());
 
-        final RefreshToken refreshToken = refreshTokenRepository.findByMemberId(memberId);
+        RefreshToken refreshToken = refreshTokenRepository.findByMemberId(memberId);
 
         if(!(jwtProvider.validDateToken(jwtProvider.resolveToken(request)))){
             log.error("[reissueAccessToken] 토큰의 기한이 만료되었습니다. 재로그인 해주세요.");
