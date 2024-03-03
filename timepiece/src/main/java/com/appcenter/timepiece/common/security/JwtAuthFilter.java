@@ -30,7 +30,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
 
-
     @Override
     protected void doFilterInternal(HttpServletRequest servletRequest,
                                     HttpServletResponse servletResponse,
@@ -43,15 +42,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         log.info("[doFilterInternal] accessToken = {}", accessToken);
 
         if (accessToken != null) {
-
-            if(jwtProvider.validDateToken(accessToken)){
+            try{
+                jwtProvider.validDateToken(accessToken);
                 Authentication authentication = jwtProvider.getAuthentication(accessToken);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 log.info("[doFilterInternal] 토큰 값 검증 완료");
             }
-            else{
-                throw new TokenExpiredException("[doFilterInternal] 토큰의 기한이 만료되었습니다.");
-            } //사실 MemberEntryPointHandler 에서 expired 되었는지 확인해줘서 없어도 되지만... 혹시모르니까 로직 추가
+            catch (Exception e){
+                servletRequest.setAttribute("exception", e);
+            }
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
