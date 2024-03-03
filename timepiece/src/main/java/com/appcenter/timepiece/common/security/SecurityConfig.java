@@ -1,7 +1,6 @@
 package com.appcenter.timepiece.common.security;
 
 import com.appcenter.timepiece.common.exception.MemberAccessDeniedHandler;
-import com.appcenter.timepiece.common.exception.MemberEntryPointHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,8 +10,10 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 
 
 @Configuration
@@ -21,6 +22,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
+
+    private final AuthenticationEntryPoint entryPoint;
+
 
 
     @Bean
@@ -38,14 +42,15 @@ public class SecurityConfig {
                         .requestMatchers("/v1/oauth2/reissue").permitAll()
                         .requestMatchers("/v1/oauth2/test").hasRole("USER")
                 )
-                .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer
-                        .accessDeniedHandler(new MemberAccessDeniedHandler())
-                        .authenticationEntryPoint(new MemberEntryPointHandler())
-                )
 
                 .addFilterBefore(new JwtAuthFilter(jwtProvider),
-                        UsernamePasswordAuthenticationFilter.class);
+                        UsernamePasswordAuthenticationFilter.class)
 
+                .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer
+                .authenticationEntryPoint(entryPoint)
+                .accessDeniedHandler(new MemberAccessDeniedHandler())
+
+                );
 
 
 

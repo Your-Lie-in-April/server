@@ -37,7 +37,7 @@ public class OAuth2Controller {
 
     }
 
-    @PostMapping(value = "/reissue")
+    @GetMapping(value = "/reissue")
     public ResponseEntity<CommonResponseDto> reissueAccessToken(HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, " 성공", oAuth2Service.reissueAccessToken(request)));
     }

@@ -163,7 +163,7 @@ public class OAuth2Service {
 
             throw new TokenExpiredException("토큰의 기한이 만료되었습니다. 재로그인 해주세요.");
         }
-
+        log.info("[reissueAccessToken] 이전 refreshToken: {}",refreshToken.getRefreshToken() );
         //refreshToken 의 유효 시간과, Header 에 담겨 온 RefreshToken 과 redis 에 저장되어있는 RefreshToken 과 일치하는지 비교한다.
         if(refreshToken.getRefreshToken().equals(jwtProvider.resolveToken(request))){
 

@@ -143,6 +143,7 @@ public class JwtProvider {
             return true;
         }
         else{
+            log.info("[validDateToken] 토큰 유효성 체크 실패");
             return false;
         }
     }

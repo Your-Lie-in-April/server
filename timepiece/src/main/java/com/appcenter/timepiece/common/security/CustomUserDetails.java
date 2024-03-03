@@ -32,7 +32,6 @@ public class CustomUserDetails implements OAuth2User, UserDetails {
                 authorities);
     }
 
-
     public Long getId() {
         return id;
     }
@@ -83,6 +82,5 @@ public class CustomUserDetails implements OAuth2User, UserDetails {
     public String getName() {
         return String.valueOf(id);
     }
-
 
 }
