@@ -2,7 +2,6 @@ package com.appcenter.timepiece.service;
 
 import com.appcenter.timepiece.common.exception.FailedCreateTokenException;
 import com.appcenter.timepiece.common.exception.NotFoundMemberException;
-import com.appcenter.timepiece.common.exception.TokenExpiredException;
 import com.appcenter.timepiece.common.redis.RefreshToken;
 import com.appcenter.timepiece.common.redis.RefreshTokenRepository;
 import com.appcenter.timepiece.common.security.JwtProvider;
@@ -160,8 +159,6 @@ public class OAuth2Service {
         if(!(jwtProvider.validDateToken(jwtProvider.resolveToken(request)))){
             log.error("[reissueAccessToken] 토큰의 기한이 만료되었습니다. 재로그인 해주세요.");
             refreshTokenRepository.delete(refreshToken);
-
-            throw new TokenExpiredException("토큰의 기한이 만료되었습니다. 재로그인 해주세요.");
         }
         log.info("[reissueAccessToken] 이전 refreshToken: {}",refreshToken.getRefreshToken() );
         //refreshToken 의 유효 시간과, Header 에 담겨 온 RefreshToken 과 redis 에 저장되어있는 RefreshToken 과 일치하는지 비교한다.
