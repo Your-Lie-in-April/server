@@ -34,7 +34,7 @@ public class Member extends BaseTimeEntity {
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @Column(nullable = false)
     private List<Role> role;
 
