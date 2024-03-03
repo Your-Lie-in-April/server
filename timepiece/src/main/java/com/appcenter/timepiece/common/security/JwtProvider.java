@@ -35,8 +35,6 @@ public class JwtProvider {
     @Value("${spring.jwt.secret}")
     private String secretKey = "secretKey";
 
-    private final RefreshTokenRepository refreshTokenRepository;
-
     private final CustomUserDetailsService customUserDetailsService;
 
     @Value("${spring.jwt.refresh-token-valid-time}")
@@ -52,14 +50,6 @@ public class JwtProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes(StandardCharsets.UTF_8));
         log.info("[init] 시크릿키 초기화 성공");
     }
-
-
-
-    public void saveTokenInfo(Long Id, String refreshToken) {
-        refreshTokenRepository.save(new RefreshToken(Id, refreshToken));
-    }
-
-
 
     public String createRefreshToken(Long id, String email,  List<Role> roles) {
         Claims claims = Jwts
