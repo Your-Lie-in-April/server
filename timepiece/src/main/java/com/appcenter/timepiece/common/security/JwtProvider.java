@@ -1,11 +1,7 @@
 package com.appcenter.timepiece.common.security;
 
-import com.appcenter.timepiece.common.exception.TokenExpiredException;
-import com.appcenter.timepiece.common.redis.RefreshToken;
-import com.appcenter.timepiece.common.redis.RefreshTokenRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +18,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;

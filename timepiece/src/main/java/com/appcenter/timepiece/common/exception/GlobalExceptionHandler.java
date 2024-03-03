@@ -22,11 +22,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CommonResponseDto(0, ex.getMessage(), null));
     }
 
-    @ExceptionHandler(value = TokenExpiredException.class)
-    public ResponseEntity<CommonResponseDto> handleTokenExpiredError(TokenExpiredException ex) {
-        log.error(ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CommonResponseDto(0, ex.getMessage(), null));
-    }
     @ExceptionHandler(SignatureException.class)
     public ResponseEntity<CommonResponseDto> handleSignatureException() {
         log.error("[SignatureException] 토큰에러");

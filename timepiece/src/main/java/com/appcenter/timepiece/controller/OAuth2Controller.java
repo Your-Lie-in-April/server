@@ -33,13 +33,13 @@ public class OAuth2Controller {
                                                   @RequestParam(value = "code") String authCode,
                                                   HttpServletResponse response) throws Exception{
 
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, " 성공", oAuth2Service.getGoogleInfo(authCode)));
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, "성공", oAuth2Service.getGoogleInfo(authCode)));
 
     }
 
     @GetMapping(value = "/reissue")
     public ResponseEntity<CommonResponseDto> reissueAccessToken(HttpServletRequest request){
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, " 성공", oAuth2Service.reissueAccessToken(request)));
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, "토큰 재발급 성공", oAuth2Service.reissueAccessToken(request)));
     }
 
     @GetMapping(value = "/test")
