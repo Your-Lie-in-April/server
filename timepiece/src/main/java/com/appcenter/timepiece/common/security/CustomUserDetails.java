@@ -24,7 +24,7 @@ public class CustomUserDetails implements OAuth2User, UserDetails {
 
     public static CustomUserDetails from(Member member) {
         List<SimpleGrantedAuthority> authorities = member.getRole().stream()
-                .map(role -> new SimpleGrantedAuthority(role.value()))
+                .map(role -> new SimpleGrantedAuthority(role.getRole()))
                 .collect(Collectors.toList());
 
         return new CustomUserDetails(member.getId(),
