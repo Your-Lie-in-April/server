@@ -1,5 +1,6 @@
 package com.appcenter.timepiece.service;
 
+import com.appcenter.timepiece.common.exception.ExceptionMessage;
 import com.appcenter.timepiece.common.exception.FailedCreateTokenException;
 import com.appcenter.timepiece.common.exception.NotFoundMemberException;
 import com.appcenter.timepiece.common.redis.RefreshToken;
@@ -151,7 +152,7 @@ public class OAuth2Service {
         log.info("[reissueAccessToken] memberId 추출 성공. memberId = {}", memberId);
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundMemberException("맴버를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundMemberException(ExceptionMessage.MEMBER_NOTFOUND));
         log.info("[reissueAccessToken] member 찾기 성공. memberEmail = {}", member.getEmail());
 
         RefreshToken refreshToken = refreshTokenRepository.findByMemberId(memberId);

@@ -16,6 +16,11 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{
 
+    @ExceptionHandler(value = NotFoundMemberException.class)
+    public ResponseEntity<CommonResponseDto> handleNotFoundMemberException(NotFoundMemberException ex){
+        log.error(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CommonResponseDto<>(0, ex.getMessage(), null));
+    }
     @ExceptionHandler(value = FailedCreateTokenException.class)
     public ResponseEntity<CommonResponseDto> handleTokenCreateError(FailedCreateTokenException ex) {
         log.error(ex.getMessage());
@@ -25,19 +30,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{
     @ExceptionHandler(SignatureException.class)
     public ResponseEntity<CommonResponseDto> handleSignatureException() {
         log.error("[SignatureException] 토큰에러");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CommonResponseDto(0, "토큰이 유효하지 않습니다.", null));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CommonResponseDto(0, ExceptionMessage.TOKEN_INVALID_FORMAT.getMessage(), null));
     }
 
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<CommonResponseDto> handleMalformedJwtException() {
         log.error("[MalformedJwtException] 토큰에러");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CommonResponseDto(0, "올바르지 않은 토큰입니다.", null));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CommonResponseDto(0, ExceptionMessage.TOKEN_INVALID_FORMAT.getMessage(), null));
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<CommonResponseDto> handleExpiredJwtException() {
         log.error("[ExpiredJwtException] 토큰에러");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CommonResponseDto(0, "토큰의 기한이 만료되었습니다.", null));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CommonResponseDto(0, ExceptionMessage.TOKEN_EXPIRED.getMessage(), null));
     }
 
 

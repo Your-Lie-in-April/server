@@ -19,7 +19,7 @@ public class MemberAccessDeniedHandler implements AccessDeniedHandler {
                        AccessDeniedException exception) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         log.info("[ClientAccessDeniedException] 접근 권한이 없습니다.");
-        CommonResponseDto commonResponseDto = new CommonResponseDto(0, "접근 권한이 없습니다.", null);
+        CommonResponseDto commonResponseDto = new CommonResponseDto(0, ExceptionMessage.TOKEN_UNAUTHENTICATED.getMessage(), null);
 
         response.setStatus(403);
         response.setContentType("application/json");
