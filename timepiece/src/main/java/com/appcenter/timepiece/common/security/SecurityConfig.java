@@ -1,6 +1,5 @@
 package com.appcenter.timepiece.common.security;
 
-import com.appcenter.timepiece.common.exception.MemberAccessDeniedHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +11,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
@@ -25,7 +25,7 @@ public class SecurityConfig {
 
     private final AuthenticationEntryPoint entryPoint;
 
-
+    private final AccessDeniedHandler accessDeniedHandler;
 
     @Bean
     protected SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception{
@@ -48,7 +48,7 @@ public class SecurityConfig {
 
                 .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer
                 .authenticationEntryPoint(entryPoint)
-                .accessDeniedHandler(new MemberAccessDeniedHandler())
+                .accessDeniedHandler(accessDeniedHandler)
 
                 );
 
