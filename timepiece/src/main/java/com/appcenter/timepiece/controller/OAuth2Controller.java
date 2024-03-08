@@ -3,6 +3,7 @@ package com.appcenter.timepiece.controller;
 
 import com.appcenter.timepiece.dto.CommonResponseDto;
 import com.appcenter.timepiece.service.OAuth2Service;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class OAuth2Controller {
 
     }
 
-    // 구글에서 리다이렉션
+    @Operation(hidden = true)
     @GetMapping(value = "/login/google")
     public ResponseEntity<CommonResponseDto> sign(HttpServletRequest request,
                                                   @RequestParam(value = "code") String authCode,
