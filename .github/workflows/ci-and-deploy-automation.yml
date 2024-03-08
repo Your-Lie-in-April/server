@@ -1,0 +1,57 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./timepiece/gradlew
+
+      - name: Run build with Gradle Wrapper
+        run: ./gradlew clean build
+        working-directory: ./timepiece
+
+      - name: Build the Docker image
+        run: docker build . -t jnamu/timepiece-server:$(date +%s) -t jnamu/timepiece-server
+        working-directory: ./timepiece
+
+      # docker hub 로그인
+      - name: Login docker hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # docker hub 퍼블리시
+      - name: Publish to docker hub
+        run: docker push --all-tags docker.io/jnamu/timepiece-server
+
+      # 원격서버 배포 스크립트 실행
+      - name: Deploy remote ssh commands using password
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.KEY }}
+          script_stop: true
+          script: |
+            sh timepiece/deploy-timepiece-server.sh
