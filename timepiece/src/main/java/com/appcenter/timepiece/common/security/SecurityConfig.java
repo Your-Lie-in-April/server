@@ -1,5 +1,6 @@
 package com.appcenter.timepiece.common.security;
 
+import com.appcenter.timepiece.common.exception.JwtExceptionHandlerFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,8 +9,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -22,8 +21,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
-
-    private final AuthenticationEntryPoint entryPoint;
 
     private final AccessDeniedHandler accessDeniedHandler;
 
@@ -43,12 +40,11 @@ public class SecurityConfig {
                         .requestMatchers("/v1/oauth2/test").hasRole("USER")
                         .requestMatchers("/v1/oauth2/test1").permitAll()
                 )
-
+                .addFilterBefore(new JwtExceptionHandlerFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtAuthFilter(jwtProvider),
                         UsernamePasswordAuthenticationFilter.class)
 
                 .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer
-                        .authenticationEntryPoint(entryPoint)
                         .accessDeniedHandler(accessDeniedHandler)
                 );
 
@@ -56,6 +52,7 @@ public class SecurityConfig {
 
         return httpSecurity.build();
     }
+
 
 
 }
