@@ -1,5 +1,6 @@
 package com.appcenter.timepiece.common.security;
 
+import com.appcenter.timepiece.common.exception.JwtExceptionHandlerFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,7 +45,8 @@ public class SecurityConfig {
                         .requestMatchers("/v1/oauth2/test1").permitAll()
 
                 )
-
+                .addFilterBefore(new JwtExceptionHandlerFilter(),
+                        UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtAuthFilter(jwtProvider),
                         UsernamePasswordAuthenticationFilter.class)
 
@@ -53,10 +55,7 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                 );
 
-
-
         return httpSecurity.build();
     }
-
 
 }
