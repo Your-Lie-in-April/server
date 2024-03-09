@@ -58,5 +58,9 @@ public class Member extends BaseTimeEntity {
         return this;
     }
 
+    public void editStatus(String state){
+        this.state = state;
+    }
+
 
 }
