@@ -54,10 +54,10 @@ public class MemberService {
         member.editStatus(status);
         memberRepository.save(member);
     }
-
-//    public void editMemberNickname(Long projectId, HttpServletRequest request){
+    //    public void editMemberNickname(Long projectId, HttpServletRequest request){
 //        Long memberId = jwtProvider.getMemberId(jwtProvider.resolveToken(request));
 //
 //
 //    }
+    
 }
