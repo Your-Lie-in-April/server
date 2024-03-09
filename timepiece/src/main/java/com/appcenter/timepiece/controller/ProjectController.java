@@ -1,10 +1,12 @@
 package com.appcenter.timepiece.controller;
 
 import com.appcenter.timepiece.common.dto.CommonResponse;
+import com.appcenter.timepiece.common.security.CustomUserDetails;
 import com.appcenter.timepiece.dto.project.ProjectCreateUpdateRequest;
 import com.appcenter.timepiece.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("")
@@ -57,19 +59,33 @@ public class ProjectController {
     }
 
     // todo: Security와 통합, 요청자가 프로젝트 소유자인지 확인하는 로직 필요. 프로젝트 엔티티에 owner 속성 추가
-    /*
     @DeleteMapping("/v1/projects/{projectId}")
     public ResponseEntity<Void> createProject(@PathVariable Long projectId,
-                                              @AuthenticationPrinciple CustomUserDetails customUserDetails) {
+                                              @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         projectService.deleteProject(projectId, customUserDetails);
         return ResponseEntity.noContent().build();
     }
-     */
 
     @PutMapping("/v1/projects/{projectId}")
     public ResponseEntity<Void> updateProject(@PathVariable Long projectId,
                                               @RequestBody ProjectCreateUpdateRequest request) {
         projectService.updateProject(projectId, request);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/v1/projects/{projectId}/invitation")
+    public CommonResponse<String> generateInvitationLink() {
+        return null;
+    }
+
+    @DeleteMapping("/v1/projects/{projectId}/members/{memberId}")
+    public CommonResponse<Void> kick(@PathVariable Long projectId,
+                                     @PathVariable Long memberId) {
+        return null;
+    }
+
+    @PostMapping("/v1/invitation/{url}")
+    public CommonResponse<Void> join(@PathVariable String url) {
+        return null;
     }
 }
