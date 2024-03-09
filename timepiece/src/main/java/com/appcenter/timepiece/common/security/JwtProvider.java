@@ -46,7 +46,7 @@ public class JwtProvider {
         log.info("[init] 시크릿키 초기화 성공");
     }
 
-    public String createRefreshToken(Long id, String email,  List<Role> roles) {
+    public String createRefreshToken(Long id, String email,  List<String> roles) {
         Claims claims = Jwts
                 .claims().setSubject(email);
         claims.put("memberId", id);
@@ -63,22 +63,20 @@ public class JwtProvider {
 
 
 
-    public String createAccessToken(Long id,String email, List<Role> roles){
+    public String createAccessToken(Long id,String email, List<String> roles){
         log.info("[createAccessToken] 토큰 생성 시작");
-        Claims claims = Jwts.claims().setSubject(email);
-        claims.put("roles", roles);
+        Claims claims = Jwts
+                .claims().setSubject(email);
         claims.put("memberId", id);
-
+        claims.put("roles", roles);
         Date now = new Date();
-        String token = Jwts.builder()
+        return Jwts
+                .builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + accessTokenValidTime))
-                .signWith(SignatureAlgorithm.HS256, secretKey) // 암호화 알고리즘, secret 값 세팅
+                .setExpiration(new Date(now.getTime() + accessTokenValidTime))//유효시간
+                .signWith(SignatureAlgorithm.HS256, secretKey) //HS256알고리즘으로 key를 암호화 해줄것이다.
                 .compact();
-
-        log.info("[createAccessToken] 토큰 생성 완료");
-        return token;
     }
 
 
@@ -113,7 +111,7 @@ public class JwtProvider {
 
 
     public String resolveToken(HttpServletRequest request){
-        log.info("[resolveRefreshToken] HTTP 헤더에서 RefreshToken 값 추출");
+        log.info("[resolveToken] HTTP 헤더에서 Token 값 추출");
         return request.getHeader("Authorization");
     }
 
@@ -131,5 +129,6 @@ public class JwtProvider {
             log.info("[validDateToken] 토큰 유효성 체크 실패");
             return false;
         }
+
     }
 }

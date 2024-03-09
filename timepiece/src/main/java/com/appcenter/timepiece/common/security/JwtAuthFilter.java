@@ -24,24 +24,26 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     HttpServletResponse servletResponse,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        log.info("[doFilerInternal] access 토큰 얻어오기");
-        String accessToken = jwtProvider.resolveToken(servletRequest);
-        log.info("[doFilterInternal] access 토큰 얻어오기 성공");
+        log.info("[doFilerInternal] 토큰 얻어오기");
+        String token = jwtProvider.resolveToken(servletRequest);
+        log.info("[doFilterInternal] 토큰 얻어오기 성공");
 
-        log.info("[doFilterInternal] accessToken = {}", accessToken);
+        log.info("[doFilterInternal] Token = {}", token);
 
-        if (accessToken != null) {
+        if (token != null) {
+            filterChain.doFilter(servletRequest, servletResponse);
             try{
-                jwtProvider.validDateToken(accessToken);
-                Authentication authentication = jwtProvider.getAuthentication(accessToken);
+                jwtProvider.validDateToken(token);
+                log.info("결과: {}, ", jwtProvider.validDateToken(token));
+                Authentication authentication = jwtProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 log.info("[doFilterInternal] 토큰 값 검증 완료");
+
             }
             catch (Exception e){
                 servletRequest.setAttribute("exception", e);
             }
         }
-
         filterChain.doFilter(servletRequest, servletResponse);
     }
 }

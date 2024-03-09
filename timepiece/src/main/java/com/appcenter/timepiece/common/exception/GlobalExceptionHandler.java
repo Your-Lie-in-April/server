@@ -45,5 +45,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CommonResponseDto(0, ExceptionMessage.TOKEN_EXPIRED.getMessage(), null));
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<CommonResponseDto> handleJwtEmptyException(){
+        log.error("[JwtEmptyException] 토큰에러");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CommonResponseDto(0, ExceptionMessage.TOKEN_NOT_FOUND.getMessage(), null));
+    }
+
 
 }

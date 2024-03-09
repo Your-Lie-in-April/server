@@ -16,14 +16,12 @@ public class JwtAuthenticationEntryPointHandler implements AuthenticationEntryPo
     private final HandlerExceptionResolver resolver;
 
     public JwtAuthenticationEntryPointHandler(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
-        log.info("JwtAuthenticationEntryPointHandler 접근");
-
         this.resolver = resolver;
     }
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) {
-        log.info("JwtAuthenticationEntryPointHandler commence 접근");
+        log.info("[JwtAuthenticationEntryPointHandler] commence 접근");
         resolver.resolveException(request, response, null, authException);
     }
 

@@ -25,5 +25,6 @@ public class MemberAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         response.getWriter().write(objectMapper.writeValueAsString(commonResponseDto));
+
     }
 }

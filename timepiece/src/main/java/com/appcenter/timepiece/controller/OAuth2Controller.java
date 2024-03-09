@@ -43,7 +43,12 @@ public class OAuth2Controller {
     }
 
     @GetMapping(value = "/test")
-    public ResponseEntity<CommonResponseDto> testApi(){
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, "테스트 성공", null));
+    public ResponseEntity<CommonResponseDto> testApi(HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, "테스트 성공", oAuth2Service.testApi(request)));
+    }
+
+    @GetMapping(value = "/test1")
+    public ResponseEntity<CommonResponseDto> testApi1(HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, "테스트 성공", oAuth2Service.testApi(request)));
     }
 }

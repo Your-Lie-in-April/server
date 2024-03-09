@@ -110,8 +110,8 @@ public class OAuth2Service {
         if(member.isEmpty()) {
             log.info("[getGoogleInfo] 첫 로그인. 회원가입 시작");
 
-            List<Role> role = new ArrayList<>();
-            role.add(Role.ROLE_USER);
+            List<String> role = new ArrayList<>();
+            role.add(Role.ROLE_USER.getRole());
 
             returnMember = new Member("Google", oAuthMemberResponse.getGiven_name(),
                     oAuthMemberResponse.getEmail(), "", oAuthMemberResponse.getPicture(),role);
@@ -148,6 +148,7 @@ public class OAuth2Service {
 
         Map<String, String> tokens = new HashMap<>();
 
+        log.info("[reissueAccessToken] memberId 추출중");
         Long memberId = jwtProvider.getMemberId(jwtProvider.resolveToken(request));
         log.info("[reissueAccessToken] memberId 추출 성공. memberId = {}", memberId);
 
@@ -157,10 +158,6 @@ public class OAuth2Service {
 
         RefreshToken refreshToken = refreshTokenRepository.findByMemberId(memberId);
 
-        if(!(jwtProvider.validDateToken(jwtProvider.resolveToken(request)))){
-            log.error("[reissueAccessToken] 토큰의 기한이 만료되었습니다. 재로그인 해주세요.");
-            refreshTokenRepository.delete(refreshToken);
-        }
         log.info("[reissueAccessToken] 이전 refreshToken: {}",refreshToken.getRefreshToken() );
         //refreshToken 의 유효 시간과, Header 에 담겨 온 RefreshToken 과 redis 에 저장되어있는 RefreshToken 과 일치하는지 비교한다.
         if(refreshToken.getRefreshToken().equals(jwtProvider.resolveToken(request))){
@@ -184,6 +181,16 @@ public class OAuth2Service {
         }
     }
 
+    public String testApi(HttpServletRequest request){
+        log.info("[testApi] memberId 추출중");
+        Long memberId = jwtProvider.getMemberId(jwtProvider.resolveToken(request));
+        log.info("[testApi] memberId 추출 성공. memberId = {}", memberId);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundMemberException(ExceptionMessage.MEMBER_NOTFOUND));
+        log.info("[testApi] member 찾기 성공. memberEmail = {}", member.getEmail());
+
+        return member.toString();
+    }
 
 
 }

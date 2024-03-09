@@ -36,13 +36,13 @@ public class Member extends BaseTimeEntity {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(nullable = false)
-    private List<Role> role;
+    private List<String> role;
 
     @OneToMany(mappedBy = "member")
     private List<MemberProject> memberProjects = new ArrayList<>();
 
     @Builder
-    public Member(String provider, String nickname, String email, String state, String profileImageUrl, List<Role> role){
+    public Member(String provider, String nickname, String email, String state, String profileImageUrl, List<String> role){
         this.provider = provider;
         this.nickname = nickname;
         this.email = email;
