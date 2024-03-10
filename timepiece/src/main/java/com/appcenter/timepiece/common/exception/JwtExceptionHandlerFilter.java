@@ -24,16 +24,16 @@ public class JwtExceptionHandlerFilter extends OncePerRequestFilter {
 
         try{
             filterChain.doFilter(request, response);
+        }catch (MalformedJwtException e){
+            setErrorResponse(response, ExceptionMessage.TOKEN_UNAUTHENTICATED);
         }catch (ExpiredJwtException e){
-            //토큰의 유효기간 만료
             setErrorResponse(response, ExceptionMessage.TOKEN_EXPIRED);
         }catch (IllegalArgumentException e){
-            //유효하지 않은 토큰
             setErrorResponse(response, ExceptionMessage.TOKEN_NOT_FOUND);
         }catch (SignatureException e){
             setErrorResponse(response, ExceptionMessage.TOKEN_INVALID_FORMAT);
-        }catch (MalformedJwtException e){
-            setErrorResponse(response, ExceptionMessage.TOKEN_UNAUTHENTICATED);
+        }catch (StringIndexOutOfBoundsException e){
+            setErrorResponse(response, ExceptionMessage.TOKEN_NOT_FOUND);
         }
     }
     private void setErrorResponse(

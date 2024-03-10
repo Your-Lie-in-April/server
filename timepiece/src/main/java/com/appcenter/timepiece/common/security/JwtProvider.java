@@ -112,6 +112,7 @@ public class JwtProvider {
 
     public String resolveToken(HttpServletRequest request){
         log.info("[resolveToken] HTTP 헤더에서 Token 값 추출");
+        
         return request.getHeader("Authorization");
     }
 

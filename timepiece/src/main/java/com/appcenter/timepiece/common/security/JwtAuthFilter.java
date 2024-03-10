@@ -28,12 +28,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String token = jwtProvider.resolveToken(servletRequest);
         log.info("[doFilterInternal] 토큰 얻어오기 성공");
 
-        log.info("[doFilterInternal] Token = {}", token);
+        log.info("[doFilterInternal] Token ={}", token);
 
         if (token != null) {
-                jwtProvider.validDateToken(token);
-                log.info("결과: {}, ", jwtProvider.validDateToken(token));
-                Authentication authentication = jwtProvider.getAuthentication(token);
+                String jwtToken = token.substring(7);
+                log.info("jwtToken:{}", jwtToken);
+                jwtProvider.validDateToken(jwtToken);
+                log.info("결과: {}, ", jwtProvider.validDateToken(jwtToken));
+                Authentication authentication = jwtProvider.getAuthentication(jwtToken);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 log.info("[doFilterInternal] 토큰 값 검증 완료");
         }
