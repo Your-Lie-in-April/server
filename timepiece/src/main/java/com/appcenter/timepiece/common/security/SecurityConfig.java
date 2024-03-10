@@ -24,8 +24,6 @@ public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
 
-    private final AuthenticationEntryPoint entryPoint;
-
     private final AccessDeniedHandler accessDeniedHandler;
 
     @Bean
@@ -49,9 +47,7 @@ public class SecurityConfig {
                         UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtAuthFilter(jwtProvider),
                         UsernamePasswordAuthenticationFilter.class)
-
                 .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer
-                        .authenticationEntryPoint(entryPoint)
                         .accessDeniedHandler(accessDeniedHandler)
                 );
 
