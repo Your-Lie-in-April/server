@@ -147,8 +147,9 @@ public class OAuth2Service {
     public Map<String, String> reissueAccessToken(HttpServletRequest request){
 
         Map<String, String> tokens = new HashMap<>();
+        String token = jwtProvider.resolveToken(request).substring(7);
         log.info("[reissueAccessToken] memberId 추출중");
-        Long memberId = jwtProvider.getMemberId(jwtProvider.resolveToken(request).substring(7));
+        Long memberId = jwtProvider.getMemberId(token);
         log.info("[reissueAccessToken] memberId 추출 성공. memberId = {}", memberId);
 
         Member member = memberRepository.findById(memberId)
@@ -159,7 +160,7 @@ public class OAuth2Service {
 
         log.info("[reissueAccessToken] 이전 refreshToken: {}",refreshToken.getRefreshToken() );
         //refreshToken 의 유효 시간과, Header 에 담겨 온 RefreshToken 과 redis 에 저장되어있는 RefreshToken 과 일치하는지 비교한다.
-        if(refreshToken.getRefreshToken().equals(jwtProvider.resolveToken(request).substring(7))){
+        if(refreshToken.getRefreshToken().equals(token)){
 
             String accessToken = jwtProvider.createAccessToken(memberId, member.getEmail(), member.getRole());
             log.info("[reissueAccessToken] accessToken 새로 발급 성공: {}", accessToken);
@@ -182,7 +183,8 @@ public class OAuth2Service {
 
     public String testApi(HttpServletRequest request){
         log.info("[testApi] memberId 추출중");
-        Long memberId = jwtProvider.getMemberId(jwtProvider.resolveToken(request).substring(7));
+        String token = jwtProvider.resolveToken(request).substring(7);
+        Long memberId = jwtProvider.getMemberId(token);
         log.info("[testApi] memberId 추출 성공. memberId = {}", memberId);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundMemberException(ExceptionMessage.MEMBER_NOTFOUND));
