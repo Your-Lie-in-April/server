@@ -47,8 +47,7 @@ public class JwtProvider {
     }
 
     public String createRefreshToken(Long id, String email,  List<String> roles) {
-        Claims claims = Jwts
-                .claims().setSubject(email);
+        Claims claims = Jwts.claims().setSubject(email);
         claims.put("memberId", id);
         claims.put("roles", roles);
         Date now = new Date();
@@ -65,18 +64,20 @@ public class JwtProvider {
 
     public String createAccessToken(Long id,String email, List<String> roles){
         log.info("[createAccessToken] 토큰 생성 시작");
-        Claims claims = Jwts
-                .claims().setSubject(email);
-        claims.put("memberId", id);
+        Claims claims = Jwts.claims().setSubject(email);
         claims.put("roles", roles);
+        claims.put("memberId", id);
+
         Date now = new Date();
-        return Jwts
-                .builder()
+        String token = Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + accessTokenValidTime))//유효시간
-                .signWith(SignatureAlgorithm.HS256, secretKey) //HS256알고리즘으로 key를 암호화 해줄것이다.
+                .setExpiration(new Date(now.getTime() + accessTokenValidTime))
+                .signWith(SignatureAlgorithm.HS256, secretKey) // 암호화 알고리즘, secret 값 세팅
                 .compact();
+
+        log.info("[createAccessToken] 토큰 생성 완료");
+        return token;
     }
 
 
