@@ -147,7 +147,7 @@ public class OAuth2Service {
     public Map<String, String> reissueAccessToken(HttpServletRequest request){
 
         Map<String, String> tokens = new HashMap<>();
-        String token = jwtProvider.resolveToken(request).substring(7);
+        String token = jwtProvider.resolveServiceToken(request);
         log.info("[reissueAccessToken] memberId 추출중");
         Long memberId = jwtProvider.getMemberId(token);
         log.info("[reissueAccessToken] memberId 추출 성공. memberId = {}", memberId);
@@ -183,7 +183,7 @@ public class OAuth2Service {
 
     public String testApi(HttpServletRequest request){
         log.info("[testApi] memberId 추출중");
-        String token = jwtProvider.resolveToken(request).substring(7);
+        String token = jwtProvider.resolveServiceToken(request);
         Long memberId = jwtProvider.getMemberId(token);
         log.info("[testApi] memberId 추출 성공. memberId = {}", memberId);
         Member member = memberRepository.findById(memberId)

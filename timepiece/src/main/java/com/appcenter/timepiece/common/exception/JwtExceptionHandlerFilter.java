@@ -33,7 +33,11 @@ public class JwtExceptionHandlerFilter extends OncePerRequestFilter {
         }catch (SignatureException e){
             setErrorResponse(response, ExceptionMessage.TOKEN_INVALID_FORMAT);
         }catch (StringIndexOutOfBoundsException e){
+            setErrorResponse(response, ExceptionMessage.TOKEN_INVALID_FORMAT);
+        }catch (NullPointerException e){
             setErrorResponse(response, ExceptionMessage.TOKEN_NOT_FOUND);
+        }catch (Exception e){
+            setErrorResponse(response, ExceptionMessage.MEMBER_NOTFOUND);
         }
     }
     private void setErrorResponse(

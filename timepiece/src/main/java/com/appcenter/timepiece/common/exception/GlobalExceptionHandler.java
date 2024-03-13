@@ -2,9 +2,6 @@ package com.appcenter.timepiece.common.exception;
 
 import com.appcenter.timepiece.dto.CommonResponseDto;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +23,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{
         log.error(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CommonResponseDto(0, ex.getMessage(), null));
     }
-
+    @ExceptionHandler(value = JwtEmptyException.class)
+    public ResponseEntity<CommonResponseDto> handleJwtEmptyException(JwtEmptyException ex){
+        log.error(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CommonResponseDto<>(0, ex.getMessage(), null));
+    }
 
 }
