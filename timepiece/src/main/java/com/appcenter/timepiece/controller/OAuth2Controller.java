@@ -20,7 +20,7 @@ public class OAuth2Controller {
     private final OAuth2Service oAuth2Service;
 
 
-    @GetMapping(value = "/login/getGoogleAuthUrl")
+    @GetMapping(value = "/login-page/google")
     public ResponseEntity<Void> getGoogleAuthUrl(HttpServletRequest request) throws Exception {
 
         return new ResponseEntity<>(oAuth2Service.makeLoginURI(), HttpStatus.MOVED_PERMANENTLY);

@@ -36,7 +36,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/v1/members/**").authenticated()
-                        .requestMatchers("/v1/oauth2/login/getGoogleAuthUrl").permitAll()
+                        .requestMatchers("/v1/oauth2/login-page/google").permitAll()
                         .requestMatchers("/v1/oauth2/login/google").permitAll()
                         .requestMatchers("/v1/oauth2/reissue").hasRole("USER")
                         .requestMatchers("/v1/oauth2/test").hasRole("USER")
