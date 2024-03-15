@@ -1,6 +1,6 @@
 package com.appcenter.timepiece.common.exception;
 
-import com.appcenter.timepiece.dto.CommonResponseDto;
+import com.appcenter.timepiece.common.dto.CommonResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,7 +19,7 @@ public class MemberAccessDeniedHandler implements AccessDeniedHandler {
                        AccessDeniedException exception) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         log.info("[ClientAccessDeniedException] 접근 권한이 없습니다.");
-        CommonResponseDto commonResponseDto = new CommonResponseDto(0, ExceptionMessage.TOKEN_UNAUTHENTICATED.getMessage(), null);
+        CommonResponse commonResponseDto = new CommonResponse(0, ExceptionMessage.TOKEN_UNAUTHENTICATED.getMessage(), null);
 
         response.setStatus(403);
         response.setContentType("application/json");
