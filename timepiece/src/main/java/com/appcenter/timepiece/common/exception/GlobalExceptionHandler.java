@@ -1,7 +1,9 @@
 package com.appcenter.timepiece.common.exception;
 
+import com.appcenter.timepiece.common.dto.CommonResponse;
 import com.appcenter.timepiece.dto.CommonResponseDto;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,4 +31,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CommonResponseDto<>(0, ex.getMessage(), null));
     }
 
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<CommonResponse> handleExpiredJwtException() {
+        log.error("[ExpiredJwtException] 토큰에러");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonResponse.error("토큰의 기한이 만료되었습니다.", null));
+    }
+
+    @ExceptionHandler(NotEnoughPrivilegeException.class)
+    public CommonResponse<?> handleNotEnoughPrivilegeException() {
+        return CommonResponse.error("프로젝트에 대한 권한이 없습니다.", null);
+    }
 }
