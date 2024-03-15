@@ -1,6 +1,7 @@
 package com.appcenter.timepiece.common.dto;
 
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 public class CommonResponse<T> {
@@ -15,5 +16,13 @@ public class CommonResponse<T> {
         this.status = status;
         this.message = message;
         this.data = data;
+    }
+
+    public static <T> CommonResponse<T> success(String message, T data) {
+        return new CommonResponse<T>(HttpStatus.OK.value(), message, data);
+    }
+
+    public static <T> CommonResponse<T> error(String message, T data) {
+        return new CommonResponse<T>(HttpStatus.OK.value(), message, data);
     }
 }
