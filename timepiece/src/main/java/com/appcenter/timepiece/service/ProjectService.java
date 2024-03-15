@@ -32,7 +32,6 @@ public class ProjectService {
     }
 
     /**
-     *
      * @param memberId 자동생성되는 멤버 식별자(PK)
      * @return 메인페이지에 나타나는 프로젝트 썸네일 정보를 담은 dto 리스트를 리턴합니다.
      */
@@ -46,7 +45,7 @@ public class ProjectService {
         List<MemberProject> memberProjects = memberProjectRepository.findByMemberIdAndIsPinnedIsTrue(memberId);
         List<PinProjectResponse> pinProjectResponses = new ArrayList<>();
 
-        for (MemberProject memberProject: memberProjects) {
+        for (MemberProject memberProject : memberProjects) {
             Project project = memberProject.getProject();
             // todo: List<ScheduleWeekResponse>를 생성하는 로직 작성
 //            pinProjectResponses.add(PinProjectResponse.of(project, project.get, scheduleService.getSchedule()));

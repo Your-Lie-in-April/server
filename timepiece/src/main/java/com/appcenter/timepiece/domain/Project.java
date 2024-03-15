@@ -26,16 +26,16 @@ public class Project extends BaseTimeEntity {
 
     private String description;
 
-    @Column(name="start_date")
+    @Column(name = "start_date")
     private LocalDate startDate;
 
-    @Column(name="end_date")
+    @Column(name = "end_date")
     private LocalDate endDate;
 
-    @Column(name="start_time")
+    @Column(name = "start_time")
     private LocalTime startTime;
 
-    @Column(name="end_time")
+    @Column(name = "end_time")
     private LocalTime endTime;
 
     private Boolean mon;
@@ -46,7 +46,7 @@ public class Project extends BaseTimeEntity {
     private Boolean sat;
     private Boolean sun;
 
-    @Column(name="is_stored")
+    @Column(name = "is_stored")
     private Boolean isStored;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
@@ -63,10 +63,10 @@ public class Project extends BaseTimeEntity {
 
     @Builder(access = AccessLevel.PRIVATE)
     private Project(String title, String description,
-                   LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime,
-                   Boolean mon, Boolean tue, Boolean wed, Boolean thu, Boolean fri, Boolean sat, Boolean sun,
-                   Boolean isStored, List<MemberProject> memberProjects, List<Invitation> invitations,
-                   Cover cover, String color) {
+                    LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime,
+                    Boolean mon, Boolean tue, Boolean wed, Boolean thu, Boolean fri, Boolean sat, Boolean sun,
+                    Boolean isStored, List<MemberProject> memberProjects, List<Invitation> invitations,
+                    Cover cover, String color) {
         this.title = title;
         this.description = description;
         this.startDate = startDate;

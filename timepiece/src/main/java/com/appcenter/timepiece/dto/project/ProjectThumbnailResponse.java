@@ -20,7 +20,7 @@ public class ProjectThumbnailResponse {
 
     @Builder(access = AccessLevel.PRIVATE)
     private ProjectThumbnailResponse(Long projectId, String title, String description,
-                                    String color, String coverImageUrl) {
+                                     String color, String coverImageUrl) {
         this.projectId = projectId;
         this.title = title;
         this.description = description;
