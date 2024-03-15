@@ -20,7 +20,7 @@ public class OAuth2Controller {
     private final OAuth2Service oAuth2Service;
 
 
-    @GetMapping(value = "/login/getGoogleAuthUrl")
+    @GetMapping(value = "/login-page/google")
     public ResponseEntity<Void> getGoogleAuthUrl(HttpServletRequest request) throws Exception {
 
         return new ResponseEntity<>(oAuth2Service.makeLoginURI(), HttpStatus.MOVED_PERMANENTLY);
@@ -43,7 +43,12 @@ public class OAuth2Controller {
     }
 
     @GetMapping(value = "/test")
-    public ResponseEntity<CommonResponseDto> testApi(){
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, "테스트 성공", null));
+    public ResponseEntity<CommonResponseDto> testApi(HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, "테스트 성공", oAuth2Service.testApi(request)));
+    }
+
+    @GetMapping(value = "/test1")
+    public ResponseEntity<CommonResponseDto> testApi1(HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, "테스트 성공", oAuth2Service.testApi(request)));
     }
 }

@@ -1,5 +1,6 @@
 package com.appcenter.timepiece.common.security;
 
+import com.appcenter.timepiece.common.exception.JwtExceptionHandlerFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,8 +24,6 @@ public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
 
-    private final AuthenticationEntryPoint entryPoint;
-
     private final AccessDeniedHandler accessDeniedHandler;
 
     @Bean
@@ -37,25 +36,23 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/v1/members/**").authenticated()
-                        .requestMatchers("/v1/oauth2/login/getGoogleAuthUrl").permitAll()
+                        .requestMatchers("/v1/oauth2/login-page/google").permitAll()
                         .requestMatchers("/v1/oauth2/login/google").permitAll()
-                        .requestMatchers("/v1/oauth2/reissue").permitAll()
+                        .requestMatchers("/v1/oauth2/reissue").hasRole("USER")
                         .requestMatchers("/v1/oauth2/test").hasRole("USER")
-                )
+                        .requestMatchers("/v1/oauth2/test1","/","/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
+                )
+                .addFilterBefore(new JwtExceptionHandlerFilter(),
+                        UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtAuthFilter(jwtProvider),
                         UsernamePasswordAuthenticationFilter.class)
 
                 .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer
-                .authenticationEntryPoint(entryPoint)
-                .accessDeniedHandler(accessDeniedHandler)
-
+                        .accessDeniedHandler(accessDeniedHandler)
                 );
-
-
 
         return httpSecurity.build();
     }
-
 
 }

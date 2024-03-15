@@ -1,5 +1,7 @@
 package com.appcenter.timepiece.common.security;
 
+import com.appcenter.timepiece.common.exception.ExceptionMessage;
+import com.appcenter.timepiece.common.exception.JwtEmptyException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,9 +48,8 @@ public class JwtProvider {
         log.info("[init] 시크릿키 초기화 성공");
     }
 
-    public String createRefreshToken(Long id, String email,  List<Role> roles) {
-        Claims claims = Jwts
-                .claims().setSubject(email);
+    public String createRefreshToken(Long id, String email,  List<String> roles) {
+        Claims claims = Jwts.claims().setSubject(email);
         claims.put("memberId", id);
         claims.put("roles", roles);
         Date now = new Date();
@@ -63,7 +64,7 @@ public class JwtProvider {
 
 
 
-    public String createAccessToken(Long id,String email, List<Role> roles){
+    public String createAccessToken(Long id,String email, List<String> roles){
         log.info("[createAccessToken] 토큰 생성 시작");
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("roles", roles);
@@ -111,13 +112,24 @@ public class JwtProvider {
     }
 
 
-
     public String resolveToken(HttpServletRequest request){
-        log.info("[resolveRefreshToken] HTTP 헤더에서 RefreshToken 값 추출");
+        log.info("[resolveToken] HTTP 헤더에서 Token 값 추출");
+        
         return request.getHeader("Authorization");
     }
 
+    public String resolveServiceToken(HttpServletRequest request){
+        log.info("[resolveServiceToken] HTTP 헤더에서 Token 값 추출");
 
+        String token = request.getHeader("Authorization");
+
+        if(token == null){
+            throw new JwtEmptyException(ExceptionMessage.TOKEN_NOT_FOUND.getMessage());
+        }
+        else{
+            return token.substring(7);
+        }
+    }
 
     public boolean validDateToken(String token) {
         log.info("[validateToken] 토큰 유효 체크 시작");
@@ -131,5 +143,6 @@ public class JwtProvider {
             log.info("[validDateToken] 토큰 유효성 체크 실패");
             return false;
         }
+
     }
 }
