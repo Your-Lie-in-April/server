@@ -54,7 +54,7 @@ public class OAuth2Service {
     private String googleClientSecret;
 
 
-    public HttpHeaders makeLoginURI(){
+    public HttpHeaders makeLoginURI() {
         String reqUrl = googleLoginUrl + "/o/oauth2/v2/auth?client_id=" + googleClientId + "&redirect_uri=" + googleRedirectUrl
                 + "&response_type=code&scope=email%20profile%20openid&access_type=offline";
 
@@ -107,29 +107,29 @@ public class OAuth2Service {
         Map<String, String> tokens = new HashMap<>();
 
         //만약 처음 로그인하는 사람이면 정보를 저장소에 저장해준다.
-        if(member.isEmpty()) {
+        if (member.isEmpty()) {
             log.info("[getGoogleInfo] 첫 로그인. 회원가입 시작");
 
             List<String> role = new ArrayList<>();
             role.add(Role.ROLE_USER.getRole());
 
             returnMember = new Member("Google", oAuthMemberResponse.getGiven_name(),
-                    oAuthMemberResponse.getEmail(), "", oAuthMemberResponse.getPicture(),role);
+                    oAuthMemberResponse.getEmail(), "", oAuthMemberResponse.getPicture(), role);
 
             memberRepository.save(returnMember);
             log.info("[getGoogleInfo] 회원가입 성공");
         }
 
         //만약 로그인 한 전적이 있는 사람은 DB 에서 사용자 정보를 가져온다.
-        else{
+        else {
             log.info("[getGoogleInfo] 이미 가입된 유저. 데이터베이스에서 사용자 정보 가져오기");
             returnMember = member.get();
             log.info("[getGoogleInfo] 로그인 성공");
         }
 
         //토큰 생성
-        String accessToken = jwtProvider.createAccessToken(returnMember.getId(),returnMember.getEmail(), returnMember.getRole());
-        String refreshToken = jwtProvider.createRefreshToken(returnMember.getId(),returnMember.getEmail(),returnMember.getRole());
+        String accessToken = jwtProvider.createAccessToken(returnMember.getId(), returnMember.getEmail(), returnMember.getRole());
+        String refreshToken = jwtProvider.createRefreshToken(returnMember.getId(), returnMember.getEmail(), returnMember.getRole());
 
         log.info("access: {}", accessToken);
         log.info("refresh: {}", refreshToken);
@@ -144,7 +144,7 @@ public class OAuth2Service {
     }
 
     //accessToken 재발급과 동시에 refreshToken 도 새로 발급한다.(유효시간을 늘리기 위함.)
-    public Map<String, String> reissueAccessToken(HttpServletRequest request){
+    public Map<String, String> reissueAccessToken(HttpServletRequest request) {
 
         Map<String, String> tokens = new HashMap<>();
         String token = jwtProvider.resolveServiceToken(request);
@@ -158,14 +158,14 @@ public class OAuth2Service {
 
         RefreshToken refreshToken = refreshTokenRepository.findByMemberId(memberId);
 
-        log.info("[reissueAccessToken] 이전 refreshToken: {}",refreshToken.getRefreshToken() );
+        log.info("[reissueAccessToken] 이전 refreshToken: {}", refreshToken.getRefreshToken());
         //refreshToken 의 유효 시간과, Header 에 담겨 온 RefreshToken 과 redis 에 저장되어있는 RefreshToken 과 일치하는지 비교한다.
-        if(refreshToken.getRefreshToken().equals(token)){
+        if (refreshToken.getRefreshToken().equals(token)) {
 
             String accessToken = jwtProvider.createAccessToken(memberId, member.getEmail(), member.getRole());
             log.info("[reissueAccessToken] accessToken 새로 발급 성공: {}", accessToken);
 
-            String newRefreshToken = jwtProvider.createRefreshToken(memberId,member.getEmail(), member.getRole());
+            String newRefreshToken = jwtProvider.createRefreshToken(memberId, member.getEmail(), member.getRole());
             log.info("[reissueAccessToken] refreshToken 새로 발급 성공: {}", newRefreshToken);
 
             tokens.put("Access", accessToken);
@@ -175,13 +175,12 @@ public class OAuth2Service {
             refreshTokenRepository.save(new RefreshToken(memberId, newRefreshToken));
 
             return tokens;
-        }
-        else {
+        } else {
             throw new FailedCreateTokenException("accessToken 제작 실패");
         }
     }
 
-    public String testApi(HttpServletRequest request){
+    public String testApi(HttpServletRequest request) {
         log.info("[testApi] memberId 추출중");
         String token = jwtProvider.resolveServiceToken(request);
         Long memberId = jwtProvider.getMemberId(token);

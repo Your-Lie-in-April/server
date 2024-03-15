@@ -42,6 +42,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
-        }
-
     }
+
+}

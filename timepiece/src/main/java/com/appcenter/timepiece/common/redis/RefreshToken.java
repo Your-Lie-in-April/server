@@ -16,7 +16,7 @@ public class RefreshToken {
     @Indexed
     private Long memberId;
 
-    public RefreshToken(Long memberId,String refreshToken) {
+    public RefreshToken(Long memberId, String refreshToken) {
         this.refreshToken = refreshToken;
         this.memberId = memberId;
     }

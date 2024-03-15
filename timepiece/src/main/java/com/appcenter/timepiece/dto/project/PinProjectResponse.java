@@ -53,10 +53,10 @@ public class PinProjectResponse {
 
     @Builder(access = AccessLevel.PRIVATE)
     private PinProjectResponse(Long projectId, String title, String description, LocalDate startDate, LocalDate endDate,
-                              LocalTime startTime, LocalTime endTime,
-                              Boolean mon, Boolean tue, Boolean wed, Boolean thu, Boolean fri, Boolean sat, Boolean sun,
-                              Boolean isStored, String color, String coverImageUrl,
-                              Integer memberCount, List<ScheduleWeekResponse> schedule) {
+                               LocalTime startTime, LocalTime endTime,
+                               Boolean mon, Boolean tue, Boolean wed, Boolean thu, Boolean fri, Boolean sat, Boolean sun,
+                               Boolean isStored, String color, String coverImageUrl,
+                               Integer memberCount, List<ScheduleWeekResponse> schedule) {
         this.projectId = projectId;
         this.title = title;
         this.description = description;
