@@ -11,7 +11,6 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -49,7 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/v1/oauth2/reissue").hasRole("USER")
                         .requestMatchers("/v1/oauth2/test").hasRole("USER")
                         .requestMatchers("/v1/oauth2/test1","/","/swagger-ui/**", "/v3/api-docs/**").permitAll()
-
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtExceptionHandlerFilter(),
                         UsernamePasswordAuthenticationFilter.class)
