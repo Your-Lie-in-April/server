@@ -1,7 +1,7 @@
 package com.appcenter.timepiece.controller;
 
 
-import com.appcenter.timepiece.dto.CommonResponseDto;
+import com.appcenter.timepiece.common.dto.CommonResponse;
 import com.appcenter.timepiece.service.OAuth2Service;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,26 +30,26 @@ public class OAuth2Controller {
 
     @Operation(hidden = true)
     @GetMapping(value = "/login/google")
-    public ResponseEntity<CommonResponseDto> sign(HttpServletRequest request,
-                                                  @RequestParam(value = "code") String authCode,
-                                                  HttpServletResponse response) throws Exception{
+    public ResponseEntity<CommonResponse> sign(HttpServletRequest request,
+                                               @RequestParam(value = "code") String authCode,
+                                               HttpServletResponse response) throws Exception {
 
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, "성공", oAuth2Service.getGoogleInfo(authCode)));
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", oAuth2Service.getGoogleInfo(authCode)));
 
     }
 
     @GetMapping(value = "/reissue")
-    public ResponseEntity<CommonResponseDto> reissueAccessToken(HttpServletRequest request){
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, "토큰 재발급 성공", oAuth2Service.reissueAccessToken(request)));
+    public ResponseEntity<CommonResponse> reissueAccessToken(HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "토큰 재발급 성공", oAuth2Service.reissueAccessToken(request)));
     }
 
     @GetMapping(value = "/test")
-    public ResponseEntity<CommonResponseDto> testApi(HttpServletRequest request){
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, "테스트 성공", oAuth2Service.testApi(request)));
+    public ResponseEntity<CommonResponse> testApi(HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "테스트 성공", oAuth2Service.testApi(request)));
     }
 
     @GetMapping(value = "/test1")
-    public ResponseEntity<CommonResponseDto> testApi1(HttpServletRequest request){
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponseDto(1, "테스트 성공", oAuth2Service.testApi(request)));
+    public ResponseEntity<CommonResponse> testApi1(HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "테스트 성공", oAuth2Service.testApi(request)));
     }
 }

@@ -22,32 +22,32 @@ public class ProjectController {
      */
     @GetMapping("/v1/projects/all")
     public ResponseEntity<CommonResponse<?>> findAllForTest() {
-        return ResponseEntity.ok().body(new CommonResponse<>("SUCCESS", "", projectService.findAll()));
+        return ResponseEntity.ok().body(new CommonResponse<>(1, "", projectService.findAll()));
     }
 
     @GetMapping("/v1/projects/members/{memberId}")
     public ResponseEntity<CommonResponse<?>> findProjects(@PathVariable Long memberId) {
-        return ResponseEntity.ok().body(new CommonResponse<>("SUCCESS", "",
+        return ResponseEntity.ok().body(new CommonResponse<>(1, "",
                 projectService.findProjects(memberId)));
     }
 
     @GetMapping("/v1/projects/members/{memberId}/pin")
     public ResponseEntity<CommonResponse<?>> findPinProjects(@PathVariable Long memberId) {
-        return ResponseEntity.ok().body(new CommonResponse<>("SUCCESS", "",
+        return ResponseEntity.ok().body(new CommonResponse<>(1, "",
                 projectService.findPinProjects(memberId)));
     }
 
     @GetMapping("/v1/projects/members/{memberId}/{keyword}")
     public ResponseEntity<CommonResponse<?>> searchProjects(@PathVariable Long memberId,
                                                             @PathVariable String keyword) {
-        return ResponseEntity.ok().body(new CommonResponse<>("SUCCESS", "",
+        return ResponseEntity.ok().body(new CommonResponse<>(1, "",
                 projectService.searchProjects(memberId, keyword)));
     }
 
     // todo: 해당 기능은 Project가 아닌 Member의 책임이 아닐까?
     @GetMapping("/v1/projects/{projectId}/members")
     public ResponseEntity<CommonResponse<?>> findMembersInProject(@PathVariable Long projectId) {
-        return ResponseEntity.ok().body(new CommonResponse<>("SUCCESS", "",
+        return ResponseEntity.ok().body(new CommonResponse<>(1, "",
                 projectService.findMembers(projectId)));
     }
 

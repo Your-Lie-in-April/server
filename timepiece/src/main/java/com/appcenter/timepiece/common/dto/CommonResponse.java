@@ -6,13 +6,13 @@ import org.springframework.http.HttpStatus;
 @Getter
 public class CommonResponse<T> {
 
-    private String status;
+    private int status;
 
     private String message;
 
     private T data;
 
-    public CommonResponse(String status, String message, T data) {
+    public CommonResponse(int status, String message, T data) {
         this.status = status;
         this.message = message;
         this.data = data;
