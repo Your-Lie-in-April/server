@@ -20,4 +20,13 @@ public class Invitation extends BaseTimeEntity {
     private Project project;
 
     private String url;
+
+    private Invitation(Project project, String url) {
+        this.project = project;
+        this.url = url;
+    }
+
+    public static Invitation of(Project project, String url) {
+        return new Invitation(project, url);
+    }
 }
