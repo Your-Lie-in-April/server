@@ -60,7 +60,7 @@ public class ProjectController {
     }
 
     @DeleteMapping("/v1/projects/{projectId}")
-    public ResponseEntity<CommonResponse<?>> createProject(@PathVariable Long projectId,
+    public ResponseEntity<CommonResponse<?>> kickProject(@PathVariable Long projectId,
                                               @AuthenticationPrincipal UserDetails userDetails) {
         projectService.deleteProject(projectId, userDetails);
         return ResponseEntity.accepted().body(CommonResponse.success("프로젝트 삭제 성공", null));
