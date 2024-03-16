@@ -11,10 +11,6 @@ import java.util.Optional;
 @Repository
 public interface MemberProjectRepository extends JpaRepository<MemberProject, Long> {
 
-    List<MemberProject> findByProjectId(Long projectId);
-
-    List<MemberProject> findByMemberId(Long memberId);
-
     @Query("select mp from MemberProject mp " +
             "join fetch mp.project p " +
             "left join fetch p.cover c " +
