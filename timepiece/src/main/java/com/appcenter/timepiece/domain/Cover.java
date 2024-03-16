@@ -17,7 +17,7 @@ public class Cover {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "cover_image_url")
+    @Column(name = "cover_image_url", columnDefinition = "TEXT")
     private String coverImageUrl;
 
     @OneToMany(mappedBy = "cover")
