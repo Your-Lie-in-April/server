@@ -41,8 +41,6 @@ public class PinProjectResponse {
 
     private Boolean sun;
 
-    private Boolean isStored;
-
     private String color;
 
     private String coverImageUrl;
@@ -55,7 +53,7 @@ public class PinProjectResponse {
     private PinProjectResponse(Long projectId, String title, String description, LocalDate startDate, LocalDate endDate,
                                LocalTime startTime, LocalTime endTime,
                                Boolean mon, Boolean tue, Boolean wed, Boolean thu, Boolean fri, Boolean sat, Boolean sun,
-                               Boolean isStored, String color, String coverImageUrl,
+                               String color, String coverImageUrl,
                                Integer memberCount, List<ScheduleWeekResponse> schedule) {
         this.projectId = projectId;
         this.title = title;
@@ -71,7 +69,6 @@ public class PinProjectResponse {
         this.fri = fri;
         this.sat = sat;
         this.sun = sun;
-        this.isStored = isStored;
         this.color = color;
         this.coverImageUrl = coverImageUrl;
         this.memberCount = memberCount;
@@ -94,7 +91,6 @@ public class PinProjectResponse {
                 .fri(project.getFri())
                 .sat(project.getSat())
                 .sun(project.getSun())
-                .isStored(project.getIsStored())
                 .coverImageUrl(coverImageUrl)
                 .color(project.getColor())
                 .memberCount(schedule.size())
