@@ -39,8 +39,6 @@ public class ProjectResponse {
 
     private Boolean sun;
 
-    private Boolean isStored;
-
     private String coverImageUrl;
 
     private String color;
@@ -50,7 +48,7 @@ public class ProjectResponse {
                             LocalDate startDate, LocalDate endDate,
                             LocalTime startTime, LocalTime endTime,
                             Boolean mon, Boolean tue, Boolean wed, Boolean thu, Boolean fri,
-                            Boolean sat, Boolean sun, Boolean isStored,
+                            Boolean sat, Boolean sun,
                             String coverImageUrl, String color) {
         this.projectId = projectId;
         this.title = title;
@@ -66,7 +64,6 @@ public class ProjectResponse {
         this.fri = fri;
         this.sat = sat;
         this.sun = sun;
-        this.isStored = isStored;
         this.coverImageUrl = coverImageUrl;
         this.color = color;
     }
@@ -87,7 +84,6 @@ public class ProjectResponse {
                 .fri(project.getFri())
                 .sat(project.getSat())
                 .sun(project.getSun())
-                .isStored(project.getIsStored())
                 .coverImageUrl(coverImageUrl)
                 .color(project.getColor())
                 .build();
