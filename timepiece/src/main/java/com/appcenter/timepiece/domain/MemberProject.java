@@ -35,6 +35,9 @@ public class MemberProject extends BaseTimeEntity {
     @Column(name = "is_pinned")
     private Boolean isPinned;
 
+    @Column(name = "is_stored")
+    private Boolean isStored;
+
     @Column(name = "is_privileged")
     private Boolean isPrivileged;
 
@@ -45,6 +48,7 @@ public class MemberProject extends BaseTimeEntity {
         this.nickname = nickname;
         this.isPinned = false;
         this.isPrivileged = false;
+        this.isStored = false;
     }
 
     public static MemberProject of(Member member, Project project) {
@@ -56,6 +60,14 @@ public class MemberProject extends BaseTimeEntity {
     }
 
     public void grantPrivilege() {
-        this.isPrivileged = !this.isPrivileged;
+        this.isPrivileged ^= true;
+    }
+
+    public void switchIsPinned() {
+        this.isPinned ^= true;
+    }
+
+    public void switchIsStored() {
+        this.isStored ^= true;
     }
 }

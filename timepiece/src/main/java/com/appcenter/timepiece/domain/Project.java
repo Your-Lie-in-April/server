@@ -46,9 +46,6 @@ public class Project extends BaseTimeEntity {
     private Boolean sat;
     private Boolean sun;
 
-    @Column(name = "is_stored")
-    private Boolean isStored;
-
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<MemberProject> memberProjects = new ArrayList<>();
 
@@ -65,7 +62,7 @@ public class Project extends BaseTimeEntity {
     private Project(String title, String description,
                     LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime,
                     Boolean mon, Boolean tue, Boolean wed, Boolean thu, Boolean fri, Boolean sat, Boolean sun,
-                    Boolean isStored, List<MemberProject> memberProjects, List<Invitation> invitations,
+                    List<MemberProject> memberProjects, List<Invitation> invitations,
                     Cover cover, String color) {
         this.title = title;
         this.description = description;
@@ -80,7 +77,6 @@ public class Project extends BaseTimeEntity {
         this.fri = fri;
         this.sat = sat;
         this.sun = sun;
-        this.isStored = isStored;
         this.memberProjects = memberProjects;
         this.invitations = invitations;
         this.cover = cover;
@@ -95,7 +91,6 @@ public class Project extends BaseTimeEntity {
                 .startTime(request.getStartTime()).endTime(request.getEndTime())
                 .mon(request.getMon()).tue(request.getTue()).wed(request.getWed())
                 .thu(request.getThu()).fri(request.getFri()).sat(request.getSat()).sun(request.getSun())
-                .isStored(request.getIsStored())
                 .color(request.getColor())
                 .cover(cover)
                 .build();
