@@ -60,7 +60,11 @@ public class MemberProject extends BaseTimeEntity {
     }
 
     public void grantPrivilege() {
-        this.isPrivileged ^= true;
+        this.isPrivileged = true;
+    }
+
+    public void releasePrivilege() {
+        this.isPrivileged = false;
     }
 
     public void switchIsPinned() {
