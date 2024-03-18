@@ -4,10 +4,7 @@ import com.appcenter.timepiece.common.exception.NotEnoughPrivilegeException;
 import com.appcenter.timepiece.common.security.CustomUserDetails;
 import com.appcenter.timepiece.domain.*;
 import com.appcenter.timepiece.dto.member.MemberResponse;
-import com.appcenter.timepiece.dto.project.PinProjectResponse;
-import com.appcenter.timepiece.dto.project.ProjectCreateUpdateRequest;
-import com.appcenter.timepiece.dto.project.ProjectResponse;
-import com.appcenter.timepiece.dto.project.ProjectThumbnailResponse;
+import com.appcenter.timepiece.dto.project.*;
 import com.appcenter.timepiece.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -104,6 +101,9 @@ public class ProjectService {
 
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 프로젝트 멤버를 찾을 수 없습니다"));
+        if (memberProject.getIsPrivileged()) {
+            throw new NotEnoughPrivilegeException("프로젝트 관리자는 강퇴할 수 없습니다");
+        }
 
         memberProjectRepository.delete(memberProject);
     }
@@ -154,7 +154,7 @@ public class ProjectService {
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
                 .orElseThrow(() -> new IllegalArgumentException("멤버-프로젝트 쌍을 찾을 수 없습니다."));
         if (memberProject.getIsPrivileged()) return;
-        throw new NotEnoughPrivilegeException("현재 사용자는 프로젝트 오너가 아닙니다.");
+        throw new NotEnoughPrivilegeException("프로젝트 관리자 권한이 없습니다.");
     }
 
     @Transactional
@@ -164,5 +164,33 @@ public class ProjectService {
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
                 .orElseThrow(() -> new IllegalArgumentException("멤버-프로젝트 쌍을 찾을 수 없습니다."));
         memberProject.switchIsPinned();
+    }
+
+    public void goOut(Long projectId, UserDetails userDetails) {
+        Long myId = ((CustomUserDetails) userDetails).getId();
+        MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(myId, projectId)
+                .orElseThrow(() -> new IllegalArgumentException("해당하는 프로젝트 멤버를 찾을 수 없습니다"));
+        if (memberProject.getIsPrivileged()) {
+            throw new NotEnoughPrivilegeException("관리자는 나갈 수 없습니다");
+        }
+        memberProjectRepository.delete(memberProject);
+    }
+
+    public void transferPrivilege(Long projectId, TransferPrivilegeRequest request, UserDetails userDetails) {
+        validateRequesterIsPrivileged(projectId, userDetails);
+
+        Long fromMemberId = ((CustomUserDetails) userDetails).getId();
+        Long toMemberId = request.getToMemberId();
+
+        MemberProject fromMemberProject = memberProjectRepository.findByMemberIdAndProjectId(fromMemberId, projectId)
+                .orElseThrow(() -> new IllegalStateException("멤버-프로젝트 쌍을 찾을 수 없습니다."));
+        MemberProject toMemberProject = memberProjectRepository.findByMemberIdAndProjectId(toMemberId, projectId)
+                .orElseThrow(() -> new IllegalArgumentException("멤버-프로젝트 쌍을 찾을 수 없습니다."));
+
+        fromMemberProject.releasePrivilege();
+        toMemberProject.grantPrivilege();
+
+        memberProjectRepository.save(fromMemberProject);
+        memberProjectRepository.save(toMemberProject);
     }
 }

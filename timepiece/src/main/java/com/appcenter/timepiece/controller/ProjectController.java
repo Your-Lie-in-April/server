@@ -1,6 +1,7 @@
 package com.appcenter.timepiece.controller;
 
 import com.appcenter.timepiece.common.dto.CommonResponse;
+import com.appcenter.timepiece.dto.project.TransferPrivilegeRequest;
 import com.appcenter.timepiece.dto.project.ProjectCreateUpdateRequest;
 import com.appcenter.timepiece.service.ProjectService;
 import lombok.RequiredArgsConstructor;
@@ -81,7 +82,6 @@ public class ProjectController {
                 projectService.generateInviteLink(projectId, userDetails));
     }
 
-    // todo: 마지막 member 탈퇴 시 프로젝트도 삭제?
     @DeleteMapping("/v1/projects/{projectId}/members/{memberId}")
     public CommonResponse<Void> kick(@PathVariable Long projectId,
                                      @PathVariable Long memberId,
@@ -90,6 +90,20 @@ public class ProjectController {
         return CommonResponse.success("추방되었습니다", null);
     }
 
+    @DeleteMapping("/v1/projects/{projectId}/me")
+    public CommonResponse<Void> goOut(@PathVariable Long projectId,
+                                     @AuthenticationPrincipal UserDetails userDetails) {
+        projectService.goOut(projectId, userDetails);
+        return CommonResponse.success("프로젝트에서 나갔습니다", null);
+    }
+
+    @PatchMapping("/v1/projects/{projectId}/transfer-privilege")
+    public CommonResponse<Void> transferPrivilege(@PathVariable Long projectId,
+                                                  @RequestBody TransferPrivilegeRequest request,
+                                                  @AuthenticationPrincipal UserDetails userDetails) {
+        projectService.transferPrivilege(projectId, request, userDetails);
+        return CommonResponse.success("프로젝트 관리 권한을 양도하였습니다.", null);
+    }
 
     @PostMapping("/v1/invitation/{url}")
     public CommonResponse<Void> join(@PathVariable String url,
