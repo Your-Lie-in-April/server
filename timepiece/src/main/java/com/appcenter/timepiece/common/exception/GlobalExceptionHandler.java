@@ -33,13 +33,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<CommonResponse> handleExpiredJwtException() {
+    public ResponseEntity<CommonResponse> handleExpiredJwtException(ExpiredJwtException e) {
         log.error("[ExpiredJwtException] 토큰에러");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonResponse.error("토큰의 기한이 만료되었습니다.", null));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonResponse.error(e.getMessage(), null));
     }
 
     @ExceptionHandler(NotEnoughPrivilegeException.class)
-    public CommonResponse<?> handleNotEnoughPrivilegeException() {
-        return CommonResponse.error("프로젝트에 대한 권한이 없습니다.", null);
+    public ResponseEntity<CommonResponse<?>> handleNotEnoughPrivilegeException(NotEnoughPrivilegeException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponse.error(e.getMessage(), null));
     }
 }
