@@ -56,14 +56,14 @@ public class ProjectController {
     public ResponseEntity<CommonResponse> createProject(@RequestBody ProjectCreateUpdateRequest request,
                                               @AuthenticationPrincipal UserDetails userDetails) {
         projectService.createProject(request, userDetails);
-        return ResponseEntity.accepted().body(CommonResponse.success("프로젝트 생성 성공", null));
+        return ResponseEntity.ok().body(CommonResponse.success("프로젝트 생성 성공", null));
     }
 
     @DeleteMapping("/v1/projects/{projectId}")
     public ResponseEntity<CommonResponse<?>> kickProject(@PathVariable Long projectId,
                                               @AuthenticationPrincipal UserDetails userDetails) {
         projectService.deleteProject(projectId, userDetails);
-        return ResponseEntity.accepted().body(CommonResponse.success("프로젝트 삭제 성공", null));
+        return ResponseEntity.ok().body(CommonResponse.success("프로젝트 삭제 성공", null));
     }
 
     @PutMapping("/v1/projects/{projectId}")
