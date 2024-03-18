@@ -29,4 +29,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CommonResponseDto<>(0, ex.getMessage(), null));
     }
 
+    @ExceptionHandler(value = MismatchTokenTypeException.class)
+    public ResponseEntity<CommonResponseDto> handleMisMatchTokenTypeException(MismatchTokenTypeException ex){
+        log.error(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CommonResponseDto(0, ex.getMessage(), null));
+    }
+
 }

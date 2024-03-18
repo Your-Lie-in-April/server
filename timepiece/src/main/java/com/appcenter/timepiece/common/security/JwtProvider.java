@@ -2,6 +2,7 @@ package com.appcenter.timepiece.common.security;
 
 import com.appcenter.timepiece.common.exception.ExceptionMessage;
 import com.appcenter.timepiece.common.exception.JwtEmptyException;
+import com.appcenter.timepiece.common.exception.MismatchTokenTypeException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,6 +53,7 @@ public class JwtProvider {
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("memberId", id);
         claims.put("roles", roles);
+        claims.put("type", "refresh");
         Date now = new Date();
         return Jwts
                 .builder()
@@ -69,6 +71,7 @@ public class JwtProvider {
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("roles", roles);
         claims.put("memberId", id);
+        claims.put("type", "access");
 
         Date now = new Date();
         String token = Jwts.builder()
@@ -111,6 +114,23 @@ public class JwtProvider {
         return memberId;
     }
 
+    public Boolean validAccessToken(String token){
+        if(Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("type").equals("access")){
+            return true;
+        }
+        else{
+            throw new MismatchTokenTypeException("토큰 타입이 틀렸습니다.");
+        }
+    }
+
+    public Boolean validRefreshToken(String token){
+        if(Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("type").equals("refresh")){
+            return true;
+        }
+        else{
+            throw new MismatchTokenTypeException("토큰 타입이 틀렸습니다.");
+        }
+    }
 
     public String resolveToken(HttpServletRequest request){
         log.info("[resolveToken] HTTP 헤더에서 Token 값 추출");

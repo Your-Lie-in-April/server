@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 
 public class JwtExceptionHandlerFilter extends OncePerRequestFilter {
     @Override
@@ -36,8 +37,8 @@ public class JwtExceptionHandlerFilter extends OncePerRequestFilter {
             setErrorResponse(response, ExceptionMessage.TOKEN_INVALID_FORMAT);
         }catch (NullPointerException e){
             setErrorResponse(response, ExceptionMessage.TOKEN_NOT_FOUND);
-        }catch (Exception e){
-            setErrorResponse(response, ExceptionMessage.MEMBER_NOTFOUND);
+        }catch (MismatchTokenTypeException e){
+            setErrorResponse(response, ExceptionMessage.TOKEN_INVALID_FORMAT);
         }
     }
     private void setErrorResponse(
