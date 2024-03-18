@@ -48,7 +48,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             log.info("결과: {}, ", jwtProvider.validDateToken(jwtToken));
             Authentication authentication = jwtProvider.getAuthentication(jwtToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.info("[doFilterInternal] 토큰 값 검증 완료");
+            log.info("[doFilterInternal] 토큰 값 검증 완료.git");
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
