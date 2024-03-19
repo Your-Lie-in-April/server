@@ -68,7 +68,7 @@ public class ProjectService {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 사용자입니다."));
-        Cover cover = coverRepository.findById(request.getCoverId())
+        Cover cover = coverRepository.findByCoverImageUrl(request.getCoverImageUrl())
                 .orElse(null);
         Project project = projectRepository.save(Project.of(request, cover));
         MemberProject memberProject = MemberProject.of(member, project);
@@ -90,7 +90,7 @@ public class ProjectService {
 
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 프로젝트입니다."));
-        Cover cover = coverRepository.findById(request.getCoverId())
+        Cover cover = coverRepository.findByCoverImageUrl(request.getCoverImageUrl())
                 .orElse(null);
 
         project.updateFrom(request, cover);
