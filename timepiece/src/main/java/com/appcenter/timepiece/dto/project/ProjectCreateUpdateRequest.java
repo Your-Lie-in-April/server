@@ -30,12 +30,10 @@ public class ProjectCreateUpdateRequest {
     @Schema(description = "프로젝트 종료일", example = "2024-01-31")
     private LocalDate endDate;
 
-    @Schema(description = "프로젝트 시작 시간", example = "09:00:00", type = "String")
-    @DateTimeFormat(pattern = "HH:mm:ss")
+    @Schema(description = "프로젝트 시작 시간", example = "09:00:00", type = "String", pattern = "HH:mm:ss")
     private LocalTime startTime;
 
-    @Schema(description = "프로젝트 종료 시간", example = "22:00:00", type = "String")
-    @DateTimeFormat(pattern = "HH:mm:ss")
+    @Schema(description = "프로젝트 종료 시간", example = "22:00:00", type = "String", pattern = "HH:mm:ss")
     private LocalTime endTime;
 
     @Schema(description = "월요일", example = "true")
