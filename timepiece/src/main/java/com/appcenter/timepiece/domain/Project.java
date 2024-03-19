@@ -49,7 +49,7 @@ public class Project extends BaseTimeEntity {
     @Column(name="is_stored")
     private Boolean isStored;
 
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<MemberProject> memberProjects = new ArrayList<>();
 
     @OneToMany(mappedBy = "project")

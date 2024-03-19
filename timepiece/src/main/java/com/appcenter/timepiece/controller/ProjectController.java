@@ -1,12 +1,12 @@
 package com.appcenter.timepiece.controller;
 
 import com.appcenter.timepiece.common.dto.CommonResponse;
-import com.appcenter.timepiece.common.security.CustomUserDetails;
 import com.appcenter.timepiece.dto.project.ProjectCreateUpdateRequest;
 import com.appcenter.timepiece.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("")
@@ -53,39 +53,48 @@ public class ProjectController {
 
     // todo: 리턴값이 Void인 경우 CommonResponse를 어떻게 사용할 것인가?
     @PostMapping("/v1/projects")
-    public ResponseEntity<Void> createProject(@RequestBody ProjectCreateUpdateRequest request) {
-        projectService.createProject(request);
+    public ResponseEntity<Void> createProject(@RequestBody ProjectCreateUpdateRequest request,
+                                              @AuthenticationPrincipal UserDetails userDetails) {
+        projectService.createProject(request, userDetails);
         return ResponseEntity.accepted().build();
     }
 
     // todo: Security와 통합, 요청자가 프로젝트 소유자인지 확인하는 로직 필요. 프로젝트 엔티티에 owner 속성 추가
     @DeleteMapping("/v1/projects/{projectId}")
     public ResponseEntity<Void> createProject(@PathVariable Long projectId,
-                                              @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        projectService.deleteProject(projectId, customUserDetails);
+                                              @AuthenticationPrincipal UserDetails userDetails) {
+        projectService.deleteProject(projectId, userDetails);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/v1/projects/{projectId}")
     public ResponseEntity<Void> updateProject(@PathVariable Long projectId,
-                                              @RequestBody ProjectCreateUpdateRequest request) {
-        projectService.updateProject(projectId, request);
+                                              @RequestBody ProjectCreateUpdateRequest request,
+                                              @AuthenticationPrincipal UserDetails userDetails) {
+        projectService.updateProject(projectId, request, userDetails);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/v1/projects/{projectId}/invitation")
-    public CommonResponse<String> generateInvitationLink() {
-        return null;
+    public CommonResponse<?> generateInviteLink(@PathVariable Long projectId,
+                                                @AuthenticationPrincipal UserDetails userDetails) {
+        return CommonResponse.success("초대링크를 성공적으로 생성했습니다",
+                projectService.generateInviteLink(projectId, userDetails));
     }
 
     @DeleteMapping("/v1/projects/{projectId}/members/{memberId}")
     public CommonResponse<Void> kick(@PathVariable Long projectId,
-                                     @PathVariable Long memberId) {
-        return null;
+                                     @PathVariable Long memberId,
+                                     @AuthenticationPrincipal UserDetails userDetails) {
+        projectService.kick(projectId, memberId, userDetails);
+        return CommonResponse.success("추방되었습니다", null);
     }
 
+
     @PostMapping("/v1/invitation/{url}")
-    public CommonResponse<Void> join(@PathVariable String url) {
-        return null;
+    public CommonResponse<Void> join(@PathVariable String url,
+                                     @AuthenticationPrincipal UserDetails userDetails) {
+        projectService.addUserToGroup(url, userDetails);
+        return CommonResponse.success("프로젝트 멤버로 추가 되었습니다", null);
     }
 }
