@@ -119,7 +119,7 @@ public class JwtProvider {
             return true;
         }
         else{
-            throw new MismatchTokenTypeException("토큰 타입이 틀렸습니다.");
+            throw new MismatchTokenTypeException(ExceptionMessage.TOKENTYPE_INVALID.getMessage());
         }
     }
 
@@ -128,7 +128,7 @@ public class JwtProvider {
             return true;
         }
         else{
-            throw new MismatchTokenTypeException("토큰 타입이 틀렸습니다.");
+            throw new MismatchTokenTypeException(ExceptionMessage.TOKENTYPE_INVALID.getMessage());
         }
     }
 
