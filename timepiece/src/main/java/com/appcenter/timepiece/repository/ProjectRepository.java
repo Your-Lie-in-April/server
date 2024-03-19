@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
-    @Query("select p from Project p join fetch p.cover c")
+    @Query("select p from Project p left join fetch p.cover c")
     List<Project> findAllWithCover();
 
     @Query("select distinct p from Project p " +
