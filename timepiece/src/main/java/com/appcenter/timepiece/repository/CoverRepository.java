@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface CoverRepository extends JpaRepository<Cover, Long> {
 
-    Optional<Cover> findById(Long coverId);
+    Optional<Cover> findByCoverImageUrl(String coverImageUrl);
 }
