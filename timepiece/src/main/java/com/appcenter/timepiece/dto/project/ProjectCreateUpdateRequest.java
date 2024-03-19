@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -29,10 +30,12 @@ public class ProjectCreateUpdateRequest {
     @Schema(description = "프로젝트 종료일", example = "2024-01-31")
     private LocalDate endDate;
 
-    @Schema(description = "프로젝트 시작 시간", example = "09:00:00")
+    @Schema(description = "프로젝트 시작 시간", example = "09:00:00", type = "String")
+    @DateTimeFormat(pattern = "HH:mm:ss")
     private LocalTime startTime;
 
-    @Schema(description = "프로젝트 종료 시간", example = "22:00:00")
+    @Schema(description = "프로젝트 종료 시간", example = "22:00:00", type = "String")
+    @DateTimeFormat(pattern = "HH:mm:ss")
     private LocalTime endTime;
 
     @Schema(description = "월요일", example = "true")
