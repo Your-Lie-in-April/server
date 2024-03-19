@@ -20,7 +20,6 @@ public class ProjectController {
      * Just for Test!<br>
      * DB에 저장된 모든 프로젝트를 조회하여 ProjectResponse 타입의 List를 리턴합니다.
      */
-    // solved: getCover()의 결과가 null일 경우, getCoverImageUrl()로 인해 NPE 발생
     @GetMapping("/v1/projects/all")
     public ResponseEntity<CommonResponse<?>> findAllForTest() {
         return ResponseEntity.ok().body(CommonResponse.success("", projectService.findAll()));

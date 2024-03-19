@@ -30,7 +30,8 @@ public class ProjectService {
 
     public List<ProjectResponse> findAll() {
         return projectRepository.findAllWithCover().stream().map(p ->
-                ProjectResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
+                ProjectResponse.of(p,
+                        ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
     }
 
     /**
@@ -63,8 +64,6 @@ public class ProjectService {
 
     public List<MemberResponse> findMembers(Long projectId) {
         return memberRepository.findByProjectIdWithMember(projectId).stream().map(MemberResponse::from).toList();
-//        return memberProjectRepository.findByProjectId(projectId).stream().map(MemberProject::getMember)
-//                .map(MemberResponse::from).toList();
     }
 
     public void createProject(ProjectCreateUpdateRequest request, UserDetails userDetails) {
