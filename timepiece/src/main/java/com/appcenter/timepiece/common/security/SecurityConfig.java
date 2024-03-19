@@ -20,7 +20,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -32,7 +31,7 @@ public class SecurityConfig {
 
     private final AuthenticationEntryPoint authenticationEntryPoint;
     @Bean
-    protected SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception{
+    protected SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .httpBasic(HttpBasicConfigurer::disable)
                 .csrf(CsrfConfigurer::disable)
@@ -40,8 +39,8 @@ public class SecurityConfig {
                     security.configurationSource(corsConfigurationSource());
                 })
                 .sessionManagement((sessionManagement) ->
-                sessionManagement
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        sessionManagement
+                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/v1/members/**").authenticated()
                         .requestMatchers("/v1/oauth2/login-page/google").permitAll()
@@ -51,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/v1/oauth2/issue").permitAll()
                         .requestMatchers("/v1/oauth2/test1","/","/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtExceptionHandlerFilter(),
                         UsernamePasswordAuthenticationFilter.class)

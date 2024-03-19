@@ -6,10 +6,10 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-// 추후 중첩클래스로 수정?
+// todo: 중첩클래스로 작성
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ScheduleDayRequest {
-    private List<ScheduleResponse> schedule;
+    private List<ScheduleDto> schedule;
 
 }

@@ -1,5 +1,7 @@
 package com.appcenter.timepiece.dto.project;
 
+import com.appcenter.timepiece.domain.Project;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,7 +11,7 @@ import java.time.LocalTime;
 @Getter
 public class ProjectResponse {
 
-    private String projectId;
+    private Long projectId;
 
     private String title;
 
@@ -37,18 +39,16 @@ public class ProjectResponse {
 
     private Boolean sun;
 
-    private Boolean isStored;
-
     private String coverImageUrl;
 
     private String color;
 
-    @Builder
-    private ProjectResponse(String projectId, String title, String description,
+    @Builder(access = AccessLevel.PRIVATE)
+    private ProjectResponse(Long projectId, String title, String description,
                             LocalDate startDate, LocalDate endDate,
                             LocalTime startTime, LocalTime endTime,
                             Boolean mon, Boolean tue, Boolean wed, Boolean thu, Boolean fri,
-                            Boolean sat, Boolean sun, Boolean isStored,
+                            Boolean sat, Boolean sun,
                             String coverImageUrl, String color) {
         this.projectId = projectId;
         this.title = title;
@@ -64,8 +64,28 @@ public class ProjectResponse {
         this.fri = fri;
         this.sat = sat;
         this.sun = sun;
-        this.isStored = isStored;
         this.coverImageUrl = coverImageUrl;
         this.color = color;
+    }
+
+    public static ProjectResponse of(Project project, String coverImageUrl) {
+        return ProjectResponse.builder()
+                .projectId(project.getId())
+                .title(project.getTitle())
+                .description(project.getDescription())
+                .startDate(project.getStartDate())
+                .endDate(project.getEndDate())
+                .startTime(project.getStartTime())
+                .endTime(project.getEndTime())
+                .mon(project.getMon())
+                .tue(project.getTue())
+                .wed(project.getWed())
+                .thu(project.getThu())
+                .fri(project.getFri())
+                .sat(project.getSat())
+                .sun(project.getSun())
+                .coverImageUrl(coverImageUrl)
+                .color(project.getColor())
+                .build();
     }
 }
