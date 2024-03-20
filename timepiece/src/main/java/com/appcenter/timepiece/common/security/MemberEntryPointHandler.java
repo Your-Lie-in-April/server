@@ -26,6 +26,7 @@ public class MemberEntryPointHandler implements AuthenticationEntryPoint {
         response.setStatus(401);
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
+
         response.getWriter().write(objectMapper.writeValueAsString(commonResponse));
 
     }
