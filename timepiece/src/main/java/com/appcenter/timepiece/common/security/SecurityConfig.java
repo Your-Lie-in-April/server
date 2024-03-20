@@ -47,8 +47,8 @@ public class SecurityConfig {
                         .requestMatchers("/v1/oauth2/login/google").permitAll()
                         .requestMatchers("/v1/oauth2/reissue").hasRole("USER")
                         .requestMatchers("/v1/oauth2/test").hasRole("USER")
-                        .requestMatchers("/v1/oauth2/issue").permitAll()
-                        .requestMatchers("/v1/oauth2/test1","/","/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/v1/oauth2/test1").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
                         .anyRequest().authenticated()
                 )
