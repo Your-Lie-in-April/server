@@ -52,7 +52,6 @@ public class JwtExceptionHandlerFilter extends OncePerRequestFilter {
             log.info("[JwtExceptionHandlerFilter] error name = NullPointerException");
         } catch (MismatchTokenTypeException e) {
             setErrorResponse(response, ExceptionMessage.TOKEN_TYPE_INVALID);
-            log.info("[JwtExceptionHandlerFilter] error name = MismatchTokenTypeException");
         }
     }
 
