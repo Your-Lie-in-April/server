@@ -1,3 +1,4 @@
+
 package com.appcenter.timepiece.common.dto;
 
 import lombok.Getter;
