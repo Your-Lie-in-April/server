@@ -25,25 +25,32 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         log.info("[doFilerInternal] 토큰 얻어오기");
-        String token = jwtProvider.resolveToken(servletRequest);
-        log.info("[doFilterInternal] 토큰 얻어오기 성공");
+        String token = jwtProvider.getAuthorizationToken(servletRequest);
 
-        log.info("[doFilterInternal] Token = {}", token);
+        log.info("[doFilterInternal] 토큰 얻어오기 성공");
+        log.info("[doFilterInternal] Token ={}", token);
 
         if (token != null) {
-            filterChain.doFilter(servletRequest, servletResponse);
-            try{
-                jwtProvider.validDateToken(token);
-                log.info("결과: {}, ", jwtProvider.validDateToken(token));
-                Authentication authentication = jwtProvider.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.info("[doFilterInternal] 토큰 값 검증 완료");
+            String jwtToken = token.substring(7);
+            log.info("[doFilterInternal] jwtToken:{}", jwtToken);
 
+            log.info("[doFilterInternal] 토큰 타입 확인");
+            if(servletRequest.getRequestURI().equals("/v1/oauth2/reissue")){
+                jwtProvider.validRefreshToken(jwtToken);
             }
-            catch (Exception e){
-                servletRequest.setAttribute("exception", e);
+            else{
+                jwtProvider.validAccessToken(jwtToken);
             }
+            log.info("[doFilterInternal] 토큰 타입 확인 완료");
+
+            jwtProvider.validDateToken(jwtToken);
+            log.info("결과: {}, ", jwtProvider.validDateToken(jwtToken));
+            Authentication authentication = jwtProvider.getAuthentication(jwtToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            log.info("[doFilterInternal] 토큰 값 검증 완료.git");
         }
+
         filterChain.doFilter(servletRequest, servletResponse);
     }
+
 }

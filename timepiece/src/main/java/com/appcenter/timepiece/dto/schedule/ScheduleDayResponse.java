@@ -9,9 +9,9 @@ public class ScheduleDayResponse {
 
     private String daysOfWeek;
 
-    private List<ScheduleResponse> schedule;
+    private List<ScheduleDto> schedule;
 
-    public ScheduleDayResponse(String daysOfWeek, List<ScheduleResponse> schedule) {
+    public ScheduleDayResponse(String daysOfWeek, List<ScheduleDto> schedule) {
         this.daysOfWeek = daysOfWeek;
         this.schedule = schedule;
     }
