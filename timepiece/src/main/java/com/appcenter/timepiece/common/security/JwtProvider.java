@@ -114,7 +114,7 @@ public class JwtProvider {
             return true;
         }
         else{
-            throw new MismatchTokenTypeException(ExceptionMessage.TOKENTYPE_INVALID.getMessage());
+            throw new MismatchTokenTypeException(ExceptionMessage.TOKEN_TYPE_INVALID.getMessage());
         }
     }
 
@@ -123,7 +123,7 @@ public class JwtProvider {
             return true;
         }
         else{
-            throw new MismatchTokenTypeException(ExceptionMessage.TOKENTYPE_INVALID.getMessage());
+            throw new MismatchTokenTypeException(ExceptionMessage.TOKEN_TYPE_INVALID.getMessage());
         }
     }
 
