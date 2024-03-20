@@ -127,8 +127,8 @@ public class JwtProvider {
         }
     }
 
-    public String resolveToken(HttpServletRequest request) {
-        log.info("[resolveToken] HTTP 헤더에서 Token 값 추출");
+    public String getAuthorizationToken(HttpServletRequest request) {
+        log.info("[getAuthorizationToken] HTTP 헤더에서 Token 값 추출");
 
         return request.getHeader("Authorization");
     }
@@ -156,6 +156,5 @@ public class JwtProvider {
             log.info("[validDateToken] 토큰 유효성 체크 실패");
             return false;
         }
-
     }
 }

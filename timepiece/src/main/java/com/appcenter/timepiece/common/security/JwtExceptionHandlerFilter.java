@@ -29,7 +29,6 @@ public class JwtExceptionHandlerFilter extends OncePerRequestFilter {
 
         try {
             filterChain.doFilter(request, response);
-
         } catch (DecodingException e) {
             setErrorResponse(response, ExceptionMessage.TOKEN_INVALID_FORMAT);
             log.info("[JwtExceptionHandlerFilter] error name = DecodingException");
@@ -54,8 +53,6 @@ public class JwtExceptionHandlerFilter extends OncePerRequestFilter {
         } catch (MismatchTokenTypeException e) {
             setErrorResponse(response, ExceptionMessage.TOKEN_TYPE_INVALID);
             log.info("[JwtExceptionHandlerFilter] error name = MismatchTokenTypeException");
-
-
         }
     }
 
@@ -67,9 +64,9 @@ public class JwtExceptionHandlerFilter extends OncePerRequestFilter {
         response.setStatus(exceptionMessage.getHttpStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        CommonResponse commonResponseDto = new CommonResponse(exceptionMessage.getErrorCode(), exceptionMessage.getMessage(), null);
+        CommonResponse commonResponse = new CommonResponse(exceptionMessage.getErrorCode(), exceptionMessage.getMessage(), null);
         try {
-            response.getWriter().write(objectMapper.writeValueAsString(commonResponseDto));
+            response.getWriter().write(objectMapper.writeValueAsString(commonResponse));
         } catch (IOException e) {
             e.printStackTrace();
         }
