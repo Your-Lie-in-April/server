@@ -4,12 +4,15 @@ import com.appcenter.timepiece.common.exception.ExceptionMessage;
 import com.appcenter.timepiece.common.exception.NotFoundMemberException;
 import com.appcenter.timepiece.common.security.JwtProvider;
 import com.appcenter.timepiece.domain.Member;
+import com.appcenter.timepiece.domain.MemberProject;
 import com.appcenter.timepiece.dto.member.MemberInfoResponse;
+import com.appcenter.timepiece.repository.MemberProjectRepository;
 import com.appcenter.timepiece.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +23,8 @@ import java.util.stream.Collectors;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+
+    private final MemberProjectRepository memberProjectRepository;
 
     private final JwtProvider jwtProvider;
     public List<MemberInfoResponse> getAllMember(){
@@ -35,7 +40,7 @@ public class MemberService {
     public String getMemberState(HttpServletRequest request){
         log.info("[getMemberState] 맴버 상태 조회");
 
-        Long memberId = jwtProvider.getMemberId(jwtProvider.resolveToken(request));
+        Long memberId = jwtProvider.getMemberId(jwtProvider.resolveServiceToken(request));
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(()->new NotFoundMemberException(ExceptionMessage.MEMBER_NOTFOUND));
@@ -43,21 +48,26 @@ public class MemberService {
         return member.getState();
     }
 
-    public void editMemberState(String status, HttpServletRequest request){
-        log.info("[editMemberState] 멤버 상태 수정");
 
-        Long memberId = jwtProvider.getMemberId(jwtProvider.resolveToken(request));
+    public void editMemberState(String state, HttpServletRequest request){
+        log.info("[editMemberState] 멤버 상태 수정 state = {}", state);
 
+        Long memberId = jwtProvider.getMemberId(jwtProvider.resolveServiceToken(request));
+        log.info("memberId = {}", memberId);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(()->new NotFoundMemberException(ExceptionMessage.MEMBER_NOTFOUND));
 
-        member.editStatus(status);
+        member.editState(state);
         memberRepository.save(member);
     }
-    //    public void editMemberNickname(Long projectId, HttpServletRequest request){
-//        Long memberId = jwtProvider.getMemberId(jwtProvider.resolveToken(request));
-//
-//
-//    }
-    
+
+    public void editMemberNickname(Long projectId,String nickName ,HttpServletRequest request){
+        Long memberId = jwtProvider.getMemberId(jwtProvider.resolveServiceToken(request));
+
+        MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
+                .orElseThrow(() -> new NotFoundMemberException(ExceptionMessage.MEMBER_NOTFOUND));
+
+        memberProject.editMemberNickName(nickName);
+        memberProjectRepository.save(memberProject);
+    }
 }

@@ -1,18 +1,18 @@
 package com.appcenter.timepiece.dto.member;
 
 import com.appcenter.timepiece.domain.MemberProject;
-import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class MemberInfoResponse {
 
     private Long id;
 
     private String provider;
-
 
     private String nickname;
 
