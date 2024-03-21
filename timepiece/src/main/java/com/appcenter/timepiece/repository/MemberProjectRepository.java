@@ -1,6 +1,7 @@
 package com.appcenter.timepiece.repository;
 
 import com.appcenter.timepiece.domain.MemberProject;
+import com.appcenter.timepiece.domain.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -22,4 +23,5 @@ public interface MemberProjectRepository extends JpaRepository<MemberProject, Lo
     Optional<MemberProject> findByMemberIdAndProjectId(Long memberId, Long projectId);
 
     boolean existsByMemberIdAndProjectId(Long memberId, Long projectId);
+
 }
