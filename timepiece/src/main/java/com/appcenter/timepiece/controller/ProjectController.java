@@ -1,8 +1,8 @@
 package com.appcenter.timepiece.controller;
 
 import com.appcenter.timepiece.common.dto.CommonResponse;
-import com.appcenter.timepiece.dto.project.TransferPrivilegeRequest;
 import com.appcenter.timepiece.dto.project.ProjectCreateUpdateRequest;
+import com.appcenter.timepiece.dto.project.TransferPrivilegeRequest;
 import com.appcenter.timepiece.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -55,22 +55,22 @@ public class ProjectController {
 
     @PostMapping("/v1/projects")
     public ResponseEntity<CommonResponse> createProject(@RequestBody ProjectCreateUpdateRequest request,
-                                              @AuthenticationPrincipal UserDetails userDetails) {
+                                                        @AuthenticationPrincipal UserDetails userDetails) {
         projectService.createProject(request, userDetails);
         return ResponseEntity.ok().body(CommonResponse.success("프로젝트 생성 성공", null));
     }
 
     @DeleteMapping("/v1/projects/{projectId}")
     public ResponseEntity<CommonResponse<?>> kickProject(@PathVariable Long projectId,
-                                              @AuthenticationPrincipal UserDetails userDetails) {
+                                                         @AuthenticationPrincipal UserDetails userDetails) {
         projectService.deleteProject(projectId, userDetails);
         return ResponseEntity.ok().body(CommonResponse.success("프로젝트 삭제 성공", null));
     }
 
     @PutMapping("/v1/projects/{projectId}")
     public ResponseEntity<CommonResponse<?>> updateProject(@PathVariable Long projectId,
-                                              @RequestBody ProjectCreateUpdateRequest request,
-                                              @AuthenticationPrincipal UserDetails userDetails) {
+                                                           @RequestBody ProjectCreateUpdateRequest request,
+                                                           @AuthenticationPrincipal UserDetails userDetails) {
         projectService.updateProject(projectId, request, userDetails);
         return ResponseEntity.ok().body(CommonResponse.success("프로젝트 수정 성공", null));
     }
@@ -92,7 +92,7 @@ public class ProjectController {
 
     @DeleteMapping("/v1/projects/{projectId}/me")
     public CommonResponse<Void> goOut(@PathVariable Long projectId,
-                                     @AuthenticationPrincipal UserDetails userDetails) {
+                                      @AuthenticationPrincipal UserDetails userDetails) {
         projectService.goOut(projectId, userDetails);
         return CommonResponse.success("프로젝트에서 나갔습니다", null);
     }

@@ -1,13 +1,11 @@
 package com.appcenter.timepiece.domain;
 
 import com.appcenter.timepiece.common.BaseTimeEntity;
-import com.appcenter.timepiece.common.security.Role;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +37,7 @@ public class Member extends BaseTimeEntity {
     private List<String> role;
 
     @OneToMany(mappedBy = "member")
-    private List<MemberProject> memberProjects = new ArrayList<>();
+    private final List<MemberProject> memberProjects = new ArrayList<>();
 
     @Builder
     public Member(String provider, String nickname, String email, String state, String profileImageUrl, List<String> role) {
@@ -58,7 +56,7 @@ public class Member extends BaseTimeEntity {
         return this;
     }
 
-    public void editState(String state){
+    public void editState(String state) {
         this.state = state;
     }
 

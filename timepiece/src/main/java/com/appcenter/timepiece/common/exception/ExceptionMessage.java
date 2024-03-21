@@ -1,4 +1,5 @@
 package com.appcenter.timepiece.common.exception;
+
 import org.springframework.http.HttpStatus;
 
 import org.springframework.http.HttpStatus;
@@ -35,7 +36,7 @@ public enum ExceptionMessage {
     }
 
     public HttpStatus getHttpStatus() {
-            return httpStatus;
+        return httpStatus;
     }
 }
 

@@ -27,7 +27,7 @@ public class MemberInfoResponse {
     private List<MemberProject> memberProjects = new ArrayList<>();
 
     @Builder
-    public MemberInfoResponse(Long id, String provider, String nickname, String email, String state, String profileImageUrl, List<String> role){
+    public MemberInfoResponse(Long id, String provider, String nickname, String email, String state, String profileImageUrl, List<String> role) {
         this.id = id;
         this.provider = provider;
         this.nickname = nickname;
