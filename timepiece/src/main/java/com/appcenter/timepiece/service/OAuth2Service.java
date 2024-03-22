@@ -2,7 +2,7 @@ package com.appcenter.timepiece.service;
 
 import com.appcenter.timepiece.common.exception.ExceptionMessage;
 import com.appcenter.timepiece.common.exception.FailedCreateTokenException;
-import com.appcenter.timepiece.common.exception.NotFoundMemberException;
+import com.appcenter.timepiece.common.exception.NotFoundElementException;
 import com.appcenter.timepiece.common.redis.RefreshToken;
 import com.appcenter.timepiece.common.redis.RefreshTokenRepository;
 import com.appcenter.timepiece.common.security.JwtProvider;
@@ -152,7 +152,7 @@ public class OAuth2Service {
         log.info("[reissueAccessToken] memberId 추출 성공. memberId = {}", memberId);
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundMemberException(ExceptionMessage.MEMBER_NOTFOUND));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOTFOUND));
         log.info("[reissueAccessToken] member 찾기 성공. memberEmail = {}", member.getEmail());
 
         RefreshToken refreshToken = refreshTokenRepository.findByMemberId(memberId);
@@ -187,7 +187,7 @@ public class OAuth2Service {
         Long memberId = jwtProvider.getMemberId(token);
         log.info("[testApi] memberId 추출 성공. memberId = {}", memberId);
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundMemberException(ExceptionMessage.MEMBER_NOTFOUND));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOTFOUND));
         log.info("[testApi] member 찾기 성공. memberEmail = {}", member.getEmail());
 
         return member.toString();

@@ -1,7 +1,7 @@
 package com.appcenter.timepiece.service;
 
 import com.appcenter.timepiece.common.exception.ExceptionMessage;
-import com.appcenter.timepiece.common.exception.NotFoundMemberException;
+import com.appcenter.timepiece.common.exception.NotFoundElementException;
 import com.appcenter.timepiece.common.security.JwtProvider;
 import com.appcenter.timepiece.domain.Member;
 import com.appcenter.timepiece.domain.MemberProject;
@@ -41,7 +41,7 @@ public class MemberService {
         log.info("[getMemberInfo] 유저의 정보 조회");
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundMemberException(ExceptionMessage.MEMBER_NOTFOUND));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOTFOUND));
 
         return MemberResponse.from(member);
     }
@@ -51,7 +51,7 @@ public class MemberService {
         Long memberId = jwtProvider.getMemberId(jwtProvider.resolveServiceToken(request));
 
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
-                .orElseThrow(() -> new NotFoundMemberException(ExceptionMessage.MEMBER_NOTFOUND));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
 
         memberProject.switchIsStored();
 
@@ -64,7 +64,7 @@ public class MemberService {
         Long memberId = jwtProvider.getMemberId(jwtProvider.resolveServiceToken(request));
         log.info("memberId = {}", memberId);
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundMemberException(ExceptionMessage.MEMBER_NOTFOUND));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOTFOUND));
 
         member.editState(state);
         memberRepository.save(member);
@@ -74,20 +74,10 @@ public class MemberService {
         Long memberId = jwtProvider.getMemberId(jwtProvider.resolveServiceToken(request));
 
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
-                .orElseThrow(() -> new NotFoundMemberException(ExceptionMessage.MEMBER_NOTFOUND));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
 
         memberProject.editNickName(nickName);
         memberProjectRepository.save(memberProject);
-    }
-
-    public void deleteStoredProject(Long projectId, HttpServletRequest request) {
-        Long memberId = jwtProvider.getMemberId(jwtProvider.resolveServiceToken(request));
-
-        MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
-                .orElseThrow(() -> new NotFoundMemberException(ExceptionMessage.MEMBER_NOTFOUND));
-
-        memberProjectRepository.delete(memberProject);
-
     }
 
 }
