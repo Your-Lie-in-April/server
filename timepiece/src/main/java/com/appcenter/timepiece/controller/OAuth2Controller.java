@@ -2,6 +2,7 @@ package com.appcenter.timepiece.controller;
 
 
 import com.appcenter.timepiece.common.dto.CommonResponse;
+import com.appcenter.timepiece.config.SwaggerApiResponses;
 import com.appcenter.timepiece.service.OAuth2Service;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +25,7 @@ public class OAuth2Controller {
     private final OAuth2Service oAuth2Service;
 
 
+    @Operation(hidden = true)
     @GetMapping(value = "/login-page/google")
     public ResponseEntity<Void> getGoogleAuthUrl(HttpServletRequest request) throws Exception {
 
@@ -42,16 +44,22 @@ public class OAuth2Controller {
     }
 
     @GetMapping(value = "/reissue")
+    @Operation(summary = "토큰 재발급", description = "")
+    @SwaggerApiResponses
     public ResponseEntity<CommonResponse> reissueAccessToken(HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "토큰 재발급 성공", oAuth2Service.reissueAccessToken(request)));
     }
 
     @GetMapping(value = "/test")
+    @Operation(summary = "테스트API", description = "")
+    @SwaggerApiResponses
     public ResponseEntity<CommonResponse> testApi(HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "테스트 성공", oAuth2Service.testApi(request)));
     }
 
     @GetMapping(value = "/test1")
+    @Operation(summary = "테스트API", description = "")
+    @SwaggerApiResponses
     public ResponseEntity<CommonResponse> testApi1(HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "테스트 성공", oAuth2Service.testApi(request)));
     }

@@ -2,10 +2,9 @@ package com.appcenter.timepiece.common.exception;
 
 import org.springframework.http.HttpStatus;
 
-import org.springframework.http.HttpStatus;
-
 public enum ExceptionMessage {
     TOKEN_EXPIRED("토큰이 만료되었습니다.", 0, HttpStatus.UNAUTHORIZED),
+    TOKEN_NOT_AUTHORIZED("권한이 없습니다", 0, HttpStatus.FORBIDDEN),
     TOKEN_UNAUTHENTICATED("인증되지 않은 토큰입니다.", 0, HttpStatus.UNAUTHORIZED),
     TOKEN_INVALID_FORMAT("잘못된 형식의 토큰입니다.", 0, HttpStatus.UNAUTHORIZED),
     MEMBER_NOTFOUND("멤버가 존재하지 않습니다.", 0, HttpStatus.NOT_FOUND),
