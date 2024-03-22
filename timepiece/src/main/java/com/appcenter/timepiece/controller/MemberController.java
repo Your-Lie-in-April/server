@@ -31,9 +31,9 @@ public class MemberController {
 
     }
 
-    @GetMapping(value = "/info")
-    public ResponseEntity<CommonResponse> MemberInfo(HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", memberService.getMemberInfo(request)));
+    @GetMapping(value = "/{memberId}")
+    public ResponseEntity<CommonResponse> MemberInfo(@PathVariable Long memberId) {
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", memberService.getMemberInfo(memberId)));
     }
 
     @PutMapping(value = "/nickname")

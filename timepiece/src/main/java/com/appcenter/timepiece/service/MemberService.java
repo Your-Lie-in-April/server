@@ -38,10 +38,8 @@ public class MemberService {
         return memberListDto;
     }
 
-    public MemberResponse getMemberInfo(HttpServletRequest request) {
+    public MemberResponse getMemberInfo(Long memberId) {
         log.info("[getMemberInfo] 유저의 정보 조회");
-
-        Long memberId = jwtProvider.getMemberId(jwtProvider.resolveServiceToken(request));
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundMemberException(ExceptionMessage.MEMBER_NOTFOUND));
