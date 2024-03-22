@@ -32,7 +32,6 @@ public class MemberController {
     public ResponseEntity<CommonResponse> allUsers() {
 
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", memberService.getAllMember()));
-
     }
 
     @GetMapping(value = "/v1/members/{memberId}")
@@ -48,7 +47,6 @@ public class MemberController {
     public ResponseEntity<CommonResponse> editUserNickname(Long projectId, String nickname, HttpServletRequest request) {
         memberService.editMemberNickname(projectId, nickname, request);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
-
     }
 
     @PutMapping(value = "/v1/members/{state}")
@@ -80,8 +78,7 @@ public class MemberController {
     @PatchMapping("/v1/members/pin/{projectId}")
     @Operation(summary = "프로젝트 핀 설정/해제", description = "")
     @SwaggerApiResponses
-    public CommonResponse<?> pinProject(@PathVariable Long projectId,
-                                        @AuthenticationPrincipal UserDetails userDetails) {
+    public CommonResponse<?> pinProject(@PathVariable Long projectId, @AuthenticationPrincipal UserDetails userDetails) {
         projectService.pinProject(projectId, userDetails);
         return CommonResponse.success("프로젝트 핀 설정에 성공했습니다.", null);
     }

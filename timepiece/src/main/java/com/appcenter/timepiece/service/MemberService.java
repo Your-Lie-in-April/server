@@ -76,7 +76,7 @@ public class MemberService {
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
                 .orElseThrow(() -> new NotFoundMemberException(ExceptionMessage.MEMBER_NOTFOUND));
 
-        memberProject.editMemberNickName(nickName);
+        memberProject.editNickName(nickName);
         memberProjectRepository.save(memberProject);
     }
 

@@ -75,7 +75,7 @@ public class MemberProject extends BaseTimeEntity {
         this.isStored ^= true;
     }
 
-    public void editMemberNickName(String nickname) {
+    public void editNickName(String nickname) {
         this.nickname = nickname;
     }
 
