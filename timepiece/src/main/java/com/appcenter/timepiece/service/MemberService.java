@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -29,12 +31,12 @@ public class MemberService {
 
     public List<MemberResponse> getAllMember() {
         log.info("[getAllMember] 모든 유저 조회");
-        List<Member> memberList = memberRepository.findAll();
+        List<Member> members = memberRepository.findAll();
 
-        List<MemberResponse> memberListDto = memberList.stream()
-                .map(member -> MemberResponse.from(member)).collect(Collectors.toList());
+        List<MemberResponse> memberResponses = members.stream()
+                .map(MemberResponse::from).toList();
 
-        return memberListDto;
+        return memberResponses;
     }
 
     public MemberResponse getMemberInfo(Long memberId) {
