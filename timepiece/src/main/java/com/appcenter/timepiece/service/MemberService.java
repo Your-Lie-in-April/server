@@ -5,7 +5,6 @@ import com.appcenter.timepiece.common.exception.NotFoundMemberException;
 import com.appcenter.timepiece.common.security.JwtProvider;
 import com.appcenter.timepiece.domain.Member;
 import com.appcenter.timepiece.domain.MemberProject;
-import com.appcenter.timepiece.dto.member.MemberInfoResponse;
 import com.appcenter.timepiece.dto.member.MemberResponse;
 import com.appcenter.timepiece.repository.MemberProjectRepository;
 import com.appcenter.timepiece.repository.MemberRepository;
@@ -28,12 +27,12 @@ public class MemberService {
 
     private final JwtProvider jwtProvider;
 
-    public List<MemberInfoResponse> getAllMember() {
+    public List<MemberResponse> getAllMember() {
         log.info("[getAllMember] 모든 유저 조회");
         List<Member> memberList = memberRepository.findAll();
 
-        List<MemberInfoResponse> memberListDto = memberList.stream()
-                .map(member -> new MemberInfoResponse(member.getId(), member.getProvider(), member.getNickname(), member.getEmail(), member.getState(), member.getProfileImageUrl(), member.getRole())).collect(Collectors.toList());
+        List<MemberResponse> memberListDto = memberList.stream()
+                .map(member -> MemberResponse.from(member)).collect(Collectors.toList());
 
         return memberListDto;
     }

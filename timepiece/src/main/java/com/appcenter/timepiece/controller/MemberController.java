@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/members")
+@RequestMapping("")
 public class MemberController {
 
     private final MemberService memberService;
@@ -24,39 +24,39 @@ public class MemberController {
     private final ProjectService projectService;
 
 
-    @GetMapping(value = "/all")
+    @GetMapping(value = "/v1/members/all")
     public ResponseEntity<CommonResponse> allUsers() {
 
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", memberService.getAllMember()));
 
     }
 
-    @GetMapping(value = "/{memberId}")
+    @GetMapping(value = "/v1/members/{memberId}")
     public ResponseEntity<CommonResponse> MemberInfo(@PathVariable Long memberId) {
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", memberService.getMemberInfo(memberId)));
     }
 
-    @PutMapping(value = "/nickname")
+    @PutMapping(value = "/v1/projects/members/nickname")
     public ResponseEntity<CommonResponse> editUserNickname(Long projectId, String nickname, HttpServletRequest request) {
         memberService.editMemberNickname(projectId, nickname, request);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
 
     }
 
-    @PutMapping(value = "/members/{state}")
+    @PutMapping(value = "/v1/members/{state}")
     public ResponseEntity<CommonResponse> editUserState(@PathVariable String state, HttpServletRequest request) {
         memberService.editMemberState(state, request);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
 
     }
 
-    @PostMapping("/storage/{projectId}")
+    @PostMapping("/v1/members/storage/{projectId}")
     public ResponseEntity<CommonResponse> storeProject(@PathVariable Long projectId, HttpServletRequest request) {
         memberService.storeProject(projectId, request);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
     }
 
-    @DeleteMapping("/storage/{projectId}")
+    @DeleteMapping("/v1/members/storage/{projectId}")
     public ResponseEntity<CommonResponse> deleteStoreProject(@PathVariable Long projectId, HttpServletRequest request) {
         memberService.deleteStoredProject(projectId, request);
 
