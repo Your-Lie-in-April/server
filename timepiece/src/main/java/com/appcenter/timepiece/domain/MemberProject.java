@@ -28,7 +28,7 @@ public class MemberProject extends BaseTimeEntity {
     private Project project;
 
     @OneToMany(mappedBy = "memberProject", cascade = CascadeType.ALL)
-    private final List<Schedule> schedules = new ArrayList<>();
+    private List<Schedule> schedules = new ArrayList<>();
 
     private String nickname;
 

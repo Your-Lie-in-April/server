@@ -66,15 +66,6 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
     }
 
-    @DeleteMapping("/v1/members/storage/{projectId}")
-    @Operation(summary = "보관 프로젝트 삭제", description = "")
-    @SwaggerApiResponses
-    public ResponseEntity<CommonResponse> deleteStoreProject(@PathVariable Long projectId, HttpServletRequest request) {
-        memberService.deleteStoredProject(projectId, request);
-
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
-    }
-
     @PatchMapping("/v1/members/pin/{projectId}")
     @Operation(summary = "프로젝트 핀 설정/해제", description = "")
     @SwaggerApiResponses
