@@ -58,8 +58,8 @@ public class MemberController {
 
     }
 
-    @PostMapping("/v1/members/storage/{projectId}")
-    @Operation(summary = "프로젝트 보관", description = "")
+    @PatchMapping("/v1/members/storage/{projectId}")
+    @Operation(summary = "프로젝트 보관 설정/해제", description = "")
     @SwaggerApiResponses
     public ResponseEntity<CommonResponse> storeProject(@PathVariable Long projectId, HttpServletRequest request) {
         memberService.storeProject(projectId, request);
