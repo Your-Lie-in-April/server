@@ -57,9 +57,10 @@ public class ProjectController {
     // todo: 해당 기능은 Project가 아닌 Member의 책임이 아닐까?
     @GetMapping("/v1/projects/{projectId}/members")
     @Operation(summary = "프로젝트에 속해있는 유저 전체 조회", description = "")
-    public ResponseEntity<CommonResponse<?>> findMembersInProject(@PathVariable Long projectId) {
+    public ResponseEntity<CommonResponse<?>> findMembersInProject(@PathVariable Long projectId,
+                                                                  @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok().body(CommonResponse.success("프로젝트 내 사용자 조회 성공",
-                projectService.findMembers(projectId)));
+                projectService.findMembers(projectId, userDetails)));
     }
 
     @GetMapping("/v1/projects/stored")

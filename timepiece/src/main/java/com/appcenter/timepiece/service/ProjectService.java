@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+
 import static java.util.Objects.requireNonNull;
 
 @Slf4j
@@ -60,13 +61,22 @@ public class ProjectService {
                 .stream().map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
     }
 
-    @Transactional(readOnly=true)
-    public List<MemberResponse> findMembers(Long projectId) {
+    @Transactional(readOnly = true)
+    public List<MemberResponse> findMembers(Long projectId, UserDetails userDetails) {
+        validateMemberIsInProject(projectId, userDetails);
         return memberProjectRepository.findByProjectIdWithMember(projectId).stream()
                 .map(memberProject -> {
                     Member member = requireNonNull(memberProject.getMember());
                     return MemberResponse.of(member, memberProject.getNickname());
                 }).toList();
+    }
+
+    private void validateMemberIsInProject(Long projectId, UserDetails userDetails) {
+        Long memberId = ((CustomUserDetails) userDetails).getId();
+        boolean isExist = memberProjectRepository.existsByMemberIdAndProjectId(memberId, projectId);
+        if (!isExist) {
+            throw new NotEnoughPrivilegeException("속하지 않은 프로젝트 정보를 조회할 수 없습니다.");
+        }
     }
 
     public void createProject(ProjectCreateUpdateRequest request, UserDetails userDetails) {
