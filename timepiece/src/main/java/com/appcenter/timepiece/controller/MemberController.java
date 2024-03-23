@@ -5,7 +5,6 @@ import com.appcenter.timepiece.config.SwaggerApiResponses;
 import com.appcenter.timepiece.service.MemberService;
 import com.appcenter.timepiece.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -44,16 +43,16 @@ public class MemberController {
     @PutMapping(value = "/v1/projects/members/nickname")
     @Operation(summary = "닉네임 재설정", description = "")
     @SwaggerApiResponses
-    public ResponseEntity<CommonResponse> editUserNickname(Long projectId, String nickname, HttpServletRequest request) {
-        memberService.editMemberNickname(projectId, nickname, request);
+    public ResponseEntity<CommonResponse> editUserNickname(Long projectId, String nickname, @AuthenticationPrincipal UserDetails userDetails) {
+        memberService.editMemberNickname(projectId, nickname, userDetails);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
     }
 
     @PutMapping(value = "/v1/members/{state}")
     @Operation(summary = "상태메시지 설정", description = "")
     @SwaggerApiResponses
-    public ResponseEntity<CommonResponse> editUserState(@PathVariable String state, HttpServletRequest request) {
-        memberService.editMemberState(state, request);
+    public ResponseEntity<CommonResponse> editUserState(@PathVariable String state, @AuthenticationPrincipal UserDetails userDetails) {
+        memberService.editMemberState(state, userDetails);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
 
     }
@@ -61,8 +60,8 @@ public class MemberController {
     @PatchMapping("/v1/members/storage/{projectId}")
     @Operation(summary = "프로젝트 보관 설정/해제", description = "")
     @SwaggerApiResponses
-    public ResponseEntity<CommonResponse> storeProject(@PathVariable Long projectId, HttpServletRequest request) {
-        memberService.storeProject(projectId, request);
+    public ResponseEntity<CommonResponse> storeProject(@PathVariable Long projectId, @AuthenticationPrincipal UserDetails userDetails) {
+        memberService.storeProject(projectId, userDetails);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
     }
 

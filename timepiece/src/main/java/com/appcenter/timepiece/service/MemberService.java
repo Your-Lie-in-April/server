@@ -2,15 +2,16 @@ package com.appcenter.timepiece.service;
 
 import com.appcenter.timepiece.common.exception.ExceptionMessage;
 import com.appcenter.timepiece.common.exception.NotFoundElementException;
+import com.appcenter.timepiece.common.security.CustomUserDetails;
 import com.appcenter.timepiece.common.security.JwtProvider;
 import com.appcenter.timepiece.domain.Member;
 import com.appcenter.timepiece.domain.MemberProject;
 import com.appcenter.timepiece.dto.member.MemberResponse;
 import com.appcenter.timepiece.repository.MemberProjectRepository;
 import com.appcenter.timepiece.repository.MemberRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,9 +46,9 @@ public class MemberService {
         return MemberResponse.from(member);
     }
 
-    public void storeProject(Long projectId, HttpServletRequest request) {
+    public void storeProject(Long projectId, UserDetails userDetails) {
         log.info("[storeProject] 프로젝트 보관");
-        Long memberId = jwtProvider.getMemberId(jwtProvider.resolveServiceToken(request));
+        Long memberId = ((CustomUserDetails) userDetails).getId();
 
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
@@ -57,10 +58,10 @@ public class MemberService {
         memberProjectRepository.save(memberProject);
     }
 
-    public void editMemberState(String state, HttpServletRequest request) {
+    public void editMemberState(String state, UserDetails userDetails) {
         log.info("[editMemberState] 멤버 상태 수정 state = {}", state);
 
-        Long memberId = jwtProvider.getMemberId(jwtProvider.resolveServiceToken(request));
+        Long memberId = ((CustomUserDetails) userDetails).getId();
         log.info("memberId = {}", memberId);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOTFOUND));
@@ -69,8 +70,8 @@ public class MemberService {
         memberRepository.save(member);
     }
 
-    public void editMemberNickname(Long projectId, String nickName, HttpServletRequest request) {
-        Long memberId = jwtProvider.getMemberId(jwtProvider.resolveServiceToken(request));
+    public void editMemberNickname(Long projectId, String nickName, UserDetails userDetails) {
+        Long memberId = ((CustomUserDetails) userDetails).getId();
 
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));

@@ -6,11 +6,12 @@ import com.appcenter.timepiece.config.SwaggerApiResponses;
 import com.appcenter.timepiece.service.OAuth2Service;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,9 +36,7 @@ public class OAuth2Controller {
 
     @Operation(hidden = true)
     @GetMapping(value = "/login/google")
-    public ResponseEntity<CommonResponse> sign(HttpServletRequest request,
-                                               @RequestParam(value = "code") String authCode,
-                                               HttpServletResponse response) throws Exception {
+    public ResponseEntity<CommonResponse> sign(@RequestParam(value = "code") String authCode) throws Exception {
 
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", oAuth2Service.getGoogleInfo(authCode)));
 
@@ -53,14 +52,14 @@ public class OAuth2Controller {
     @GetMapping(value = "/test")
     @Operation(summary = "테스트API", description = "")
     @SwaggerApiResponses
-    public ResponseEntity<CommonResponse> testApi(HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "테스트 성공", oAuth2Service.testApi(request)));
+    public ResponseEntity<CommonResponse> testApi(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "테스트 성공", oAuth2Service.testApi(userDetails)));
     }
 
     @GetMapping(value = "/test1")
     @Operation(summary = "테스트API", description = "")
     @SwaggerApiResponses
-    public ResponseEntity<CommonResponse> testApi1(HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "테스트 성공", oAuth2Service.testApi(request)));
+    public ResponseEntity<CommonResponse> testApi1(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "테스트 성공", oAuth2Service.testApi(userDetails)));
     }
 }
