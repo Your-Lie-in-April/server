@@ -36,4 +36,14 @@ public class MemberResponse {
                 .profileImageUrl(member.getProfileImageUrl())
                 .build();
     }
+
+    public static MemberResponse of(Member member, String nickname) {
+        return MemberResponse.builder()
+                .memberId(member.getId())
+                .email(member.getEmail())
+                .nickname(nickname)
+                .state(member.getState())
+                .profileImageUrl(member.getProfileImageUrl())
+                .build();
+    }
 }

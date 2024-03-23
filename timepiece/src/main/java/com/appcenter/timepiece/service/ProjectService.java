@@ -12,10 +12,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @Service
@@ -62,8 +60,13 @@ public class ProjectService {
                 .stream().map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
     }
 
+    @Transactional(readOnly=true)
     public List<MemberResponse> findMembers(Long projectId) {
-        return memberRepository.findByProjectIdWithMember(projectId).stream().map(MemberResponse::from).toList();
+        return memberProjectRepository.findByProjectIdWithMember(projectId).stream()
+                .map(memberProject -> {
+                    Member member = requireNonNull(memberProject.getMember());
+                    return MemberResponse.of(member, memberProject.getNickname());
+                }).toList();
     }
 
     public void createProject(ProjectCreateUpdateRequest request, UserDetails userDetails) {

@@ -17,6 +17,11 @@ public interface MemberProjectRepository extends JpaRepository<MemberProject, Lo
             "where mp.member.id = :memberId")
     List<MemberProject> findMemberProjectsWithProjectAndCover(Long memberId);
 
+    @Query("select mp from MemberProject mp " +
+            "join mp.project p " +
+            "where p.id = :projectId")
+    List<MemberProject> findByProjectIdWithMember(Long projectId);
+
     List<MemberProject> findByMemberIdAndIsPinnedIsTrue(Long memberId);
 
     Optional<MemberProject> findByMemberIdAndProjectId(Long memberId, Long projectId);
