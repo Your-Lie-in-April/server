@@ -18,4 +18,9 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             "join mp.member m " +
             "where m.id = :memberId and p.title like %:keyword%")
     List<Project> findProjectByMemberIdAndTitleLikeKeyword(Long memberId, String keyword);
+
+    @Query("select distinct p from Project p " +
+            "join p.memberProjects mp " +
+            "where mp.member.id = :memberId and mp.isStored = TRUE ")
+    List<Project> findAllByMemberIdWhereIsStored(Long memberId);
 }
