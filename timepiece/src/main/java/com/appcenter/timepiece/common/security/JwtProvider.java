@@ -29,11 +29,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtProvider {
 
+    private final CustomUserDetailsService customUserDetailsService;
     @Value("${spring.jwt.secret}")
     private String secretKey = "secretKey";
-
-    private final CustomUserDetailsService customUserDetailsService;
-
     @Value("${spring.jwt.refresh-token-valid-time}")
     private Long refreshTokenValidTime;
 
@@ -109,20 +107,18 @@ public class JwtProvider {
         return memberId;
     }
 
-    public Boolean validAccessToken(String token){
-        if(Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("type").equals("access")){
+    public Boolean validAccessToken(String token) {
+        if (Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("type").equals("access")) {
             return true;
-        }
-        else{
+        } else {
             throw new MismatchTokenTypeException(ExceptionMessage.TOKEN_TYPE_INVALID.getMessage());
         }
     }
 
-    public Boolean validRefreshToken(String token){
-        if(Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("type").equals("refresh")){
+    public Boolean validRefreshToken(String token) {
+        if (Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("type").equals("refresh")) {
             return true;
-        }
-        else{
+        } else {
             throw new MismatchTokenTypeException(ExceptionMessage.TOKEN_TYPE_INVALID.getMessage());
         }
     }

@@ -22,4 +22,5 @@ public interface MemberProjectRepository extends JpaRepository<MemberProject, Lo
     Optional<MemberProject> findByMemberIdAndProjectId(Long memberId, Long projectId);
 
     boolean existsByMemberIdAndProjectId(Long memberId, Long projectId);
+
 }

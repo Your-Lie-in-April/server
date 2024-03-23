@@ -21,7 +21,7 @@ public class MemberEntryPointHandler implements AuthenticationEntryPoint {
         ObjectMapper objectMapper = new ObjectMapper();
         log.info("[ClientEntryPointException]인증 실패");
 
-        CommonResponse commonResponse =  new CommonResponse(0, "인증이 실패했습니다.", null);
+        CommonResponse commonResponse = new CommonResponse(0, "인증이 실패했습니다.", null);
 
         response.setStatus(401);
         response.setContentType("application/json");

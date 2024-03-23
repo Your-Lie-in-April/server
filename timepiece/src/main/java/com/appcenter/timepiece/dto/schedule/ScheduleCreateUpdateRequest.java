@@ -1,6 +1,5 @@
 package com.appcenter.timepiece.dto.schedule;
 
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.Getter;

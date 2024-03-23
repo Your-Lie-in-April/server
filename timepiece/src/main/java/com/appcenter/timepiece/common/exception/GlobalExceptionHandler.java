@@ -14,8 +14,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(value = NotFoundMemberException.class)
-    public ResponseEntity<CommonResponse> handleNotFoundMemberException(NotFoundMemberException ex) {
+    @ExceptionHandler(value = NotFoundElementException.class)
+    public ResponseEntity<CommonResponse> handleNotFoundElementException(NotFoundElementException ex) {
         log.error(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CommonResponse<>(0, ex.getMessage(), null));
 
@@ -43,4 +43,5 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<CommonResponse<?>> handleNotEnoughPrivilegeException(NotEnoughPrivilegeException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponse.error(e.getMessage(), null));
     }
+
 }

@@ -1,13 +1,11 @@
 package com.appcenter.timepiece.domain;
 
 import com.appcenter.timepiece.common.BaseTimeEntity;
-import com.appcenter.timepiece.common.security.Role;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +54,10 @@ public class Member extends BaseTimeEntity {
         this.profileImageUrl = profileImageUrl;
 
         return this;
+    }
+
+    public void editState(String state) {
+        this.state = state;
     }
 
 

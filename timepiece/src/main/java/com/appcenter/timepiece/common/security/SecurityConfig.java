@@ -1,7 +1,6 @@
 package com.appcenter.timepiece.common.security;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -9,7 +8,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -30,6 +28,7 @@ public class SecurityConfig {
     private final AccessDeniedHandler accessDeniedHandler;
 
     private final AuthenticationEntryPoint authenticationEntryPoint;
+
     @Bean
     protected SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
@@ -48,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/v1/oauth2/reissue").hasRole("USER")
                         .requestMatchers("/v1/oauth2/test").hasRole("USER")
                         .requestMatchers("/v1/oauth2/test1").permitAll()
+                        .requestMatchers("/v1/projects/**").hasRole("USER")
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
                         .anyRequest().authenticated()
@@ -61,7 +61,6 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                         .authenticationEntryPoint(authenticationEntryPoint)
                 );
-
 
 
         return httpSecurity.build();

@@ -35,10 +35,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             log.info("[doFilterInternal] jwtToken:{}", jwtToken);
 
             log.info("[doFilterInternal] 토큰 타입 확인");
-            if(servletRequest.getRequestURI().equals("/v1/oauth2/reissue")){
+            if (servletRequest.getRequestURI().equals("/v1/oauth2/reissue")) {
                 jwtProvider.validRefreshToken(jwtToken);
-            }
-            else{
+            } else {
                 jwtProvider.validAccessToken(jwtToken);
             }
             log.info("[doFilterInternal] 토큰 타입 확인 완료");
