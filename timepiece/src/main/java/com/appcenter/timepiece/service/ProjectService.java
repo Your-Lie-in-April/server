@@ -6,11 +6,11 @@ import com.appcenter.timepiece.domain.*;
 import com.appcenter.timepiece.dto.member.MemberResponse;
 import com.appcenter.timepiece.dto.project.*;
 import com.appcenter.timepiece.repository.*;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -170,8 +170,8 @@ public class ProjectService {
     }
 
     public void goOut(Long projectId, UserDetails userDetails) {
-        Long myId = ((CustomUserDetails) userDetails).getId();
-        MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(myId, projectId)
+        Long memberId = ((CustomUserDetails) userDetails).getId();
+        MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 프로젝트 멤버를 찾을 수 없습니다"));
         if (memberProject.getIsPrivileged()) {
             throw new NotEnoughPrivilegeException("관리자는 나갈 수 없습니다");
@@ -195,5 +195,14 @@ public class ProjectService {
 
         memberProjectRepository.save(fromMemberProject);
         memberProjectRepository.save(toMemberProject);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProjectThumbnailResponse> findStoredProjects(UserDetails userDetails) {
+        Long memberId = ((CustomUserDetails) userDetails).getId();
+
+        return projectRepository.findAllByMemberIdWhereIsStored(memberId)
+                .stream().map(p ->
+                        ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
     }
 }
