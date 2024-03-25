@@ -5,6 +5,7 @@ import com.appcenter.timepiece.common.exception.FailedCreateTokenException;
 import com.appcenter.timepiece.common.exception.NotFoundElementException;
 import com.appcenter.timepiece.common.redis.RefreshToken;
 import com.appcenter.timepiece.common.redis.RefreshTokenRepository;
+import com.appcenter.timepiece.common.security.CustomUserDetails;
 import com.appcenter.timepiece.common.security.JwtProvider;
 import com.appcenter.timepiece.common.security.Role;
 import com.appcenter.timepiece.domain.Member;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -179,12 +181,10 @@ public class OAuth2Service {
         }
     }
 
-    public String testApi(HttpServletRequest request) {
+    public String testApi(UserDetails userDetails) {
         log.info("[testApi] memberId 추출중");
 
-        String token = jwtProvider.resolveServiceToken(request);
-
-        Long memberId = jwtProvider.getMemberId(token);
+        Long memberId = ((CustomUserDetails) userDetails).getId();
         log.info("[testApi] memberId 추출 성공. memberId = {}", memberId);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOTFOUND));
