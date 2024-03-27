@@ -17,7 +17,9 @@ public enum ExceptionMessage {
     DUPLICATE_SIGN_REQUEST("중복된 가입요청입니다.", 0, HttpStatus.BAD_REQUEST),
     INSUFFICIENT_PRIVILEGE("프로젝트 관리자 권한이 없습니다.", 0, HttpStatus.BAD_REQUEST),
     ADMIN_LEAVE("관리자는 나갈 수 없습니다", 0, HttpStatus.BAD_REQUEST),
-    NOT_MEMBER("속하지 않은 프로젝트 정보를 조회할 수 없습니다.", 0, HttpStatus.BAD_REQUEST);
+    NOT_MEMBER("속하지 않은 프로젝트 정보를 조회할 수 없습니다.", 0, HttpStatus.BAD_REQUEST),
+    MEMBER_UNAUTHENTICATED("접근 권한이 없는 페이지입니다.", 0, HttpStatus.UNAUTHORIZED);
+
 
     private final String message;
 
