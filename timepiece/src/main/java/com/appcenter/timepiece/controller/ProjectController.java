@@ -33,25 +33,25 @@ public class ProjectController {
 
     @GetMapping("/v1/projects/members/{memberId}")
     @Operation(summary = "소속 프로젝트 전체 조회(썸네일)", description = "")
-    public ResponseEntity<CommonResponse<?>> findProjects(@PathVariable Long memberId) {
+    public ResponseEntity<CommonResponse<?>> findProjects(@PathVariable Long memberId, @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok().body(CommonResponse.success("프로젝트 목록 조회 성공",
-                projectService.findProjects(memberId)));
+                projectService.findProjects(memberId, userDetails)));
     }
 
     // todo: Schedule 조회 로직의 작성이 선행되야 합니다.
     @GetMapping("/v1/projects/members/{memberId}/pin")
     @Operation(summary = "핀 설정된 프로젝트 조회(+시간표)", description = "")
-    public ResponseEntity<CommonResponse<?>> findPinProjects(@PathVariable Long memberId) {
+    public ResponseEntity<CommonResponse<?>> findPinProjects(@PathVariable Long memberId, @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok().body(CommonResponse.success("핀 설정된 프로젝트 조회 성공",
-                projectService.findPinProjects(memberId)));
+                projectService.findPinProjects(memberId, userDetails)));
     }
 
     @GetMapping("/v1/projects/members/{memberId}/{keyword}")
     @Operation(summary = "유저가 가지고 있는 프로젝트 중 검색", description = "")
-    public ResponseEntity<CommonResponse<?>> searchProjects(@PathVariable Long memberId,
+    public ResponseEntity<CommonResponse<?>> searchProjects(@PathVariable Long memberId, @AuthenticationPrincipal UserDetails userDetails,
                                                             @PathVariable String keyword) {
         return ResponseEntity.ok().body(CommonResponse.success("프로젝트 검색 성공",
-                projectService.searchProjects(memberId, keyword)));
+                projectService.searchProjects(memberId, userDetails, keyword)));
     }
 
     // todo: 해당 기능은 Project가 아닌 Member의 책임이 아닐까?
@@ -73,7 +73,7 @@ public class ProjectController {
     @PostMapping("/v1/projects")
     @Operation(summary = "프로젝트 생성", description = "")
     public ResponseEntity<CommonResponse<?>> createProject(@RequestBody ProjectCreateUpdateRequest request,
-                                                        @AuthenticationPrincipal UserDetails userDetails) {
+                                                           @AuthenticationPrincipal UserDetails userDetails) {
         projectService.createProject(request, userDetails);
         return ResponseEntity.ok().body(CommonResponse.success("프로젝트 생성 성공", null));
     }
