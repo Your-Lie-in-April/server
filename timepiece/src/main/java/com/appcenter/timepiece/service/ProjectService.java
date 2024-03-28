@@ -1,5 +1,6 @@
 package com.appcenter.timepiece.service;
 
+import com.appcenter.timepiece.common.exception.ExceptionMessage;
 import com.appcenter.timepiece.common.exception.NotEnoughPrivilegeException;
 import com.appcenter.timepiece.common.security.CustomUserDetails;
 import com.appcenter.timepiece.domain.*;
@@ -12,7 +13,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static java.util.Objects.requireNonNull;
 
 @Slf4j
@@ -36,13 +41,16 @@ public class ProjectService {
      * @param memberId 자동생성되는 멤버 식별자(PK)
      * @return 메인페이지에 나타나는 프로젝트 썸네일 정보를 담은 dto 리스트를 리턴합니다.
      */
-    public List<ProjectThumbnailResponse> findProjects(Long memberId) {
+    public List<ProjectThumbnailResponse> findProjects(Long memberId, UserDetails userDetails) {
+        validateMemberIsOwner(memberId, userDetails);
         return memberProjectRepository.findMemberProjectsWithProjectAndCover(memberId).stream().map(MemberProject::getProject)
                 .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
     }
 
     @Transactional
-    public List<PinProjectResponse> findPinProjects(Long memberId) {
+    public List<PinProjectResponse> findPinProjects(Long memberId, UserDetails userDetails) {
+        validateMemberIsOwner(memberId, userDetails);
+
         List<MemberProject> memberProjects = memberProjectRepository.findByMemberIdAndIsPinnedIsTrue(memberId);
         List<PinProjectResponse> pinProjectResponses = new ArrayList<>();
 
@@ -55,7 +63,8 @@ public class ProjectService {
     }
 
     @Transactional
-    public List<ProjectThumbnailResponse> searchProjects(Long memberId, String keyword) {
+    public List<ProjectThumbnailResponse> searchProjects(Long memberId, UserDetails userDetails, String keyword) {
+        validateMemberIsOwner(memberId, userDetails);
         return projectRepository.findProjectByMemberIdAndTitleLikeKeyword(memberId, keyword)
                 .stream().map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
     }
@@ -75,6 +84,12 @@ public class ProjectService {
         boolean isExist = memberProjectRepository.existsByMemberIdAndProjectId(memberId, projectId);
         if (!isExist) {
             throw new NotEnoughPrivilegeException("속하지 않은 프로젝트 정보를 조회할 수 없습니다.");
+        }
+    }
+
+    private void validateMemberIsOwner(Long memberId, UserDetails userDetails) {
+        if (memberId != ((CustomUserDetails) userDetails).getId()) {
+            throw new NotEnoughPrivilegeException(ExceptionMessage.MEMBER_UNAUTHENTICATED.getMessage());
         }
     }
 

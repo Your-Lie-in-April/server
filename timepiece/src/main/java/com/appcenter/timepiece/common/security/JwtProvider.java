@@ -3,26 +3,26 @@ package com.appcenter.timepiece.common.security;
 import com.appcenter.timepiece.common.exception.ExceptionMessage;
 import com.appcenter.timepiece.common.exception.JwtEmptyException;
 import com.appcenter.timepiece.common.exception.MismatchTokenTypeException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @Slf4j
@@ -70,6 +70,12 @@ public class JwtProvider {
         claims.put("type", "access");
 
         Date now = new Date();
+        
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+        System.out.println(format.format(now)); // 20090529
+        format = new SimpleDateFormat("E MMM dd HH:mm:ss", Locale.KOREA);
+        System.out.println(format.format(now));
+
         String token = Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
