@@ -18,11 +18,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 @Service
 @Slf4j
@@ -70,11 +68,6 @@ public class JwtProvider {
         claims.put("type", "access");
 
         Date now = new Date();
-        
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-        System.out.println(format.format(now)); // 20090529
-        format = new SimpleDateFormat("E MMM dd HH:mm:ss", Locale.KOREA);
-        System.out.println(format.format(now));
 
         String token = Jwts.builder()
                 .setClaims(claims)

@@ -10,6 +10,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ScheduleDayRequest {
+
     private List<ScheduleDto> schedule;
 
 }
