@@ -35,10 +35,10 @@ public class OAuth2Controller {
     }
 
     @Operation(hidden = true)
-    @GetMapping(value = "/login/google")
+    @GetMapping(value = "/login/oauth2/code/google")
     public ResponseEntity<CommonResponse> sign(@RequestParam(value = "code") String authCode) throws Exception {
 
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", oAuth2Service.getGoogleInfo(authCode)));
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
 
     }
 
