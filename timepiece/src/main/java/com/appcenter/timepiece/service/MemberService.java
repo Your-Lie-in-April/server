@@ -31,17 +31,15 @@ public class MemberService {
         log.info("[getAllMember] 모든 유저 조회");
         List<Member> members = memberRepository.findAll();
 
-        List<MemberResponse> memberResponses = members.stream()
+        return members.stream()
                 .map(MemberResponse::from).toList();
-
-        return memberResponses;
     }
 
     public MemberResponse getMemberInfo(Long memberId) {
         log.info("[getMemberInfo] 유저의 정보 조회");
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOTFOUND));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
 
         return MemberResponse.from(member);
     }
@@ -64,7 +62,7 @@ public class MemberService {
         Long memberId = ((CustomUserDetails) userDetails).getId();
         log.info("memberId = {}", memberId);
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOTFOUND));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
 
         member.editState(state);
         memberRepository.save(member);
