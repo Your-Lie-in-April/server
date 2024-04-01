@@ -1,6 +1,8 @@
 package com.appcenter.timepiece.service;
 
+import com.appcenter.timepiece.common.exception.ExceptionMessage;
 import com.appcenter.timepiece.common.exception.NotEnoughPrivilegeException;
+import com.appcenter.timepiece.common.exception.NotFoundElementException;
 import com.appcenter.timepiece.common.security.CustomUserDetails;
 import com.appcenter.timepiece.domain.*;
 import com.appcenter.timepiece.dto.member.MemberResponse;
@@ -15,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Slf4j
@@ -78,7 +79,7 @@ public class ProjectService {
         Long memberId = ((CustomUserDetails) userDetails).getId();
         boolean isExist = memberProjectRepository.existsByMemberIdAndProjectId(memberId, projectId);
         if (!isExist) {
-            throw new NotEnoughPrivilegeException("속하지 않은 프로젝트 정보를 조회할 수 없습니다.");
+            throw new NotEnoughPrivilegeException(ExceptionMessage.NOT_MEMBER);
         }
     }
 
@@ -86,7 +87,7 @@ public class ProjectService {
         Long memberId = ((CustomUserDetails) userDetails).getId();
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalStateException("존재하지 않는 사용자입니다."));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
         Cover cover = coverRepository.findByCoverImageUrl(request.getCoverImageUrl())
                 .orElse(null);
         Project project = projectRepository.save(Project.of(request, cover));
@@ -99,7 +100,7 @@ public class ProjectService {
     public void deleteProject(Long projectId, UserDetails userDetails) {
         validateRequesterIsPrivileged(projectId, userDetails);
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프로젝트입니다."));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
         projectRepository.delete(project);
     }
 
@@ -108,7 +109,7 @@ public class ProjectService {
         validateRequesterIsPrivileged(projectId, userDetails);
 
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalStateException("존재하지 않는 프로젝트입니다."));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
         Cover cover = coverRepository.findByCoverImageUrl(request.getCoverImageUrl())
                 .orElse(null);
 
@@ -119,9 +120,9 @@ public class ProjectService {
         validateRequesterIsPrivileged(projectId, userDetails);
 
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
-                .orElseThrow(() -> new IllegalArgumentException("해당하는 프로젝트 멤버를 찾을 수 없습니다"));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
         if (memberProject.getIsPrivileged()) {
-            throw new NotEnoughPrivilegeException("프로젝트 관리자는 강퇴할 수 없습니다");
+            throw new NotEnoughPrivilegeException(ExceptionMessage.KICK_ADMIN);
         }
 
         memberProjectRepository.delete(memberProject);
@@ -131,9 +132,9 @@ public class ProjectService {
         validateRequesterIsPrivileged(projectId, userDetails);
 
         Member member = memberRepository.findById(((CustomUserDetails)userDetails).getId())
-                .orElseThrow(() -> new IllegalStateException("요청자의 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프로젝트입니다"));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
 
         String urlData = new StringBuilder().append(projectId)
                 .append("?").append(member.getNickname())
@@ -152,19 +153,19 @@ public class ProjectService {
 
         String invitator = st.nextToken();
 
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
-        LocalDateTime linkTime = LocalDateTime.parse(st.nextToken(), dateTimeFormatter);
+//        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
+        LocalDateTime linkTime = LocalDateTime.parse(st.nextToken());
         if (linkTime.isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("초대링크의 유효날짜가 지났습니다.");
+            throw new IllegalStateException(ExceptionMessage.LINK_EXPIRED.getMessage());
         }
 
         Long memberId = ((CustomUserDetails) userDetails).getId();
         validateJoinIsNotDuplicate(memberId, projectId);
 
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프로젝트입니다"));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 멤버입니다"));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
 
         MemberProject memberProject = MemberProject.of(member, project);
         memberProjectRepository.save(memberProject);
@@ -173,17 +174,16 @@ public class ProjectService {
     private void validateJoinIsNotDuplicate(Long memberId, Long projectId) {
         boolean isExist = memberProjectRepository.existsByMemberIdAndProjectId(memberId, projectId);
         if (isExist) {
-            // todo: Exception 변경 및 예외처리 핸들러
-            throw new IllegalStateException("이미 가입된 사용자입니다");
+            throw new IllegalStateException(ExceptionMessage.DUPLICATE_SIGN_REQUEST.getMessage());
         }
     }
 
     private void validateRequesterIsPrivileged(Long projectId, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
-                .orElseThrow(() -> new IllegalArgumentException("멤버-프로젝트 쌍을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
         if (memberProject.getIsPrivileged()) return;
-        throw new NotEnoughPrivilegeException("프로젝트 관리자 권한이 없습니다.");
+        throw new NotEnoughPrivilegeException(ExceptionMessage.INSUFFICIENT_PRIVILEGE);
     }
 
     @Transactional
@@ -191,16 +191,16 @@ public class ProjectService {
         Long memberId = ((CustomUserDetails) userDetails).getId();
 
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
-                .orElseThrow(() -> new IllegalArgumentException("멤버-프로젝트 쌍을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
         memberProject.switchIsPinned();
     }
 
     public void goOut(Long projectId, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
-                .orElseThrow(() -> new IllegalArgumentException("해당하는 프로젝트 멤버를 찾을 수 없습니다"));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
         if (memberProject.getIsPrivileged()) {
-            throw new NotEnoughPrivilegeException("관리자는 나갈 수 없습니다");
+            throw new IllegalStateException(ExceptionMessage.ADMIN_LEAVE.getMessage());
         }
         memberProjectRepository.delete(memberProject);
     }
@@ -212,9 +212,9 @@ public class ProjectService {
         Long toMemberId = request.getToMemberId();
 
         MemberProject fromMemberProject = memberProjectRepository.findByMemberIdAndProjectId(fromMemberId, projectId)
-                .orElseThrow(() -> new IllegalStateException("멤버-프로젝트 쌍을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
         MemberProject toMemberProject = memberProjectRepository.findByMemberIdAndProjectId(toMemberId, projectId)
-                .orElseThrow(() -> new IllegalArgumentException("멤버-프로젝트 쌍을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
 
         fromMemberProject.releasePrivilege();
         toMemberProject.grantPrivilege();

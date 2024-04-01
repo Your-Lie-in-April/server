@@ -21,8 +21,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
-    @ExceptionHandler(value = FailedCreateTokenException.class)
-    public ResponseEntity<CommonResponse> handleTokenCreateError(FailedCreateTokenException ex) {
+    @ExceptionHandler(value = FailedTokenCreateException.class)
+    public ResponseEntity<CommonResponse> handleTokenCreateError(FailedTokenCreateException ex) {
         log.error(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CommonResponse(0, ex.getMessage(), null));
     }

@@ -1,7 +1,7 @@
 package com.appcenter.timepiece.common.exception;
 
 public class NotEnoughPrivilegeException extends RuntimeException {
-    public NotEnoughPrivilegeException(String m) {
-        super(m);
+    public NotEnoughPrivilegeException(ExceptionMessage message) {
+        super(message.getMessage());
     }
 }
