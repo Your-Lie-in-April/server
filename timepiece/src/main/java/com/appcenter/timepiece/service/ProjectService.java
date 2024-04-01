@@ -6,14 +6,17 @@ import com.appcenter.timepiece.domain.*;
 import com.appcenter.timepiece.dto.member.MemberResponse;
 import com.appcenter.timepiece.dto.project.*;
 import com.appcenter.timepiece.repository.*;
+import com.appcenter.timepiece.util.AESEncoder;
+import com.appcenter.timepiece.util.LinkValidTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
-import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @Service
@@ -25,6 +28,7 @@ public class ProjectService {
     private final MemberProjectRepository memberProjectRepository;
     private final CoverRepository coverRepository;
     private final InvitationRepository invitationRepository;
+    private final AESEncoder aesEncoder;
 
     public List<ProjectResponse> findAll() {
         return projectRepository.findAllWithCover().stream().map(p ->
@@ -65,7 +69,7 @@ public class ProjectService {
         validateMemberIsInProject(projectId, userDetails);
         return memberProjectRepository.findByProjectIdWithMember(projectId).stream()
                 .map(memberProject -> {
-                    Member member = requireNonNull(memberProject.getMember());
+                    Member member = Objects.requireNonNull(memberProject.getMember());
                     return MemberResponse.of(member, memberProject.getNickname());
                 }).toList();
     }
@@ -123,32 +127,42 @@ public class ProjectService {
         memberProjectRepository.delete(memberProject);
     }
 
-    public Map<String, String> generateInviteLink(Long projectId, UserDetails userDetails) {
+    public String generateInviteLink(Long projectId, UserDetails userDetails) {
         validateRequesterIsPrivileged(projectId, userDetails);
 
+        Member member = memberRepository.findById(((CustomUserDetails)userDetails).getId())
+                .orElseThrow(() -> new IllegalStateException("요청자의 정보를 찾을 수 없습니다."));
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프로젝트입니다"));
 
-        // todo: project 별 고유 정보를 통해 링크생성(인코딩)
-        String url = String.valueOf(projectId);
+        String urlData = new StringBuilder().append(projectId)
+                .append("?").append(member.getNickname())
+                .append("?").append(LocalDateTime.now().plusDays(LinkValidTime.WEEK.value()))
+                .toString();
 
-        Map<String, String> urlData = new HashMap<>();
-        urlData.put("url", url);
-
+        String url = aesEncoder.encryptAES256(urlData);
         invitationRepository.save(Invitation.of(project, url));
-        return urlData;
+        return url;
     }
 
     public void addUserToGroup(String url, UserDetails userDetails) {
-        // todo: url 정보를 통해 초대받은 프로젝트 정보를 파싱해서 꺼내옴 + Inivation 엔티티 존재 확인
-        Long projectId = Long.valueOf(url);
+        // todo:  Inivation 엔티티 존재 확인 + 어떻게 삭제할 것인지?
+        StringTokenizer st = new StringTokenizer(aesEncoder.decryptAES256(url), "?");
+        Long projectId = Long.valueOf(st.nextToken());
+
+        String invitator = st.nextToken();
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
+        LocalDateTime linkTime = LocalDateTime.parse(st.nextToken(), dateTimeFormatter);
+        if (linkTime.isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("초대링크의 유효날짜가 지났습니다.");
+        }
+
+        Long memberId = ((CustomUserDetails) userDetails).getId();
+        validateJoinIsNotDuplicate(memberId, projectId);
 
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프로젝트입니다"));
-        Long memberId = ((CustomUserDetails) userDetails).getId();
-
-        validateJoinIsNotDuplicate(project, memberId);
-
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 멤버입니다"));
 
@@ -156,8 +170,8 @@ public class ProjectService {
         memberProjectRepository.save(memberProject);
     }
 
-    private void validateJoinIsNotDuplicate(Project project, Long memberId) {
-        boolean isExist = memberProjectRepository.existsByMemberIdAndProjectId(memberId, project.getId());
+    private void validateJoinIsNotDuplicate(Long memberId, Long projectId) {
+        boolean isExist = memberProjectRepository.existsByMemberIdAndProjectId(memberId, projectId);
         if (isExist) {
             // todo: Exception 변경 및 예외처리 핸들러
             throw new IllegalStateException("이미 가입된 사용자입니다");
