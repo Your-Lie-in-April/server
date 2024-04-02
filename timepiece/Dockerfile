@@ -5,5 +5,5 @@ FROM openjdk:17.0.2-slim
 COPY ./build/libs/timepiece-0.0.1-SNAPSHOT.jar app.jar
 
 # always do command
-ENTRYPOINT ["java", "-Dspring.config.location=classpath:/application.yml,/resources/application.yml", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Dspring.config.location=file:/resources/application.yml", "-jar", "app.jar"]
 
