@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Schema(description = "스케줄 삭제 요청", requiredProperties = {"projectId", "startDate", "endDate"})
 public class ScheduleDeleteRequest {
 
-    @Schema(description = "프로젝트 식별자", example = "123")
+    @Schema(description = "프로젝트 식별자", example = "1")
     private Long projectId;
 
     @Schema(description = "시작일", example = "2024-01-29")
