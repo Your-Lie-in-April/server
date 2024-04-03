@@ -18,9 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.Objects.requireNonNull;
-
 
 @Slf4j
 @Service
@@ -33,6 +35,8 @@ public class ProjectService {
     private final CoverRepository coverRepository;
     private final InvitationRepository invitationRepository;
     private final AESEncoder aesEncoder;
+
+    private final ScheduleService scheduleService;
 
     public List<ProjectResponse> findAll() {
         return projectRepository.findAllWithCover().stream().map(p ->
@@ -50,6 +54,15 @@ public class ProjectService {
                 .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
     }
 
+    /**
+     * {@summary 핀 설정된 프로젝트 정보를 조회한다.}
+     * <p>조회되는 정보에는 프로젝트 정보 이외에도 이번 주차의 모든 멤버들의 스케줄도 포함된다.
+     * 두 개 이상의 프로젝트를 핀 설정할 수 있도록 List 형태로 반환한다.
+     * 이 메서드는 내부적으로 ScheduleService 클래스의 findMemebersSchedules를 사용한다.</p>
+     * @param memberId
+     * @param userDetails
+     * @return
+     */
     @Transactional
     public List<PinProjectResponse> findPinProjects(Long memberId, UserDetails userDetails) {
         validateMemberIsOwner(memberId, userDetails);
@@ -60,9 +73,16 @@ public class ProjectService {
         for (MemberProject memberProject : memberProjects) {
             Project project = memberProject.getProject();
             // todo: List<ScheduleWeekResponse>를 생성하는 로직 작성
-//            pinProjectResponses.add(PinProjectResponse.of(project, project.get, scheduleService.getSchedule()));
+            pinProjectResponses.add(PinProjectResponse.of(project, ((project.getCover() == null) ? null : project.getCover().getCoverImageUrl()),
+                    scheduleService.findMembersSchedules(project.getId(), LocalDate.now()
+                            , userDetails)));
         }
         return pinProjectResponses;
+    }
+
+    // todo: SchedulService와 중복코드
+    private LocalDateTime calculateStartDay(LocalDateTime condition) {
+        return condition.minusDays(condition.getDayOfWeek().getValue() % 7);
     }
 
     @Transactional
@@ -82,6 +102,7 @@ public class ProjectService {
                 }).toList();
     }
 
+    // todo: SchedulService와 중복코드
     private void validateMemberIsInProject(Long projectId, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
         boolean isExist = memberProjectRepository.existsByMemberIdAndProjectId(memberId, projectId);
@@ -91,8 +112,8 @@ public class ProjectService {
     }
 
     private void validateMemberIsOwner(Long memberId, UserDetails userDetails) {
-        if (memberId != ((CustomUserDetails) userDetails).getId()) {
-            throw new NotEnoughPrivilegeException(ExceptionMessage.MEMBER_UNAUTHENTICATED.getMessage());
+        if (!memberId.equals(((CustomUserDetails) userDetails).getId())) {
+            throw new NotEnoughPrivilegeException(ExceptionMessage.MEMBER_UNAUTHENTICATED);
         }
     }
 
