@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -37,9 +38,10 @@ public class CustomOAuth2Service implements OAuth2UserService<OAuth2UserRequest,
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
 
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, originAttributes);
-        Member member = saveOrUpdate(attributes);
+        saveOrUpdate(attributes);
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
-        return new OAuth2Customer(member.getEmail(), originAttributes, authorities, member.getEmail());
+
+        return new DefaultOAuth2User(authorities, originAttributes, "email");
     }
 
     private Member saveOrUpdate(OAuthAttributes authAttributes) {

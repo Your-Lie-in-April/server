@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -32,9 +33,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
-        OAuth2Customer oAuth2User = (OAuth2Customer) authentication.getPrincipal();
+        DefaultOAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
 
-        Member member = memberRepository.findByEmail(oAuth2User.getEmail()).get();
+        Member member = memberRepository.findByEmail(oAuth2User.getName()).get();
 
         redirectToken(request, response, member);
     }
@@ -55,7 +56,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private URI createURI(String accessToken, String refreshToken, Long memberId) {
         MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
-        queryParams.add("user_id", String.valueOf(memberId));
+        queryParams.add("member_id", String.valueOf(memberId));
         queryParams.add("access_token", accessToken);
         queryParams.add("refresh_token", refreshToken);
 
