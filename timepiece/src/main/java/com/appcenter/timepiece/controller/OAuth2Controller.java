@@ -24,23 +24,6 @@ public class OAuth2Controller {
 
     private final OAuth2Service oAuth2Service;
 
-
-    @Operation(hidden = true)
-    @GetMapping(value = "/login-page/google")
-    public ResponseEntity<Void> getGoogleAuthUrl(HttpServletRequest request) throws Exception {
-
-        return new ResponseEntity<>(oAuth2Service.makeLoginURI(), HttpStatus.MOVED_PERMANENTLY);
-
-    }
-
-//    @Operation(hidden = true)
-//    @GetMapping(value = "/login/oauth2/code/{provider}")
-//    public ResponseEntity<CommonResponse> sign(@RequestParam(value = "code") String authCode) throws Exception {
-//
-//        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
-//
-//    }
-
     @GetMapping(value = "/reissue")
     @Operation(summary = "토큰 재발급", description = "")
     @SwaggerApiResponses
