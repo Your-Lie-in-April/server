@@ -14,7 +14,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -34,13 +33,13 @@ public class OAuth2Controller {
 
     }
 
-    @Operation(hidden = true)
-    @GetMapping(value = "/login/oauth2/code/google")
-    public ResponseEntity<CommonResponse> sign(@RequestParam(value = "code") String authCode) throws Exception {
-
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
-
-    }
+//    @Operation(hidden = true)
+//    @GetMapping(value = "/login/oauth2/code/{provider}")
+//    public ResponseEntity<CommonResponse> sign(@RequestParam(value = "code") String authCode) throws Exception {
+//
+//        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
+//
+//    }
 
     @GetMapping(value = "/reissue")
     @Operation(summary = "토큰 재발급", description = "")

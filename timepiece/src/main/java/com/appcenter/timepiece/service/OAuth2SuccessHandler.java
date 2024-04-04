@@ -37,7 +37,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         Member member = memberRepository.findByEmail(oAuth2User.getEmail()).get();
 
         redirectToken(request, response, member);
-
     }
 
     private void redirectToken(HttpServletRequest request, HttpServletResponse response, Member member) throws IOException {
@@ -61,12 +60,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         queryParams.add("refresh_token", refreshToken);
 
         return UriComponentsBuilder.newInstance()
-                .scheme("http")
-                .host("localhost")
-                .port(5173)
+                .scheme("https")
+                .host("timepiece.inuappcenter.kr")
                 .path("/")
                 .queryParams(queryParams)
                 .build()
                 .toUri();
     }
+
 }

@@ -53,6 +53,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/v1/members/**").authenticated()
                         .requestMatchers("/v1/oauth2/login-page/google").permitAll()
+                        .requestMatchers(("/oauth2/**")).permitAll()
                         .requestMatchers("/v1/oauth2/reissue").hasRole("USER")
                         .requestMatchers("/v1/oauth2/test").hasRole("USER")
                         .requestMatchers("/v1/oauth2/test1").permitAll()
