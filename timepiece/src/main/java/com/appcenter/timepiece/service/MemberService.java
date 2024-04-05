@@ -3,7 +3,6 @@ package com.appcenter.timepiece.service;
 import com.appcenter.timepiece.common.exception.ExceptionMessage;
 import com.appcenter.timepiece.common.exception.NotFoundElementException;
 import com.appcenter.timepiece.common.security.CustomUserDetails;
-import com.appcenter.timepiece.common.security.JwtProvider;
 import com.appcenter.timepiece.domain.Member;
 import com.appcenter.timepiece.domain.MemberProject;
 import com.appcenter.timepiece.dto.member.MemberResponse;
@@ -25,7 +24,6 @@ public class MemberService {
 
     private final MemberProjectRepository memberProjectRepository;
 
-    private final JwtProvider jwtProvider;
 
     public List<MemberResponse> getAllMember() {
         log.info("[getAllMember] 모든 유저 조회");

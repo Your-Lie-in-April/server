@@ -14,7 +14,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -24,23 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class OAuth2Controller {
 
     private final OAuth2Service oAuth2Service;
-
-
-    @Operation(hidden = true)
-    @GetMapping(value = "/login-page/google")
-    public ResponseEntity<Void> getGoogleAuthUrl(HttpServletRequest request) throws Exception {
-
-        return new ResponseEntity<>(oAuth2Service.makeLoginURI(), HttpStatus.MOVED_PERMANENTLY);
-
-    }
-
-    @Operation(hidden = true)
-    @GetMapping(value = "/login/google")
-    public ResponseEntity<CommonResponse> sign(@RequestParam(value = "code") String authCode) throws Exception {
-
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", oAuth2Service.getGoogleInfo(authCode)));
-
-    }
 
     @GetMapping(value = "/reissue")
     @Operation(summary = "토큰 재발급", description = "")

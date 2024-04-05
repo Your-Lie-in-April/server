@@ -1,5 +1,9 @@
 package com.appcenter.timepiece.common.security;
 
+import com.appcenter.timepiece.common.redis.RefreshTokenRepository;
+import com.appcenter.timepiece.repository.MemberRepository;
+import com.appcenter.timepiece.service.CustomOAuth2Service;
+import com.appcenter.timepiece.service.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +33,12 @@ public class SecurityConfig {
 
     private final AuthenticationEntryPoint authenticationEntryPoint;
 
+    private final CustomOAuth2Service customOAuth2Service;
+
+    private final MemberRepository memberRepository;
+
+    private final RefreshTokenRepository refreshTokenRepository;
+
     @Bean
     protected SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
@@ -43,15 +53,20 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/v1/members/**").authenticated()
                         .requestMatchers("/v1/oauth2/login-page/google").permitAll()
-                        .requestMatchers("/v1/oauth2/login/google").permitAll()
+                        .requestMatchers(("/oauth2/**")).permitAll()
                         .requestMatchers("/v1/oauth2/reissue").hasRole("USER")
                         .requestMatchers("/v1/oauth2/test").hasRole("USER")
                         .requestMatchers("/v1/oauth2/test1").permitAll()
                         .requestMatchers("/v1/projects/**").hasRole("USER")
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-
+                        .requestMatchers("/login/**").permitAll()
                         .anyRequest().authenticated()
                 )
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
+                                .userService(customOAuth2Service)
+                        )
+                        .successHandler(new OAuth2SuccessHandler(jwtProvider, memberRepository, refreshTokenRepository)))
                 .addFilterBefore(new JwtExceptionHandlerFilter(),
                         UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtAuthFilter(jwtProvider),
@@ -65,7 +80,6 @@ public class SecurityConfig {
 
         return httpSecurity.build();
     }
-
 
     @Bean
     protected CorsConfigurationSource corsConfigurationSource() {
