@@ -4,6 +4,7 @@ import com.appcenter.timepiece.common.dto.CommonResponse;
 import com.appcenter.timepiece.dto.schedule.ScheduleCreateUpdateRequest;
 import com.appcenter.timepiece.dto.schedule.ScheduleDeleteRequest;
 import com.appcenter.timepiece.service.ScheduleService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +22,6 @@ public class ScheduleController {
     private final ScheduleService scheduleService;
 
     /**
-     * For Test During Develop
-     *
-     * @return CommonResponse<List < ScheduleWeekResponse>>
-     */
-    @GetMapping("/v1/schedules/all")
-    public CommonResponse<?> findAllSchedules() {
-        return CommonResponse.success("성공", null);
-    }
-
-    /**
      * {@summary 인증 성공 시 프로젝트 내 모든 사용자 시간표 조회}
      * <p>프로젝트에 속해있는 모든 사용자의 시간표 정보{@literal ((List<ScheduleWeekResponse>) 반환}
      *
@@ -39,6 +30,9 @@ public class ScheduleController {
      * @return {@literal List<ScheduleWeekResponse>}
      */
     @GetMapping("/v1/projects/{projectId}/schedules")
+    @Operation(summary = "프로젝트 범위 스케줄 조회", description = "프로젝트 내 모든 구성원의 스케줄을 조회합니다. " +
+                                                    "일요일-토요일까지 일주일 스케줄을 조회합니다. " +
+                                                    "condition이 포함된 주차를 조회합니다.")
     public CommonResponse<List<?>> findMembersSchedules(@PathVariable Long projectId,
                                                         @RequestParam LocalDate condition,
                                                         @AuthenticationPrincipal UserDetails userDetails) {
@@ -56,6 +50,9 @@ public class ScheduleController {
      * @return {@literal CommmonResponse<ScheduleWeekResponse>}
      */
     @GetMapping("/v1/projects/{projectId}/members/{memberId}/schedules")
+    @Operation(summary = "단일 멤버 스케줄 조회", description = "특정 멤버의 스케줄을 조회합니다. " +
+                                                    "일요일-토요일까지 일주일 스케줄을 조회합니다. " +
+                                                    "condition이 포함된 주차를 조회합니다.")
     public CommonResponse<?> findSchedule(@PathVariable Long projectId,
                                           @PathVariable Long memberId,
                                           @RequestParam LocalDate condition,
@@ -73,6 +70,9 @@ public class ScheduleController {
      * @return
      */
     @PostMapping("/v1/projects/{projectId}/schedules")
+    @Operation(summary = "스케줄 생성", description = "스케줄을 생성합니다." +
+                                                 "일반적인 사용흐름으로는 주 단위로 추가되지만," +
+                                                 "몇 주에 걸친 스케줄 데이터도 한 번에 저장할 수 있습니다.")
     public ResponseEntity<CommonResponse<?>> createSchedule(@PathVariable Long projectId,
                                                             @RequestBody ScheduleCreateUpdateRequest request,
                                                             @AuthenticationPrincipal UserDetails userDetails) {
@@ -90,6 +90,8 @@ public class ScheduleController {
      * @return
      */
     @PutMapping("/v1/projects/{projectId}/schedules")
+    @Operation(summary = "스케줄 변경", description = "기존 스케줄을 삭제하고 새로운 스케줄을 저장합니다." +
+                                                    "주 단위(일요일-토요일)로만 정상적으로 동작합니다.")
     public ResponseEntity<CommonResponse<?>> updateSchedule(@PathVariable Long projectId,
                                                             @RequestBody ScheduleCreateUpdateRequest request,
                                                             @AuthenticationPrincipal UserDetails userDetails) {
@@ -106,6 +108,8 @@ public class ScheduleController {
      * @param userDetails JWT 인증 시, SecurityContext에 저장된 사용자 정보
      * @return
      */
+    @Operation(summary = "스케줄 삭제", description = "지정된 범위(기간)의 스케줄을 삭제합니다." +
+                                                 "startDate는 포함, endDate는 포함하지 않습니다.")
     @DeleteMapping("/v1/projects/{projectId}/schedules")
     public ResponseEntity<CommonResponse<?>> deleteSchedule(@PathVariable Long projectId,
                                                             @RequestBody ScheduleDeleteRequest request,
