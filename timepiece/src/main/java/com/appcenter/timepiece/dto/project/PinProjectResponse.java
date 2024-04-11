@@ -6,9 +6,11 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 public class PinProjectResponse {
@@ -27,19 +29,7 @@ public class PinProjectResponse {
 
     private LocalTime endTime;
 
-    private Boolean mon;
-
-    private Boolean tue;
-
-    private Boolean wed;
-
-    private Boolean thu;
-
-    private Boolean fri;
-
-    private Boolean sat;
-
-    private Boolean sun;
+    private Set<DayOfWeek> daysOfWeek;
 
     private String color;
 
@@ -52,7 +42,7 @@ public class PinProjectResponse {
     @Builder(access = AccessLevel.PRIVATE)
     private PinProjectResponse(Long projectId, String title, String description, LocalDate startDate, LocalDate endDate,
                                LocalTime startTime, LocalTime endTime,
-                               Boolean mon, Boolean tue, Boolean wed, Boolean thu, Boolean fri, Boolean sat, Boolean sun,
+                               Set<DayOfWeek> daysOfWeek,
                                String color, String coverImageUrl,
                                Integer memberCount, List<ScheduleWeekResponse> schedule) {
         this.projectId = projectId;
@@ -62,13 +52,7 @@ public class PinProjectResponse {
         this.endDate = endDate;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.mon = mon;
-        this.tue = tue;
-        this.wed = wed;
-        this.thu = thu;
-        this.fri = fri;
-        this.sat = sat;
-        this.sun = sun;
+        this.daysOfWeek = daysOfWeek;
         this.color = color;
         this.coverImageUrl = coverImageUrl;
         this.memberCount = memberCount;
@@ -84,13 +68,7 @@ public class PinProjectResponse {
                 .endDate(project.getEndDate())
                 .startTime(project.getStartTime())
                 .endTime(project.getEndTime())
-                .mon(project.getMon())
-                .tue(project.getTue())
-                .wed(project.getWed())
-                .thu(project.getThu())
-                .fri(project.getFri())
-                .sat(project.getSat())
-                .sun(project.getSun())
+                .daysOfWeek(project.getDaysOfWeek())
                 .coverImageUrl(coverImageUrl)
                 .color(project.getColor())
                 .memberCount(schedule.size())

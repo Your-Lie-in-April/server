@@ -8,10 +8,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -38,13 +40,10 @@ public class Project extends BaseTimeEntity {
     @Column(name = "end_time")
     private LocalTime endTime;
 
-    private Boolean mon;
-    private Boolean tue;
-    private Boolean wed;
-    private Boolean thu;
-    private Boolean fri;
-    private Boolean sat;
-    private Boolean sun;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name="project_days_of_week",
+            joinColumns = @JoinColumn(name= "project_id"))
+    private Set<DayOfWeek> daysOfWeek;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<MemberProject> memberProjects = new ArrayList<>();
@@ -61,8 +60,7 @@ public class Project extends BaseTimeEntity {
     @Builder(access = AccessLevel.PRIVATE)
     private Project(String title, String description,
                     LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime,
-                    Boolean mon, Boolean tue, Boolean wed, Boolean thu, Boolean fri, Boolean sat, Boolean sun,
-                    List<MemberProject> memberProjects, List<Invitation> invitations,
+                    Set<DayOfWeek> daysOfWeek, List<MemberProject> memberProjects, List<Invitation> invitations,
                     Cover cover, String color) {
         this.title = title;
         this.description = description;
@@ -70,13 +68,7 @@ public class Project extends BaseTimeEntity {
         this.endDate = endDate;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.mon = mon;
-        this.tue = tue;
-        this.wed = wed;
-        this.thu = thu;
-        this.fri = fri;
-        this.sat = sat;
-        this.sun = sun;
+        this.daysOfWeek = daysOfWeek;
         this.memberProjects = memberProjects;
         this.invitations = invitations;
         this.cover = cover;
@@ -89,8 +81,7 @@ public class Project extends BaseTimeEntity {
                 .description(request.getDescription())
                 .startDate(request.getStartDate()).endDate(request.getEndDate())
                 .startTime(request.getStartTime()).endTime(request.getEndTime())
-                .mon(request.getMon()).tue(request.getTue()).wed(request.getWed())
-                .thu(request.getThu()).fri(request.getFri()).sat(request.getSat()).sun(request.getSun())
+                .daysOfWeek(request.getDaysOfWeek())
                 .color(request.getColor())
                 .cover(cover)
                 .build();
@@ -103,13 +94,7 @@ public class Project extends BaseTimeEntity {
         this.endDate = request.getEndDate();
         this.startTime = request.getStartTime();
         this.endTime = request.getEndTime();
-        this.mon = request.getMon();
-        this.tue = request.getTue();
-        this.wed = request.getWed();
-        this.thu = request.getThu();
-        this.fri = request.getFri();
-        this.sat = request.getSat();
-        this.sun = request.getSun();
+        this.daysOfWeek = request.getDaysOfWeek();
         this.color = request.getColor();
         this.cover = cover;
     }

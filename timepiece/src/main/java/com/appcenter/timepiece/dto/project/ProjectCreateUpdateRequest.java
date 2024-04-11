@@ -5,15 +5,17 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Set;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Schema(description = "프로젝트 생성 및 수정 요청",
         requiredProperties = {
                 "title", "description", "startDate", "endDate",
-                "startTime", "endTime", "mon", "tue", "wed", "thu", "fri", "sat", "sun",
+                "startTime", "endTime", "daysOfWeek",
                 "isStored", "color", "coverId"})
 public class ProjectCreateUpdateRequest {
 
@@ -35,26 +37,8 @@ public class ProjectCreateUpdateRequest {
     @Schema(description = "프로젝트 종료 시간", example = "22:00:00", type = "String", pattern = "HH:mm:ss")
     private LocalTime endTime;
 
-    @Schema(description = "월요일", example = "true")
-    private Boolean mon;
-
-    @Schema(description = "화요일", example = "true")
-    private Boolean tue;
-
-    @Schema(description = "수요일", example = "true")
-    private Boolean wed;
-
-    @Schema(description = "목요일", example = "true")
-    private Boolean thu;
-
-    @Schema(description = "금요일", example = "true")
-    private Boolean fri;
-
-    @Schema(description = "토요일", example = "false")
-    private Boolean sat;
-
-    @Schema(description = "일요일", example = "false")
-    private Boolean sun;
+    @Schema(description = "요일", example = "[\"MONDAY\", \"TUESDAY\", \"WEDNESDAY\", \"THURSDAY\", \"FRIDAY\"]")
+    private Set<DayOfWeek> daysOfWeek;
 
     @Schema(description = "보관여부", example = "false")
     private Boolean isStored;
