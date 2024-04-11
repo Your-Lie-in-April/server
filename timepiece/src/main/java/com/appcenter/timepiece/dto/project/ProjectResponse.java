@@ -5,8 +5,10 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Set;
 
 @Getter
 public class ProjectResponse {
@@ -25,19 +27,7 @@ public class ProjectResponse {
 
     private LocalTime endTime;
 
-    private Boolean mon;
-
-    private Boolean tue;
-
-    private Boolean wed;
-
-    private Boolean thu;
-
-    private Boolean fri;
-
-    private Boolean sat;
-
-    private Boolean sun;
+    private Set<DayOfWeek> daysOfWeek;
 
     private String coverImageUrl;
 
@@ -47,8 +37,7 @@ public class ProjectResponse {
     private ProjectResponse(Long projectId, String title, String description,
                             LocalDate startDate, LocalDate endDate,
                             LocalTime startTime, LocalTime endTime,
-                            Boolean mon, Boolean tue, Boolean wed, Boolean thu, Boolean fri,
-                            Boolean sat, Boolean sun,
+                            Set<DayOfWeek> daysOfWeek,
                             String coverImageUrl, String color) {
         this.projectId = projectId;
         this.title = title;
@@ -57,13 +46,7 @@ public class ProjectResponse {
         this.endDate = endDate;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.mon = mon;
-        this.tue = tue;
-        this.wed = wed;
-        this.thu = thu;
-        this.fri = fri;
-        this.sat = sat;
-        this.sun = sun;
+        this.daysOfWeek = daysOfWeek;
         this.coverImageUrl = coverImageUrl;
         this.color = color;
     }
@@ -77,13 +60,7 @@ public class ProjectResponse {
                 .endDate(project.getEndDate())
                 .startTime(project.getStartTime())
                 .endTime(project.getEndTime())
-                .mon(project.getMon())
-                .tue(project.getTue())
-                .wed(project.getWed())
-                .thu(project.getThu())
-                .fri(project.getFri())
-                .sat(project.getSat())
-                .sun(project.getSun())
+                .daysOfWeek(project.getDaysOfWeek())
                 .coverImageUrl(coverImageUrl)
                 .color(project.getColor())
                 .build();
