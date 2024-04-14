@@ -8,15 +8,13 @@ import com.appcenter.timepiece.common.redis.RefreshTokenRepository;
 import com.appcenter.timepiece.common.security.CustomUserDetails;
 import com.appcenter.timepiece.common.security.JwtProvider;
 import com.appcenter.timepiece.domain.Member;
+import com.appcenter.timepiece.dto.member.TokenResponse;
 import com.appcenter.timepiece.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @Slf4j
@@ -30,9 +28,8 @@ public class OAuth2Service {
     private final RefreshTokenRepository refreshTokenRepository;
 
     //accessToken 재발급과 동시에 refreshToken 도 새로 발급한다.(유효시간을 늘리기 위함.)
-    public Map<String, String> reissueAccessToken(HttpServletRequest request) {
+    public TokenResponse reissueAccessToken(HttpServletRequest request) {
 
-        Map<String, String> tokens = new HashMap<>();
         String token = jwtProvider.resolveServiceToken(request);
 
         Long memberId = jwtProvider.getMemberId(token);
@@ -54,13 +51,15 @@ public class OAuth2Service {
             String newRefreshToken = jwtProvider.createRefreshToken(memberId, member.getEmail(), member.getRole());
             log.info("[reissueAccessToken] refreshToken 새로 발급 성공: {}", newRefreshToken);
 
-            tokens.put("Access", accessToken);
-            tokens.put("Refresh", newRefreshToken);
+            TokenResponse tokenResponse = TokenResponse.builder()
+                    .refreshToken(newRefreshToken)
+                    .accessToken(accessToken)
+                    .build();
 
             //redis 에 토큰 저장
             refreshTokenRepository.save(new RefreshToken(memberId, newRefreshToken));
 
-            return tokens;
+            return tokenResponse;
         } else {
             throw new FailedTokenCreateException(ExceptionMessage.TOKEN_EXPIRED);
         }
