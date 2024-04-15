@@ -1,59 +1,57 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.2.2'
-	id 'io.spring.dependency-management' version '1.1.4'
+    id 'java'
+    id 'org.springframework.boot' version '3.2.2'
+    id 'io.spring.dependency-management' version '1.1.4'
 }
 
 group = 'com.appcenter'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	sourceCompatibility = '17'
+    sourceCompatibility = '17'
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
 
 
-	implementation 'org.springframework.boot:spring-boot-starter'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
 
-	//데이터베이스 : mysql 사용
-	runtimeOnly 'com.mysql:mysql-connector-j'
+    //데이터베이스 : mysql 사용
+    runtimeOnly 'com.mysql:mysql-connector-j'
 
-	//oauth2 관련 의존성
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    //oauth2 관련 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
-	//security 의존성
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+    //security 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 
-	//redis 의존성
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.3.1.RELEASE'
+    //redis 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.3.1.RELEASE'
 
-	//jwt 토큰 의존성
-	implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
-	implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
-	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
+    //jwt 토큰 의존성
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
 
-	//webclient 의존성
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
