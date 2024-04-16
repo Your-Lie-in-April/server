@@ -33,25 +33,25 @@ public class ProjectController {
 
     @GetMapping("/v1/projects/members/{memberId}")
     @Operation(summary = "소속 프로젝트 전체 조회(썸네일)", description = "")
-    public ResponseEntity<CommonResponse<?>> findProjects(@PathVariable Long memberId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<CommonResponse<?>> findProjects(@PathVariable Long memberId) {
         return ResponseEntity.ok().body(CommonResponse.success("프로젝트 목록 조회 성공",
-                projectService.findProjects(memberId, userDetails)));
+                projectService.findProjects(memberId)));
     }
 
     // todo: Schedule 조회 로직의 작성이 선행되야 합니다.
     @GetMapping("/v1/projects/members/{memberId}/pin")
     @Operation(summary = "핀 설정된 프로젝트 조회(+시간표)", description = "")
-    public ResponseEntity<CommonResponse<?>> findPinProjects(@PathVariable Long memberId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<CommonResponse<?>> findPinProjects(@PathVariable Long memberId) {
         return ResponseEntity.ok().body(CommonResponse.success("핀 설정된 프로젝트 조회 성공",
-                projectService.findPinProjects(memberId, userDetails)));
+                projectService.findPinProjects(memberId)));
     }
 
     @GetMapping("/v1/projects/members/{memberId}/{keyword}")
     @Operation(summary = "유저가 가지고 있는 프로젝트 중 검색", description = "")
-    public ResponseEntity<CommonResponse<?>> searchProjects(@PathVariable Long memberId, @AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<CommonResponse<?>> searchProjects(@PathVariable Long memberId,
                                                             @PathVariable String keyword) {
         return ResponseEntity.ok().body(CommonResponse.success("프로젝트 검색 성공",
-                projectService.searchProjects(memberId, userDetails, keyword)));
+                projectService.searchProjects(memberId, keyword)));
     }
 
     // todo: 해당 기능은 Project가 아닌 Member의 책임이 아닐까?
