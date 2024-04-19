@@ -43,26 +43,26 @@ public class AuthService {
 
         log.info("[reissueAccessToken] 이전 refreshToken: {}", refreshToken.getRefreshToken());
         //refreshToken 의 유효 시간과, Header 에 담겨 온 RefreshToken 과 redis 에 저장되어있는 RefreshToken 과 일치하는지 비교한다.
-        if (refreshToken.getRefreshToken().equals(token)) {
 
-            String accessToken = jwtProvider.createAccessToken(memberId, member.getEmail(), member.getRole());
-            log.info("[reissueAccessToken] accessToken 새로 발급 성공: {}", accessToken);
-
-            String newRefreshToken = jwtProvider.createRefreshToken(memberId, member.getEmail(), member.getRole());
-            log.info("[reissueAccessToken] refreshToken 새로 발급 성공: {}", newRefreshToken);
-
-            TokenResponse tokenResponse = TokenResponse.builder()
-                    .refreshToken(newRefreshToken)
-                    .accessToken(accessToken)
-                    .build();
-
-            //redis 에 토큰 저장
-            refreshTokenRepository.save(new RefreshToken(memberId, newRefreshToken));
-
-            return tokenResponse;
-        } else {
+        if (!refreshToken.getRefreshToken().equals(token)) {
             throw new FailedTokenCreateException(ExceptionMessage.TOKEN_EXPIRED);
         }
+
+        String accessToken = jwtProvider.createAccessToken(memberId, member.getEmail(), member.getRole());
+        log.info("[reissueAccessToken] accessToken 새로 발급 성공: {}", accessToken);
+
+        String newRefreshToken = jwtProvider.createRefreshToken(memberId, member.getEmail(), member.getRole());
+        log.info("[reissueAccessToken] refreshToken 새로 발급 성공: {}", newRefreshToken);
+
+        TokenResponse tokenResponse = TokenResponse.builder()
+                .refreshToken(newRefreshToken)
+                .accessToken(accessToken)
+                .build();
+
+        //redis 에 토큰 저장
+        refreshTokenRepository.save(new RefreshToken(memberId, newRefreshToken));
+
+        return tokenResponse;
     }
 
     public String testApi(UserDetails userDetails) {

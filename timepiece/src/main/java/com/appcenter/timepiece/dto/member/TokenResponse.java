@@ -12,7 +12,7 @@ public class TokenResponse {
     private String accessToken;
 
     @Builder
-    public TokenResponse(String refreshToken, String accessToken) {
+    private TokenResponse(String refreshToken, String accessToken) {
         this.refreshToken = refreshToken;
         this.accessToken = accessToken;
     }
