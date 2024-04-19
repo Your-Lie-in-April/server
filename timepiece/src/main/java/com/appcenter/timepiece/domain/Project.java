@@ -58,7 +58,7 @@ public class Project extends BaseTimeEntity {
 
     private String color;
 
-    @Builder(access = AccessLevel.PRIVATE)
+    @Builder
     private Project(String title, String description,
                     LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime,
                     Set<DayOfWeek> daysOfWeek, List<MemberProject> memberProjects, List<Invitation> invitations,

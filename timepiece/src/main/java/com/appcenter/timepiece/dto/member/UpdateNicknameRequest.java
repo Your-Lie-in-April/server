@@ -17,4 +17,8 @@ public class UpdateNicknameRequest {
     @Schema(description = "변경할 닉네임(To)", example = "나무")
     private String nickname;
 
+    public UpdateNicknameRequest(Long projectId, String nickname) {
+        this.projectId = projectId;
+        this.nickname = nickname;
+    }
 }
