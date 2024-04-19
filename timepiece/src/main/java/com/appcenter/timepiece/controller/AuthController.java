@@ -19,26 +19,26 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/oauth2")
+@RequestMapping("")
 public class AuthController {
 
     private final AuthService authService;
 
-    @GetMapping(value = "/reissue")
+    @GetMapping(value = "/v1/auth/reissue")
     @Operation(summary = "토큰 재발급", description = "")
     @SwaggerApiResponses
     public ResponseEntity<CommonResponse> reissueAccessToken(HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "토큰 재발급 성공", authService.reissueAccessToken(request)));
     }
 
-    @GetMapping(value = "/test")
+    @GetMapping(value = "/v1/auth/test")
     @Operation(summary = "테스트API", description = "")
     @SwaggerApiResponses
     public ResponseEntity<CommonResponse> testApi(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "테스트 성공", authService.testApi(userDetails)));
     }
 
-    @GetMapping(value = "/test1")
+    @GetMapping(value = "/v1/auth/test1")
     @Operation(summary = "테스트API", description = "")
     @SwaggerApiResponses
     public ResponseEntity<CommonResponse> testApi1(@AuthenticationPrincipal UserDetails userDetails) {
