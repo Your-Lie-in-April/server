@@ -21,4 +21,9 @@ public class ScheduleDeleteRequest {
     @Schema(description = "종료일", example = "2024-02-02")
     private LocalDate endDate;
 
+    public ScheduleDeleteRequest(Long projectId, LocalDate startDate, LocalDate endDate) {
+        this.projectId = projectId;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
 }
