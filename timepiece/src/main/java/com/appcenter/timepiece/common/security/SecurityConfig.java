@@ -3,7 +3,6 @@ package com.appcenter.timepiece.common.security;
 import com.appcenter.timepiece.common.redis.RefreshTokenRepository;
 import com.appcenter.timepiece.repository.MemberRepository;
 import com.appcenter.timepiece.service.CustomOAuth2Service;
-import com.appcenter.timepiece.service.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,5 +1,6 @@
 package com.appcenter.timepiece.service;
 
+import com.appcenter.timepiece.common.security.OAuth2Attributes;
 import com.appcenter.timepiece.domain.Member;
 import com.appcenter.timepiece.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;

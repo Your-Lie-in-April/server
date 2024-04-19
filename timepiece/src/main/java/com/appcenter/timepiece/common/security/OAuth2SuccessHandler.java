@@ -1,9 +1,7 @@
-package com.appcenter.timepiece.service;
+package com.appcenter.timepiece.common.security;
 
 import com.appcenter.timepiece.common.redis.RefreshToken;
 import com.appcenter.timepiece.common.redis.RefreshTokenRepository;
-import com.appcenter.timepiece.common.security.JwtProvider;
-import com.appcenter.timepiece.common.security.Role;
 import com.appcenter.timepiece.domain.Member;
 import com.appcenter.timepiece.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
