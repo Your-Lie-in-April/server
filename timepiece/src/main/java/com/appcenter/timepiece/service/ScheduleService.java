@@ -291,12 +291,12 @@ public class ScheduleService {
 
     private void validateDuplicateSchedulePerDay(ScheduleDayRequest req) {
         req.getSchedule().sort(Comparator.comparing(ScheduleDto::getStartTime));
-        LocalDateTime before = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+        LocalTime before = LocalTime.MIN;
         for (ScheduleDto scheduleDto : req.getSchedule()) {
-            if (before.isAfter(scheduleDto.getStartTime())) {
-                throw new IllegalArgumentException("");
+            if (before.isAfter(scheduleDto.getStartTime().toLocalTime())) {
+                throw new IllegalArgumentException(ExceptionMessage.INTERSECT_TIME.getMessage());
             }
-            before = scheduleDto.getEndTime();
+            before = scheduleDto.getEndTime().toLocalTime();
         }
     }
 
