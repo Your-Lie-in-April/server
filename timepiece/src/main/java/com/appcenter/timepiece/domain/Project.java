@@ -40,6 +40,7 @@ public class Project extends BaseTimeEntity {
     @Column(name = "end_time")
     private LocalTime endTime;
 
+    @Enumerated(EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="project_days_of_week",
             joinColumns = @JoinColumn(name= "project_id"))
