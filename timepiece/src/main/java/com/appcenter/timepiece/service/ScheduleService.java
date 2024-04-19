@@ -13,9 +13,6 @@ import com.appcenter.timepiece.repository.ProjectRepository;
 import com.appcenter.timepiece.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springdoc.api.ErrorMessage;
-import org.springframework.cglib.core.Local;
-import org.springframework.scheduling.config.ScheduledTask;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -234,7 +231,6 @@ public class ScheduleService {
         validateIsAppropriatePeriodPerWeek(req, project);
     }
 
-    // todo: LocalDate 간 equals 확인
     private void validateIsIdenticalWeek(ScheduleCreateUpdateRequest req) {
         LocalDate criteria = calculateStartDay(req.getSchedule().get(0).getSchedule().get(0).getStartTime()).toLocalDate();
         for (ScheduleDayRequest scheduleDayRequest : req.getSchedule()) {
@@ -245,7 +241,6 @@ public class ScheduleService {
         }
     }
 
-    // todo: LocalDate끼리 Set에서 contain 검사되는지 확인
     private void validateIsIdenticalDayPerWeek(ScheduleCreateUpdateRequest req) {
         Set<LocalDate> set = new HashSet<>();
         for (ScheduleDayRequest scheduleDayRequest : req.getSchedule()) {
@@ -279,8 +274,6 @@ public class ScheduleService {
         validateIsAppropriateDayOfWeekPerDay(req, project);
     }
 
-    // todo: 하루에 포함된 모든 ScheduleDto가 같은 날짜인지
-    // todo: count = 1확인
     private void validateIsIdenticalDay(ScheduleDayRequest req) {
         if (req.getSchedule().stream()
                     .map(ScheduleDto::getStartTime)
