@@ -1,6 +1,5 @@
 package com.appcenter.timepiece.service;
 
-import com.appcenter.timepiece.common.security.JwtProvider;
 import com.appcenter.timepiece.domain.Member;
 import com.appcenter.timepiece.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +25,6 @@ public class CustomOAuth2Service implements OAuth2UserService<OAuth2UserRequest,
 
     private final MemberRepository memberRepository;
 
-    private final JwtProvider jwtProvider;
-
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2UserService<OAuth2UserRequest, OAuth2User> service = new DefaultOAuth2UserService();
@@ -35,20 +32,20 @@ public class CustomOAuth2Service implements OAuth2UserService<OAuth2UserRequest,
 
         Map<String, Object> originAttributes = oAuth2User.getAttributes();
 
-        String registrationId = userRequest.getClientRegistration().getRegistrationId();
+        String provider = userRequest.getClientRegistration().getRegistrationId();
 
-        OAuthAttributes attributes = OAuthAttributes.of(registrationId, originAttributes);
-        saveOrUpdate(attributes);
+        OAuth2Attributes attributes = OAuth2Attributes.of(provider, originAttributes);
+        saveOrUpdate(provider, attributes);
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
 
         return new DefaultOAuth2User(authorities, originAttributes, "email");
     }
 
-    private Member saveOrUpdate(OAuthAttributes authAttributes) {
+    private Member saveOrUpdate(String provider, OAuth2Attributes authAttributes) {
         Optional<Member> member = memberRepository.findByEmail(authAttributes.getEmail());
         Member returnMember;
         if (member.isEmpty()) {
-            returnMember = new Member("Google", authAttributes.getName(),
+            returnMember = new Member(provider, authAttributes.getName(),
                     authAttributes.getEmail(), "", authAttributes.getProfileImageUrl(), List.of("ROLE_USER"));
         } else {
             returnMember = member.get().updateMember(authAttributes.getName(), authAttributes.getProfileImageUrl());
