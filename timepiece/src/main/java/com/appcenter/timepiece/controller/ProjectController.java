@@ -73,7 +73,7 @@ public class ProjectController {
     @PostMapping("/v1/projects")
     @Operation(summary = "프로젝트 생성", description = "")
     public ResponseEntity<CommonResponse<?>> createProject(@RequestBody ProjectCreateUpdateRequest request,
-                                                        @AuthenticationPrincipal UserDetails userDetails) {
+                                                           @AuthenticationPrincipal UserDetails userDetails) {
         projectService.createProject(request, userDetails);
         return ResponseEntity.ok().body(CommonResponse.success("프로젝트 생성 성공", null));
     }
