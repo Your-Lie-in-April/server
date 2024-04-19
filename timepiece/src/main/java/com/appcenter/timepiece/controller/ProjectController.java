@@ -38,7 +38,6 @@ public class ProjectController {
                 projectService.findProjects(memberId, userDetails)));
     }
 
-    // todo: Schedule 조회 로직의 작성이 선행되야 합니다.
     @GetMapping("/v1/projects/members/{memberId}/pin")
     @Operation(summary = "핀 설정된 프로젝트 조회(+시간표)", description = "")
     public ResponseEntity<CommonResponse<?>> findPinProjects(@PathVariable Long memberId, @AuthenticationPrincipal UserDetails userDetails) {
