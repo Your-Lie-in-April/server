@@ -112,7 +112,7 @@ public class ScheduleService {
         Long memberId = ((CustomUserDetails) userDetails).getId();
         boolean isExist = memberProjectRepository.existsByMemberIdAndProjectId(memberId, projectId);
         if (!isExist) {
-            throw new NotEnoughPrivilegeException("속하지 않은 프로젝트 정보를 조회할 수 없습니다.");
+            throw new NotEnoughPrivilegeException(ExceptionMessage.NOT_MEMBER);
         }
     }
 
