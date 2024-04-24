@@ -5,6 +5,7 @@ import com.appcenter.timepiece.dto.schedule.ScheduleCreateUpdateRequest;
 import com.appcenter.timepiece.dto.schedule.ScheduleDeleteRequest;
 import com.appcenter.timepiece.service.ScheduleService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,7 @@ public class ScheduleController {
                                                     "일요일-토요일까지 일주일 스케줄을 조회합니다. " +
                                                     "condition이 포함된 주차를 조회합니다.")
     public CommonResponse<List<?>> findMembersSchedules(@PathVariable Long projectId,
-                                                        @RequestParam LocalDate condition,
+                                                        @RequestParam @Schema(example = "2024-02-01") LocalDate condition,
                                                         @AuthenticationPrincipal UserDetails userDetails) {
         return CommonResponse.success("성공", scheduleService.findMembersSchedules(projectId, condition, userDetails));
     }
@@ -55,7 +56,7 @@ public class ScheduleController {
                                                     "condition이 포함된 주차를 조회합니다.")
     public CommonResponse<?> findSchedule(@PathVariable Long projectId,
                                           @PathVariable Long memberId,
-                                          @RequestParam LocalDate condition,
+                                          @RequestParam @Schema(example = "2024-02-01") LocalDate condition,
                                           @AuthenticationPrincipal UserDetails userDetails) {
         return CommonResponse.success("성공", scheduleService.findSchedule(projectId, memberId, condition, userDetails));
     }
