@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 
@@ -150,7 +151,7 @@ public class ScheduleService {
      */
     public void editSchedule(ScheduleCreateUpdateRequest request, Long projectId, UserDetails userDetails) {
         Project project = projectRepository.findById(projectId)
-                        .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
         validateScheduleCreateUpdateRequest(request, project);
 
         Long memberId = ((CustomUserDetails) userDetails).getId();
@@ -194,7 +195,8 @@ public class ScheduleService {
     /**
      * ScheduleCreateUpdateRequest에 대한 모든 유효성 검사를 위임하는 메서드<br>
      * Week, Day 범위로 검증을 위임한다.
-     * @param req ScheduleCreateUpdateRequest
+     *
+     * @param req     ScheduleCreateUpdateRequest
      * @param project Project
      */
     private void validateScheduleCreateUpdateRequest(ScheduleCreateUpdateRequest req, Project project) {
@@ -206,7 +208,8 @@ public class ScheduleService {
 
     /**
      * ScheduleCreateUpdateRequest를 일(Day) 단위 및 ScheduleDto 단위 검증으로 위임한다.
-     * @param req ScheduleDayRequest
+     *
+     * @param req     ScheduleDayRequest
      * @param project Project
      */
     private void validateDayAndLowLevelRequest(ScheduleDayRequest req, Project project) {
@@ -222,7 +225,8 @@ public class ScheduleService {
      * 1. validateIsIdenticalWeek - 일주일(일-토요일) 단위의 요청이 맞는지 검사 <br>
      * 2. validateIsIdenticalDayPerWeek - 중복된 날짜의 요청이 있는지 검사 <br>
      * 3. validateIsAppropriatePeriodPerWeek - (생성 시 정했던)프로젝트 기간 내인지 검사
-     * @param req ScheduleCreateUpdateRequest
+     *
+     * @param req     ScheduleCreateUpdateRequest
      * @param project Project
      */
     private void validateScheduleWeekRequest(ScheduleCreateUpdateRequest req, Project project) {
@@ -252,10 +256,15 @@ public class ScheduleService {
     }
 
     private void validateIsAppropriatePeriodPerWeek(ScheduleCreateUpdateRequest req, Project project) {
-        LocalDate criteria = calculateStartDay(req.getSchedule().get(0).getSchedule().get(0).getStartTime()).toLocalDate();
-        if (criteria.isBefore(project.getStartDate()) || criteria.plusDays(6).isAfter(project.getEndDate())) {
+        List<LocalDate> dates = req.getSchedule().stream()
+                .map(scheduleDayRequest ->
+                        scheduleDayRequest.getSchedule().get(0)
+                                .getStartTime().toLocalDate()).sorted().toList();
+        if (dates.get(0).isBefore(project.getStartDate()) || dates.get(dates.size() - 1).isAfter(project.getEndDate())) {
             throw new IllegalArgumentException(ExceptionMessage.INVALID_PROJECT_PERIOD.getMessage());
         }
+
+
     }
 
 
@@ -265,7 +274,8 @@ public class ScheduleService {
      * 1. validateIsIdenticalDay - 모든 ScheduleDto의 동일한 날짜인지 검사<br>
      * 2. validateDuplicateSchedulePerDay - ScheduleDto 간 요청 시간이 중복/교차되는지 검사<br>
      * 3. validateIsAppropriateDayOfWeekPerDay - (생성 시 정했던)프로젝트 요일인지 검사
-     * @param req ScheduleDayRequest
+     *
+     * @param req     ScheduleDayRequest
      * @param project Project
      */
     private void validateScheduleDayRequest(ScheduleDayRequest req, Project project) {
@@ -295,12 +305,11 @@ public class ScheduleService {
 
     private void validateIsAppropriateDayOfWeekPerDay(ScheduleDayRequest req, Project project) {
         Set<DayOfWeek> dayOfWeeks = project.getDaysOfWeek();
-        DayOfWeek day= req.getSchedule().get(0).getStartTime().getDayOfWeek();
+        DayOfWeek day = req.getSchedule().get(0).getStartTime().getDayOfWeek();
         if (!dayOfWeeks.contains(day)) {
             throw new IllegalArgumentException(ExceptionMessage.INVALID_PROJECT_DAY_OF_WEEK.getMessage());
         }
     }
-
 
 
     /**
@@ -310,7 +319,8 @@ public class ScheduleService {
      * 2. validateTimeSequencePerSchedule - startTime < endTime을 만족하는지 검사 <br>
      * 3. validateIsSameDayPerSchedule - startDate == endDate를 만족하는지 검사 <br>
      * 4. validateIsAppropriateTimePerSchedule - (생성 시 정했던)프로젝트 시간 내인지 검사
-     * @param req ScheduleDto
+     *
+     * @param req     ScheduleDto
      * @param project Project
      */
     private void validateScheduleDto(ScheduleDto req, Project project) {
