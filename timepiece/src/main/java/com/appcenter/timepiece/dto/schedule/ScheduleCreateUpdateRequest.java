@@ -14,8 +14,6 @@ import java.util.List;
 @Schema(description = "스케줄 생성 및 수정 요청", requiredProperties = {"projectId", "schedule"})
 public class ScheduleCreateUpdateRequest {
 
-    private Long projectId;
-
     @Schema(description = "주 단위 스케줄", example =
             """
               [
