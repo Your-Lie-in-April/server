@@ -72,7 +72,7 @@ class ScheduleServiceTest {
         ScheduleDayRequest scheduleDayRequest4 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto5)));
 
         ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
-                new ScheduleCreateUpdateRequest(1L, List.of(scheduleDayRequest1, scheduleDayRequest2, scheduleDayRequest3, scheduleDayRequest4));
+                new ScheduleCreateUpdateRequest(List.of(scheduleDayRequest1, scheduleDayRequest2, scheduleDayRequest3, scheduleDayRequest4));
         Member member = new Member(null, "namu", "namu2024@gmail.com", "", "", List.of("ROLE_USER"));
         Project project = Project.builder()
                 .title("test").description("설명")
@@ -120,7 +120,7 @@ class ScheduleServiceTest {
         ScheduleDayRequest scheduleDayRequest4 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto5)));
 
         ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
-                new ScheduleCreateUpdateRequest(1L, List.of(scheduleDayRequest1, scheduleDayRequest2, scheduleDayRequest3, scheduleDayRequest4));
+                new ScheduleCreateUpdateRequest(List.of(scheduleDayRequest1, scheduleDayRequest2, scheduleDayRequest3, scheduleDayRequest4));
         Member member = new Member(null, "namu", "namu2024@gmail.com", "", "", List.of("ROLE_USER"));
         Project project = Project.builder()
                 .title("test").description("설명")
@@ -164,7 +164,7 @@ class ScheduleServiceTest {
         ScheduleDayRequest scheduleDayRequest4 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto4, scheduleDto5)));
 
         ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
-                new ScheduleCreateUpdateRequest(1L, List.of(scheduleDayRequest1, scheduleDayRequest2, scheduleDayRequest3, scheduleDayRequest4));
+                new ScheduleCreateUpdateRequest(List.of(scheduleDayRequest1, scheduleDayRequest2, scheduleDayRequest3, scheduleDayRequest4));
         Member member = new Member(null, "namu", "namu2024@gmail.com", "", "", List.of("ROLE_USER"));
         Project project = Project.builder()
                 .title("test").description("설명")
@@ -208,7 +208,7 @@ class ScheduleServiceTest {
         ScheduleDayRequest scheduleDayRequest4 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto5)));
 
         ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
-                new ScheduleCreateUpdateRequest(1L, List.of(scheduleDayRequest1, scheduleDayRequest2, scheduleDayRequest3, scheduleDayRequest4));
+                new ScheduleCreateUpdateRequest(List.of(scheduleDayRequest1, scheduleDayRequest2, scheduleDayRequest3, scheduleDayRequest4));
         Member member = new Member(null, "namu", "namu2024@gmail.com", "", "", List.of("ROLE_USER"));
         Project project = Project.builder()
                 .title("test").description("설명")
@@ -248,7 +248,7 @@ class ScheduleServiceTest {
                 new ArrayList<>(List.of(scheduleDto1, scheduleDto2, scheduleDto3)));
 
         ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
-                new ScheduleCreateUpdateRequest(1L, List.of(scheduleDayRequest1));
+                new ScheduleCreateUpdateRequest(List.of(scheduleDayRequest1));
         Member member =
                 new Member(null, "namu", "namu2024@gmail.com", "", "", List.of("ROLE_USER"));
         Project project = Project.builder()
@@ -284,7 +284,7 @@ class ScheduleServiceTest {
         ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto1, scheduleDto2, scheduleDto3)));
 
         ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
-                new ScheduleCreateUpdateRequest(1L, List.of(scheduleDayRequest1));
+                new ScheduleCreateUpdateRequest(List.of(scheduleDayRequest1));
         Member member = new Member(null, "namu", "namu2024@gmail.com", "", "", List.of("ROLE_USER"));
         Project project = Project.builder()
                 .title("test").description("설명")
@@ -319,7 +319,7 @@ class ScheduleServiceTest {
 
 
         ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
-                new ScheduleCreateUpdateRequest(1L, List.of(scheduleDayRequest1));
+                new ScheduleCreateUpdateRequest(List.of(scheduleDayRequest1));
         Member member = new Member(null, "namu", "namu2024@gmail.com", "", "", List.of("ROLE_USER"));
         Project project = Project.builder()
                 .title("test").description("설명")
@@ -353,7 +353,7 @@ class ScheduleServiceTest {
         ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto1, scheduleDto2, scheduleDto3)));
 
         ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
-                new ScheduleCreateUpdateRequest(1L, List.of(scheduleDayRequest1));
+                new ScheduleCreateUpdateRequest(List.of(scheduleDayRequest1));
         Member member = new Member(null, "namu", "namu2024@gmail.com", "", "", List.of("ROLE_USER"));
         Project project = Project.builder()
                 .title("test").description("설명")
@@ -387,7 +387,7 @@ class ScheduleServiceTest {
         ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto1, scheduleDto2, scheduleDto3)));
 
         ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
-                new ScheduleCreateUpdateRequest(1L, List.of(scheduleDayRequest1));
+                new ScheduleCreateUpdateRequest(List.of(scheduleDayRequest1));
         Member member = new Member(null, "namu", "namu2024@gmail.com", "", "", List.of("ROLE_USER"));
         Project project = Project.builder()
                 .title("test").description("설명")
