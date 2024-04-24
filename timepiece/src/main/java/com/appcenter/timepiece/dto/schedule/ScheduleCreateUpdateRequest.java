@@ -58,8 +58,7 @@ public class ScheduleCreateUpdateRequest {
     @NotNull @Size(min = 1)
     private List<ScheduleDayRequest> schedule;
 
-    public ScheduleCreateUpdateRequest(Long projectId, List<ScheduleDayRequest> schedule) {
-        this.projectId = projectId;
+    public ScheduleCreateUpdateRequest(List<ScheduleDayRequest> schedule) {
         this.schedule = schedule;
     }
 }
