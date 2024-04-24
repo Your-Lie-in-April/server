@@ -27,7 +27,7 @@ public class ScheduleCreateUpdateRequest {
                     },
                     {
                       "startTime": "2024-01-31T21:30:00",
-                      "endTime": "2024-01-31T22:30:00"
+                      "endTime": "2024-01-31T22:00:00"
                     }
                   ]
                 },
@@ -52,14 +52,6 @@ public class ScheduleCreateUpdateRequest {
                     {
                       "startTime": "2024-02-03T10:30:00",
                       "endTime": "2024-02-03T11:30:00"
-                    }
-                  ]
-                },
-                {
-                  "schedule": [
-                    {
-                      "startTime": "2024-02-04T10:30:00",
-                      "endTime": "2024-02-04T11:30:00"
                     }
                   ]
                 }

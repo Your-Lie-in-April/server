@@ -29,7 +29,7 @@ public class ProjectCreateUpdateRequest {
     @Schema(description = "프로젝트 시작일", example = "2024-01-18")
     private LocalDate startDate;
 
-    @Schema(description = "프로젝트 종료일", example = "2024-01-31")
+    @Schema(description = "프로젝트 종료일", example = "2024-02-18")
     private LocalDate endDate;
 
     @Schema(description = "프로젝트 시작 시간", example = "09:00:00", type = "String", pattern = "HH:mm:ss")
@@ -38,7 +38,7 @@ public class ProjectCreateUpdateRequest {
     @Schema(description = "프로젝트 종료 시간", example = "22:00:00", type = "String", pattern = "HH:mm:ss")
     private LocalTime endTime;
 
-    @Schema(description = "요일", example = "[\"MONDAY\", \"TUESDAY\", \"WEDNESDAY\", \"THURSDAY\", \"FRIDAY\"]")
+    @Schema(description = "요일", example = "[\"MONDAY\", \"TUESDAY\", \"WEDNESDAY\", \"THURSDAY\", \"FRIDAY\", \"SATURDAY\"]")
     private Set<DayOfWeek> daysOfWeek;
 
     @Schema(description = "보관여부", example = "false")
