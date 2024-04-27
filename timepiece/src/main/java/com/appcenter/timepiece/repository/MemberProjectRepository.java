@@ -1,6 +1,8 @@
 package com.appcenter.timepiece.repository;
 
 import com.appcenter.timepiece.domain.MemberProject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,7 +17,7 @@ public interface MemberProjectRepository extends JpaRepository<MemberProject, Lo
             "join fetch mp.project p " +
             "left join fetch p.cover c " +
             "where mp.member.id = :memberId")
-    List<MemberProject> findMemberProjectsWithProjectAndCover(Long memberId);
+    Page<MemberProject> findMemberProjectsWithProjectAndCover(Pageable pageable, Long memberId);
 
     @Query("select mp from MemberProject mp " +
             "join mp.project p " +

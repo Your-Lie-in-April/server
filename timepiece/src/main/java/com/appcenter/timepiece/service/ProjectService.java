@@ -12,11 +12,17 @@ import com.appcenter.timepiece.util.AESEncoder;
 import com.appcenter.timepiece.util.LinkValidTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.StringTokenizer;
 import java.util.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -48,10 +54,18 @@ public class ProjectService {
      * @param memberId 자동생성되는 멤버 식별자(PK)
      * @return 메인페이지에 나타나는 프로젝트 썸네일 정보를 담은 dto 리스트를 리턴합니다.
      */
+    public List<ProjectThumbnailResponse> findProjects(Pageable pageable, Long memberId) {
+        Page<MemberProject> projectPage = memberProjectRepository.findMemberProjectsWithProjectAndCover(pageable, memberId);
+
+        List<MemberProject> projects = projectPage.getContent();
+        List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream().map(MemberProject::getProject)
     public List<ProjectThumbnailResponse> findProjects(Long memberId, UserDetails userDetails) {
         validateMemberIsOwner(memberId, userDetails);
         return memberProjectRepository.findMemberProjectsWithProjectAndCover(memberId).stream().map(MemberProject::getProject)
                 .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
+
+
+        return projectThumbnailResponses;
     }
 
     /**
@@ -86,6 +100,14 @@ public class ProjectService {
     }
 
     @Transactional
+    public List<ProjectThumbnailResponse> searchProjects(Pageable pageable, Long memberId, String keyword) {
+        Page<Project> projectPage = projectRepository.findProjectByMemberIdAndTitleLikeKeyword(pageable, memberId, keyword);
+        List<Project> projects = projectPage.getContent();
+        List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream()
+                .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
+
+        return projectThumbnailResponses;
+
     public List<ProjectThumbnailResponse> searchProjects(Long memberId, UserDetails userDetails, String keyword) {
         validateMemberIsOwner(memberId, userDetails);
         return projectRepository.findProjectByMemberIdAndTitleLikeKeyword(memberId, keyword)
@@ -258,11 +280,13 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProjectThumbnailResponse> findStoredProjects(UserDetails userDetails) {
+    public List<ProjectThumbnailResponse> findStoredProjects(Pageable pageable, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
+        Page<Project> projectPage = projectRepository.findAllByMemberIdWhereIsStored(pageable, memberId);
+        List<Project> projects = projectPage.getContent();
 
-        return projectRepository.findAllByMemberIdWhereIsStored(memberId)
-                .stream().map(p ->
-                        ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
+        List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream().map(p ->
+                ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
+        return projectThumbnailResponses;
     }
 }

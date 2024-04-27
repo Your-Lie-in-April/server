@@ -7,6 +7,7 @@ import com.appcenter.timepiece.dto.project.TransferPrivilegeRequest;
 import com.appcenter.timepiece.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,8 +34,9 @@ public class ProjectController {
 
     @GetMapping("/v1/projects/members/{memberId}")
     @Operation(summary = "소속 프로젝트 전체 조회(썸네일)", description = "")
-    public ResponseEntity<CommonResponse<?>> findProjects(@PathVariable Long memberId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<CommonResponse<?>> findProjects(@PageableDefault(page = 1) Pageable pageable, @PathVariable Long memberId, @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok().body(CommonResponse.success("프로젝트 목록 조회 성공",
+                projectService.findProjects(pageable, memberId, userDetails)));
                 projectService.findProjects(memberId, userDetails)));
     }
 
@@ -47,10 +49,10 @@ public class ProjectController {
 
     @GetMapping("/v1/projects/members/{memberId}/{keyword}")
     @Operation(summary = "유저가 가지고 있는 프로젝트 중 검색", description = "")
-    public ResponseEntity<CommonResponse<?>> searchProjects(@PathVariable Long memberId, @AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<CommonResponse<?>> searchProjects(@PageableDefault(page = 1) Pageable pageable, @PathVariable Long memberId,
                                                             @PathVariable String keyword) {
         return ResponseEntity.ok().body(CommonResponse.success("프로젝트 검색 성공",
-                projectService.searchProjects(memberId, userDetails, keyword)));
+                projectService.searchProjects(pageable, memberId, keyword)));
     }
 
     // todo: 해당 기능은 Project가 아닌 Member의 책임이 아닐까?
@@ -64,9 +66,9 @@ public class ProjectController {
 
     @GetMapping("/v1/projects/stored")
     @Operation(summary = "보관 프로젝트 목록 조회", description = "")
-    public ResponseEntity<CommonResponse<?>> findStoredProjects(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<CommonResponse<?>> findStoredProjects(@PageableDefault(page = 1) Pageable pageable, @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok().body(CommonResponse.success("보관 프로젝트 목록 조회 성공",
-                projectService.findStoredProjects(userDetails)));
+                projectService.findStoredProjects(pageable, userDetails)));
     }
 
     @PostMapping("/v1/projects")
