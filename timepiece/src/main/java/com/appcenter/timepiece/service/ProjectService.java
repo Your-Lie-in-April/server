@@ -13,7 +13,7 @@ import com.appcenter.timepiece.util.LinkValidTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,7 +54,8 @@ public class ProjectService {
      * @param memberId 자동생성되는 멤버 식별자(PK)
      * @return 메인페이지에 나타나는 프로젝트 썸네일 정보를 담은 dto 리스트를 리턴합니다.
      */
-    public List<ProjectThumbnailResponse> findProjects(Pageable pageable, Long memberId) {
+    public List<ProjectThumbnailResponse> findProjects(Integer page, Integer size, Long memberId) {
+        PageRequest pageable = PageRequest.of(page, size);
         Page<MemberProject> projectPage = memberProjectRepository.findMemberProjectsWithProjectAndCover(pageable, memberId);
 
         List<MemberProject> projects = projectPage.getContent();
@@ -100,7 +101,8 @@ public class ProjectService {
     }
 
     @Transactional
-    public List<ProjectThumbnailResponse> searchProjects(Pageable pageable, Long memberId, String keyword) {
+    public List<ProjectThumbnailResponse> searchProjects(Integer page, Integer size, Long memberId, String keyword) {
+        PageRequest pageable = PageRequest.of(page, size);
         Page<Project> projectPage = projectRepository.findProjectByMemberIdAndTitleLikeKeyword(pageable, memberId, keyword);
         List<Project> projects = projectPage.getContent();
         List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream()
@@ -280,8 +282,10 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProjectThumbnailResponse> findStoredProjects(Pageable pageable, UserDetails userDetails) {
+    public List<ProjectThumbnailResponse> findStoredProjects(Integer page, Integer size, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
+
+        PageRequest pageable = PageRequest.of(page, size);
         Page<Project> projectPage = projectRepository.findAllByMemberIdWhereIsStored(pageable, memberId);
         List<Project> projects = projectPage.getContent();
 
