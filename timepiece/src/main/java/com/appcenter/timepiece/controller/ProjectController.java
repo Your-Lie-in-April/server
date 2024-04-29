@@ -33,10 +33,10 @@ public class ProjectController {
 
     @GetMapping("/v1/projects/members/{memberId}")
     @Operation(summary = "소속 프로젝트 전체 조회(썸네일)", description = "")
-    public ResponseEntity<CommonResponse<?>> findProjects(Integer page, Integer size, @PathVariable Long memberId) {
+    public ResponseEntity<CommonResponse<?>> findProjects(Integer page, Integer size, @PathVariable Long memberId, @AuthenticationPrincipal UserDetails userDetails) {
 
         return ResponseEntity.ok().body(CommonResponse.success("프로젝트 목록 조회 성공",
-                projectService.findProjects(page, size, memberId)));
+                projectService.findProjects(page, size, memberId, userDetails)));
     }
 
     @GetMapping("/v1/projects/members/{memberId}/pin")
@@ -49,9 +49,9 @@ public class ProjectController {
     @GetMapping("/v1/projects/members/{memberId}/{keyword}")
     @Operation(summary = "유저가 가지고 있는 프로젝트 중 검색", description = "")
     public ResponseEntity<CommonResponse<?>> searchProjects(Integer page, Integer size, @PathVariable Long memberId,
-                                                            @PathVariable String keyword) {
+                                                            @PathVariable String keyword, @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok().body(CommonResponse.success("프로젝트 검색 성공",
-                projectService.searchProjects(page, size, memberId, keyword)));
+                projectService.searchProjects(page, size, memberId, keyword, userDetails)));
     }
 
     // todo: 해당 기능은 Project가 아닌 Member의 책임이 아닐까?
