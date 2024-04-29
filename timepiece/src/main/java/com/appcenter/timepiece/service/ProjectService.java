@@ -98,7 +98,7 @@ public class ProjectService {
         return memberProjectRepository.findByProjectIdWithMember(projectId).stream()
                 .map(memberProject -> {
                     Member member = requireNonNull(memberProject.getMember()); // NPE!
-                    return MemberResponse.of(member, memberProject.getNickname());
+                    return MemberResponse.of(member, memberProject);
                 }).toList();
     }
 
