@@ -1,6 +1,7 @@
 package com.appcenter.timepiece.dto.member;
 
 import com.appcenter.timepiece.domain.Member;
+import com.appcenter.timepiece.domain.MemberProject;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,13 +19,16 @@ public class MemberResponse {
 
     private String profileImageUrl;
 
+    private Boolean isPrivileged;
+
     @Builder(access = AccessLevel.PRIVATE)
-    private MemberResponse(Long memberId, String email, String nickname, String state, String profileImageUrl) {
+    private MemberResponse(Long memberId, String email, String nickname, String state, String profileImageUrl, Boolean isPrivileged) {
         this.memberId = memberId;
         this.email = email;
         this.nickname = nickname;
         this.state = state;
         this.profileImageUrl = profileImageUrl;
+        this.isPrivileged = isPrivileged;
     }
 
     public static MemberResponse from(Member member) {
@@ -37,13 +41,14 @@ public class MemberResponse {
                 .build();
     }
 
-    public static MemberResponse of(Member member, String nickname) {
+    public static MemberResponse of(Member member, MemberProject memberProject) {
         return MemberResponse.builder()
                 .memberId(member.getId())
                 .email(member.getEmail())
-                .nickname(nickname)
+                .nickname(memberProject.getNickname())
                 .state(member.getState())
                 .profileImageUrl(member.getProfileImageUrl())
+                .isPrivileged(memberProject.getIsPrivileged())
                 .build();
     }
 }
