@@ -16,7 +16,7 @@ public interface MemberProjectRepository extends JpaRepository<MemberProject, Lo
     @Query("select mp from MemberProject mp " +
             "join fetch mp.project p " +
             "left join fetch p.cover c " +
-            "where mp.member.id = :memberId")
+            "where mp.member.id = :memberId and mp.isStored=false")
     Page<MemberProject> findMemberProjectsWithProjectAndCover(Pageable pageable, Long memberId);
 
     @Query("select mp from MemberProject mp " +
