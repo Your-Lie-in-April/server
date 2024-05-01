@@ -12,15 +12,17 @@ import com.appcenter.timepiece.util.AESEncoder;
 import com.appcenter.timepiece.util.LinkValidTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import static java.util.Objects.requireNonNull;
 
@@ -35,7 +37,6 @@ public class ProjectService {
     private final CoverRepository coverRepository;
     private final InvitationRepository invitationRepository;
     private final AESEncoder aesEncoder;
-
     private final ScheduleService scheduleService;
 
     public List<ProjectResponse> findAll() {
@@ -48,10 +49,16 @@ public class ProjectService {
      * @param memberId 자동생성되는 멤버 식별자(PK)
      * @return 메인페이지에 나타나는 프로젝트 썸네일 정보를 담은 dto 리스트를 리턴합니다.
      */
-    public List<ProjectThumbnailResponse> findProjects(Long memberId, UserDetails userDetails) {
+    public List<ProjectThumbnailResponse> findProjects(Integer page, Integer size, Long memberId, UserDetails userDetails) {
         validateMemberIsOwner(memberId, userDetails);
-        return memberProjectRepository.findMemberProjectsWithProjectAndCover(memberId).stream().map(MemberProject::getProject)
+        PageRequest pageable = PageRequest.of(page, size);
+        Page<MemberProject> projectPage = memberProjectRepository.findMemberProjectsWithProjectAndCover(pageable, memberId);
+
+        List<MemberProject> projects = projectPage.getContent();
+        List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream().map(MemberProject::getProject)
                 .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
+
+        return projectThumbnailResponses;
     }
 
     /**
@@ -59,6 +66,7 @@ public class ProjectService {
      * <p>조회되는 정보에는 프로젝트 정보 이외에도 이번 주차의 모든 멤버들의 스케줄도 포함된다.
      * 두 개 이상의 프로젝트를 핀 설정할 수 있도록 List 형태로 반환한다.
      * 이 메서드는 내부적으로 ScheduleService 클래스의 findMemebersSchedules를 사용한다.</p>
+     *
      * @param memberId
      * @param userDetails
      * @return
@@ -86,10 +94,17 @@ public class ProjectService {
     }
 
     @Transactional
-    public List<ProjectThumbnailResponse> searchProjects(Long memberId, UserDetails userDetails, String keyword) {
+    public List<ProjectThumbnailResponse> searchProjects(Integer page, Integer size, Long memberId, String keyword, UserDetails userDetails) {
         validateMemberIsOwner(memberId, userDetails);
-        return projectRepository.findProjectByMemberIdAndTitleLikeKeyword(memberId, keyword)
-                .stream().map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
+
+        PageRequest pageable = PageRequest.of(page, size);
+        Page<Project> projectPage = projectRepository.findProjectByMemberIdAndTitleLikeKeyword(pageable, memberId, keyword);
+        List<Project> projects = projectPage.getContent();
+        List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream()
+                .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
+
+        return projectThumbnailResponses;
+
     }
 
     @Transactional(readOnly = true)
@@ -102,7 +117,6 @@ public class ProjectService {
                 }).toList();
     }
 
-    // todo: SchedulService와 중복코드
     private void validateMemberIsInProject(Long projectId, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
         boolean isExist = memberProjectRepository.existsByMemberIdAndProjectId(memberId, projectId);
@@ -165,7 +179,7 @@ public class ProjectService {
     public String generateInviteLink(Long projectId, UserDetails userDetails) {
         validateRequesterIsPrivileged(projectId, userDetails);
 
-        Member member = memberRepository.findById(((CustomUserDetails)userDetails).getId())
+        Member member = memberRepository.findById(((CustomUserDetails) userDetails).getId())
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
@@ -258,11 +272,15 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProjectThumbnailResponse> findStoredProjects(UserDetails userDetails) {
+    public List<ProjectThumbnailResponse> findStoredProjects(Integer page, Integer size, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
 
-        return projectRepository.findAllByMemberIdWhereIsStored(memberId)
-                .stream().map(p ->
-                        ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
+        PageRequest pageable = PageRequest.of(page, size);
+        Page<Project> projectPage = projectRepository.findAllByMemberIdWhereIsStored(pageable, memberId);
+        List<Project> projects = projectPage.getContent();
+
+        List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream().map(p ->
+                ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
+        return projectThumbnailResponses;
     }
 }

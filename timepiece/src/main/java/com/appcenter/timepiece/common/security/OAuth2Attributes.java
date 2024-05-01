@@ -1,4 +1,4 @@
-package com.appcenter.timepiece.service;
+package com.appcenter.timepiece.common.security;
 
 import lombok.Builder;
 import lombok.Getter;
