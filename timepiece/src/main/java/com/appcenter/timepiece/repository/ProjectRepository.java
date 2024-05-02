@@ -12,14 +12,14 @@ import java.util.List;
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
-    @Query("select p from Project p left  join fetch p.cover c")
+    @Query("select p from Project p left join fetch p.cover c")
     List<Project> findAllWithCover();
 
     @Query("select distinct p from Project p " +
             "join p.memberProjects mp " +
             "join mp.member m " +
-            "where m.id = :memberId and p.title like %:keyword% and mp.isStored = false ")
-    Page<Project> findProjectByMemberIdAndTitleLikeKeyword(Pageable pageable, Long memberId, String keyword);
+            "where m.id = :memberId and p.title like %:keyword% and mp.isStored = :isStored")
+    Page<Project> findProjectByMemberIdAndTitleLikeKeyword(Pageable pageable, Boolean isStored, Long memberId, String keyword);
 
     @Query("select distinct p from Project p " +
             "join p.memberProjects mp " +

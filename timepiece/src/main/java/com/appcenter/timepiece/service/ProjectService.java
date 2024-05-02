@@ -94,11 +94,11 @@ public class ProjectService {
     }
 
     @Transactional
-    public List<ProjectThumbnailResponse> searchProjects(Integer page, Integer size, Long memberId, String keyword, UserDetails userDetails) {
+    public List<ProjectThumbnailResponse> searchProjects(Integer page, Integer size, Boolean isStored, Long memberId, String keyword, UserDetails userDetails) {
         validateMemberIsOwner(memberId, userDetails);
 
         PageRequest pageable = PageRequest.of(page, size);
-        Page<Project> projectPage = projectRepository.findProjectByMemberIdAndTitleLikeKeyword(pageable, memberId, keyword);
+        Page<Project> projectPage = projectRepository.findProjectByMemberIdAndTitleLikeKeyword(pageable, isStored, memberId, keyword);
         List<Project> projects = projectPage.getContent();
         List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream()
                 .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
