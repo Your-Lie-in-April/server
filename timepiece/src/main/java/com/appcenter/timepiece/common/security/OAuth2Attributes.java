@@ -38,6 +38,15 @@ public class OAuth2Attributes {
         return ofGithub("sub", attributes);
     }
 
+    public static String paramOf(String socialName) {
+        if ("kakao".equals(socialName)) {
+            return "account_email";
+        } else if ("google".equals(socialName)) {
+            return "email";
+        }
+        return "login";
+    }
+
     private static OAuth2Attributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes) {
         return OAuth2Attributes.builder()
                 .name(String.valueOf(attributes.get("name")))
@@ -55,7 +64,7 @@ public class OAuth2Attributes {
 
         return OAuth2Attributes.builder()
                 .name(String.valueOf(kakaoProfile.get("nickname")))
-                .email(String.valueOf(kakaoAccount.get("email")))
+                .email(String.valueOf(kakaoAccount.get("account_email")))
                 .profileImageUrl(String.valueOf(kakaoProfile.get("profile_image_url")))
                 .attributes(attributes)
                 .nameAttributesKey(userNameAttributeName)

@@ -39,7 +39,7 @@ public class CustomOAuth2Service implements OAuth2UserService<OAuth2UserRequest,
         saveOrUpdate(provider, attributes);
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
 
-        return new DefaultOAuth2User(authorities, originAttributes, "email");
+        return new DefaultOAuth2User(authorities, originAttributes, OAuth2Attributes.paramOf(provider));
     }
 
     private Member saveOrUpdate(String provider, OAuth2Attributes authAttributes) {
