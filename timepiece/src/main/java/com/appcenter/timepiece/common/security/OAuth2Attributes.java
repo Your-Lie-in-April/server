@@ -15,20 +15,16 @@ public class OAuth2Attributes {
     private String nameAttributesKey;
     private String name;
     private String email;
-    private String gender;
-    private String ageRange;
     private String profileImageUrl;
     private String provider;
 
     @Builder
     public OAuth2Attributes(Map<String, Object> attributes, String nameAttributesKey,
-                            String name, String email, String gender, String ageRange, String profileImageUrl, String provider) {
+                            String name, String email, String profileImageUrl, String provider) {
         this.attributes = attributes;
         this.nameAttributesKey = nameAttributesKey;
         this.name = name;
         this.email = email;
-        this.gender = gender;
-        this.ageRange = ageRange;
         this.profileImageUrl = profileImageUrl;
         this.provider = provider;
     }
@@ -36,8 +32,10 @@ public class OAuth2Attributes {
     public static OAuth2Attributes of(String socialName, Map<String, Object> attributes) {
         if ("kakao".equals(socialName)) {
             return ofKakao("id", attributes);
+        } else if ("google".equals(socialName)) {
+            return ofGoogle("sub", attributes);
         }
-        return ofGoogle("sub", attributes);
+        return ofGithub("sub", attributes);
     }
 
     private static OAuth2Attributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes) {
@@ -58,12 +56,21 @@ public class OAuth2Attributes {
         return OAuth2Attributes.builder()
                 .name(String.valueOf(kakaoProfile.get("nickname")))
                 .email(String.valueOf(kakaoAccount.get("email")))
-                .gender(String.valueOf(kakaoAccount.get("gender")))
-                .ageRange(String.valueOf(kakaoAccount.get("age_range")))
                 .profileImageUrl(String.valueOf(kakaoProfile.get("profile_image_url")))
-                .nameAttributesKey(userNameAttributeName)
                 .attributes(attributes)
-                .provider("Kakao")
+                .nameAttributesKey(userNameAttributeName)
+                .provider("kakao")
+                .build();
+    }
+
+    private static OAuth2Attributes ofGithub(String userNameAttributeName, Map<String, Object> attributes) {
+        return OAuth2Attributes.builder()
+                .name(String.valueOf(attributes.get("name")))
+                .email(String.valueOf(attributes.get("login")))
+                .profileImageUrl(String.valueOf(attributes.get("avatar_url")))
+                .attributes(attributes)
+                .nameAttributesKey(userNameAttributeName)
+                .provider("github")
                 .build();
     }
 }
