@@ -48,10 +48,13 @@ public class ProjectController {
 
     @GetMapping("/v1/projects/members/{memberId}/{keyword}")
     @Operation(summary = "유저가 가지고 있는 프로젝트 중 검색", description = "")
-    public ResponseEntity<CommonResponse<?>> searchProjects(Integer page, Integer size, @PathVariable Long memberId,
-                                                            @PathVariable String keyword, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<CommonResponse<?>> searchProjects(Integer page, Integer size,
+                                                            @PathVariable Long memberId,
+                                                            @PathVariable String keyword,
+                                                            @RequestParam(defaultValue = "false", required = false) Boolean isStored,
+                                                            @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok().body(CommonResponse.success("프로젝트 검색 성공",
-                projectService.searchProjects(page, size, memberId, keyword, userDetails)));
+                projectService.searchProjects(page, size, isStored, memberId, keyword, userDetails)));
     }
 
     // todo: 해당 기능은 Project가 아닌 Member의 책임이 아닐까?
