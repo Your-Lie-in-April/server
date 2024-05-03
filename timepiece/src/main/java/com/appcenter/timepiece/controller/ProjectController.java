@@ -33,7 +33,10 @@ public class ProjectController {
 
     @GetMapping("/v1/projects/members/{memberId}")
     @Operation(summary = "소속 프로젝트 전체 조회(썸네일)", description = "")
-    public ResponseEntity<CommonResponse<?>> findProjects(Integer page, Integer size, @PathVariable Long memberId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<CommonResponse<?>> findProjects(
+            @RequestParam(defaultValue = "0", required = false) Integer page,
+            @RequestParam(defaultValue = "6", required = false) Integer size,
+            @PathVariable Long memberId, @AuthenticationPrincipal UserDetails userDetails) {
 
         return ResponseEntity.ok().body(CommonResponse.success("프로젝트 목록 조회 성공",
                 projectService.findProjects(page, size, memberId, userDetails)));
@@ -48,6 +51,10 @@ public class ProjectController {
 
     @GetMapping("/v1/projects/members/{memberId}/{keyword}")
     @Operation(summary = "유저가 가지고 있는 프로젝트 중 검색", description = "")
+    public ResponseEntity<CommonResponse<?>> searchProjects(
+            @RequestParam(defaultValue = "0", required = false) Integer page,
+            @RequestParam(defaultValue = "6", required = false) Integer size,
+            @PathVariable Long memberId, @PathVariable String keyword, @AuthenticationPrincipal UserDetails userDetails) {
     public ResponseEntity<CommonResponse<?>> searchProjects(Integer page, Integer size,
                                                             @PathVariable Long memberId,
                                                             @PathVariable String keyword,
@@ -68,7 +75,9 @@ public class ProjectController {
 
     @GetMapping("/v1/projects/stored")
     @Operation(summary = "보관 프로젝트 목록 조회", description = "")
-    public ResponseEntity<CommonResponse<?>> findStoredProjects(Integer page, Integer size, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<CommonResponse<?>> findStoredProjects(
+            @RequestParam(defaultValue = "0", required = false) Integer page,
+            @RequestParam(defaultValue = "6", required = false) Integer size, @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok().body(CommonResponse.success("보관 프로젝트 목록 조회 성공",
                 projectService.findStoredProjects(page, size, userDetails)));
     }
