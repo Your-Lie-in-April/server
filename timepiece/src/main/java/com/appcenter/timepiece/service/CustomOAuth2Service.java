@@ -39,8 +39,6 @@ public class CustomOAuth2Service implements OAuth2UserService<OAuth2UserRequest,
         saveOrUpdate(provider, attributes);
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
 
-        System.out.println(originAttributes.keySet());
-
         return new DefaultOAuth2User(authorities, attributes.getAttributes(), attributes.getNameAttributesKey());
     }
 
