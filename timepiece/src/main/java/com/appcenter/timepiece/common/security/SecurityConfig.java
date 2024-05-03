@@ -1,7 +1,5 @@
 package com.appcenter.timepiece.common.security;
 
-import com.appcenter.timepiece.common.redis.RefreshTokenRepository;
-import com.appcenter.timepiece.repository.MemberRepository;
 import com.appcenter.timepiece.service.CustomOAuth2Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -34,9 +32,7 @@ public class SecurityConfig {
 
     private final CustomOAuth2Service customOAuth2Service;
 
-    private final MemberRepository memberRepository;
-
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     protected SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception {
@@ -66,7 +62,7 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
                                 .userService(customOAuth2Service)
                         )
-                        .successHandler(new OAuth2SuccessHandler(jwtProvider, memberRepository, refreshTokenRepository)))
+                        .successHandler(oAuth2SuccessHandler))
                 .addFilterBefore(new JwtExceptionHandlerFilter(),
                         UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtAuthFilter(jwtProvider),

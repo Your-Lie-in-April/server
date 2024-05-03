@@ -30,6 +30,7 @@ public class JwtProvider {
     private final CustomUserDetailsService customUserDetailsService;
     @Value("${spring.jwt.secret}")
     private String secretKey = "secretKey";
+
     @Value("${spring.jwt.refresh-token-valid-time}")
     private Long refreshTokenValidTime;
 
