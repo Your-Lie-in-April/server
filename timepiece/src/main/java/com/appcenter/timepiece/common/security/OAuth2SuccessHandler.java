@@ -8,9 +8,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -19,6 +21,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
+@Component
 @RequiredArgsConstructor
 @Slf4j
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -28,6 +31,18 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final MemberRepository memberRepository;
 
     private final RefreshTokenRepository refreshTokenRepository;
+
+    @Value("${spring.front-redirect-url.host}")
+    private String frontHost;
+
+    @Value("${spring.front-redirect-url.port}")
+    private int frontPort;
+
+    @Value("${spring.front-redirect-url.scheme}")
+    private String frontScheme;
+
+    @Value("${spring.front-redirect-url.path}")
+    private String frontPath;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -57,12 +72,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         queryParams.add("member_id", String.valueOf(memberId));
         queryParams.add("access_token", accessToken);
         queryParams.add("refresh_token", refreshToken);
-
+        log.info("{}", frontHost);
         return UriComponentsBuilder.newInstance()
-                .scheme("http")
-                .host("localhost")
-                .port(3000)
-                .path("/")
+                .scheme(frontScheme)
+                .host(frontHost)
+                .port(frontPort)
+                .path(frontPath)
                 .queryParams(queryParams)
                 .build()
                 .toUri();
