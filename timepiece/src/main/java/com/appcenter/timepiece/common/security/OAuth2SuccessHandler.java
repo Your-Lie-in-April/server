@@ -59,8 +59,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         queryParams.add("refresh_token", refreshToken);
 
         return UriComponentsBuilder.newInstance()
-                .scheme("https")
-                .host("timepiece.inuappcenter.kr")
+                .scheme("http")
+                .host("localhost")
+                .port(3000)
                 .path("/")
                 .queryParams(queryParams)
                 .build()
