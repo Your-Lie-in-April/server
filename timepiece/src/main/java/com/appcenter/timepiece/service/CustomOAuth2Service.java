@@ -39,14 +39,16 @@ public class CustomOAuth2Service implements OAuth2UserService<OAuth2UserRequest,
         saveOrUpdate(provider, attributes);
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
 
-        return new DefaultOAuth2User(authorities, originAttributes, OAuth2Attributes.paramOf(provider));
+        System.out.println(originAttributes.keySet());
+
+        return new DefaultOAuth2User(authorities, attributes.getAttributes(), attributes.getNameAttributesKey());
     }
 
     private Member saveOrUpdate(String provider, OAuth2Attributes authAttributes) {
         Optional<Member> member = memberRepository.findByEmail(authAttributes.getEmail());
         Member returnMember;
         if (member.isEmpty()) {
-            returnMember = new Member(provider, authAttributes.getName(),
+            returnMember = new Member(provider, authAttributes.getOauth2Id(), authAttributes.getName(),
                     authAttributes.getEmail(), "", authAttributes.getProfileImageUrl(), List.of("ROLE_USER"));
         } else {
             returnMember = member.get().updateMember(authAttributes.getName(), authAttributes.getProfileImageUrl());
