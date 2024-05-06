@@ -46,7 +46,7 @@ public class CustomOAuth2Service implements OAuth2UserService<OAuth2UserRequest,
         Optional<Member> member = memberRepository.findByEmail(authAttributes.getEmail());
         Member returnMember;
         if (member.isEmpty()) {
-            returnMember = new Member(provider, authAttributes.getOauth2Id(), authAttributes.getName(),
+            returnMember = new Member(provider, authAttributes.getName(),
                     authAttributes.getEmail(), "", authAttributes.getProfileImageUrl(), List.of("ROLE_USER"));
         } else {
             returnMember = member.get().updateMember(authAttributes.getName(), authAttributes.getProfileImageUrl());

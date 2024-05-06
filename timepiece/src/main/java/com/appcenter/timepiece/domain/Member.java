@@ -19,8 +19,6 @@ public class Member extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String oauth2Id;
-
     private String provider;
 
     @Column(nullable = false)
@@ -43,8 +41,7 @@ public class Member extends BaseTimeEntity {
 
 
     @Builder
-    public Member(String provider, String oauth2Id, String nickname, String email, String state, String profileImageUrl, List<String> role) {
-        this.oauth2Id = oauth2Id;
+    public Member(String provider, String nickname, String email, String state, String profileImageUrl, List<String> role) {
         this.provider = provider;
         this.nickname = nickname;
         this.email = email;
