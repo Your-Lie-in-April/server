@@ -36,20 +36,23 @@ public class CustomOAuth2Service implements OAuth2UserService<OAuth2UserRequest,
         String provider = userRequest.getClientRegistration().getRegistrationId();
 
         OAuth2Attributes attributes = OAuth2Attributes.of(provider, originAttributes);
-        saveOrUpdate(provider, attributes);
+        saveOrUpdate(attributes);
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
 
         return new DefaultOAuth2User(authorities, attributes.getAttributes(), attributes.getNameAttributesKey());
     }
 
-    private Member saveOrUpdate(String provider, OAuth2Attributes authAttributes) {
-        Optional<Member> member = memberRepository.findByEmail(authAttributes.getEmail());
+    private Member saveOrUpdate(OAuth2Attributes authAttributes) {
+        Optional<Member> member = memberRepository.findByEmailAndProvider(authAttributes.getEmail(), authAttributes.getProvider());
         Member returnMember;
-        if (member.isEmpty()) {
-            returnMember = new Member(provider, authAttributes.getName(),
-                    authAttributes.getEmail(), "", authAttributes.getProfileImageUrl(), List.of("ROLE_USER"));
-        } else {
+
+        if (member.isPresent()) {
+            log.info("[saveOrUpdate] 이미 가입된 유저");
             returnMember = member.get().updateMember(authAttributes.getName(), authAttributes.getProfileImageUrl());
+        } else {
+            log.info("[saveOrUpdate] 신규 유저");
+            returnMember = new Member(authAttributes.getProvider(), authAttributes.getName(),
+                    authAttributes.getEmail(), "", authAttributes.getProfileImageUrl(), List.of("ROLE_USER"));
         }
 
         return memberRepository.save(returnMember);
