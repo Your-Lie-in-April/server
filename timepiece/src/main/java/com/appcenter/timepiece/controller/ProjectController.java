@@ -50,12 +50,8 @@ public class ProjectController {
     }
 
     @GetMapping("/v1/projects/members/{memberId}/{keyword}")
-    @Operation(summary = "유저가 가지고 있는 프로젝트 중 검색", description = "")
-    public ResponseEntity<CommonResponse<?>> searchProjects(
-            @RequestParam(defaultValue = "0", required = false) Integer page,
-            @RequestParam(defaultValue = "6", required = false) Integer size,
-            @PathVariable Long memberId, @PathVariable String keyword, @AuthenticationPrincipal UserDetails userDetails) {
-    public ResponseEntity<CommonResponse<?>> searchProjects(Integer page, Integer size,
+    public ResponseEntity<CommonResponse<?>> searchProjects(@RequestParam(defaultValue = "0", required = false) Integer page,
+                                                            @RequestParam(defaultValue = "6", required = false) Integer size,
                                                             @PathVariable Long memberId,
                                                             @PathVariable String keyword,
                                                             @RequestParam(defaultValue = "false", required = false) Boolean isStored,
