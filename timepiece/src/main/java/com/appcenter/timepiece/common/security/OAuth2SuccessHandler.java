@@ -75,7 +75,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         return UriComponentsBuilder.newInstance()
                 .scheme(frontScheme)
                 .host(frontHost)
-                //.port(frontPort)
+                .port(frontPort)
                 .path(frontPath)
                 .queryParams(queryParams)
                 .build()
