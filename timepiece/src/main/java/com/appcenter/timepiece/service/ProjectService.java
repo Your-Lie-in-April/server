@@ -45,6 +45,15 @@ public class ProjectService {
                         ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
     }
 
+    @Transactional(readOnly = true)
+    public ProjectResponse findProject(Long projectId, UserDetails userDetails) {
+        validateMemberIsInProject(projectId, userDetails);
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
+        Cover cover = project.getCover();
+        return ProjectResponse.of(project, (cover == null) ? null : cover.getCoverImageUrl());
+    }
+
     /**
      * @param memberId 자동생성되는 멤버 식별자(PK)
      * @return 메인페이지에 나타나는 프로젝트 썸네일 정보를 담은 dto 리스트를 리턴합니다.
@@ -283,4 +292,5 @@ public class ProjectService {
                 ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
         return projectThumbnailResponses;
     }
+
 }
