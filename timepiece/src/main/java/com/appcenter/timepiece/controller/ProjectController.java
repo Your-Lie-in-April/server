@@ -28,7 +28,14 @@ public class ProjectController {
     @GetMapping("/v1/projects/all")
     @Operation(summary = "프로젝트 전체 조회", description = "")
     public ResponseEntity<CommonResponse<?>> findAllForTest() {
-        return ResponseEntity.ok().body(CommonResponse.success("전체 사용자 조회 성공", projectService.findAll()));
+        return ResponseEntity.ok().body(CommonResponse.success("전체 프로젝트 조회 성공", projectService.findAll()));
+    }
+
+    @GetMapping("/v1/projects/{projectId}")
+    @Operation(summary = "프로젝트 정보 조회", description = "프로젝트의 상세 정보를 조회합니다.")
+    public ResponseEntity<CommonResponse<?>> findProject(@PathVariable Long projectId,
+                                                         @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok().body(CommonResponse.success("프로젝트 조회 성공", projectService.findProject(projectId, userDetails)));
     }
 
     @GetMapping("/v1/projects/members/{memberId}")
