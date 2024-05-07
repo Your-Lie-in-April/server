@@ -17,27 +17,25 @@ public class OAuth2Attributes {
     private String email;
     private String profileImageUrl;
     private String provider;
-    private String oauth2Id;
 
     @Builder
     public OAuth2Attributes(Map<String, Object> attributes, String nameAttributesKey,
-                            String name, String email, String profileImageUrl, String provider, String oauth2Id) {
+                            String name, String email, String profileImageUrl, String provider) {
         this.attributes = attributes;
         this.nameAttributesKey = nameAttributesKey;
         this.name = name;
         this.email = email;
         this.profileImageUrl = profileImageUrl;
         this.provider = provider;
-        this.oauth2Id = oauth2Id;
     }
 
     public static OAuth2Attributes of(String socialName, Map<String, Object> attributes) {
         if ("kakao".equals(socialName)) {
-            return ofKakao("id", attributes);
+            return ofKakao("email", attributes);
         } else if ("google".equals(socialName)) {
-            return ofGoogle("sub", attributes);
+            return ofGoogle("email", attributes);
         }
-        return ofGithub("id", attributes);
+        return ofGithub("login", attributes);
     }
 
 
@@ -49,7 +47,6 @@ public class OAuth2Attributes {
                 .attributes(attributes)
                 .nameAttributesKey(userNameAttributeName)
                 .provider("google")
-                .oauth2Id(String.valueOf(attributes.get(userNameAttributeName)))
                 .build();
     }
 
@@ -61,10 +58,9 @@ public class OAuth2Attributes {
                 .name(String.valueOf(kakaoProfile.get("nickname")))
                 .email(String.valueOf(kakaoAccount.get("email")))
                 .profileImageUrl(String.valueOf(kakaoProfile.get("profile_image_url")))
-                .attributes(attributes)
+                .attributes(kakaoAccount)
                 .nameAttributesKey(userNameAttributeName)
                 .provider("kakao")
-                .oauth2Id(String.valueOf(attributes.get(userNameAttributeName)))
                 .build();
     }
 
@@ -76,7 +72,6 @@ public class OAuth2Attributes {
                 .attributes(attributes)
                 .nameAttributesKey(userNameAttributeName)
                 .provider("github")
-                .oauth2Id(String.valueOf(attributes.get(userNameAttributeName)))
                 .build();
     }
 }
