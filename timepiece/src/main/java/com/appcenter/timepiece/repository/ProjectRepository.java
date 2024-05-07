@@ -19,11 +19,11 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             "join p.memberProjects mp " +
             "join mp.member m " +
             "where m.id = :memberId and p.title like %:keyword% and mp.isStored = :isStored")
-    Page<Project> findProjectByMemberIdAndTitleLikeKeyword(Pageable pageable, Boolean isStored, Long memberId, String keyword);
+    Page<Project> findProjectByMemberIdAndTitleLikeKeyword(Boolean isStored, Long memberId, String keyword, Pageable pageable);
 
     @Query("select distinct p from Project p " +
             "join p.memberProjects mp " +
             "where mp.member.id = :memberId and mp.isStored = TRUE ")
-    Page<Project> findAllByMemberIdWhereIsStored(Pageable pageable, Long memberId);
+    Page<Project> findAllByMemberIdWhereIsStored(Long memberId, Pageable pageable);
 
 }

@@ -98,7 +98,7 @@ public class ProjectService {
         validateMemberIsOwner(memberId, userDetails);
 
         PageRequest pageable = PageRequest.of(page, size);
-        Page<Project> projectPage = projectRepository.findProjectByMemberIdAndTitleLikeKeyword(pageable, isStored, memberId, keyword);
+        Page<Project> projectPage = projectRepository.findProjectByMemberIdAndTitleLikeKeyword(isStored, memberId, keyword, pageable);
         List<Project> projects = projectPage.getContent();
         List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream()
                 .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
@@ -276,7 +276,7 @@ public class ProjectService {
         Long memberId = ((CustomUserDetails) userDetails).getId();
 
         PageRequest pageable = PageRequest.of(page, size);
-        Page<Project> projectPage = projectRepository.findAllByMemberIdWhereIsStored(pageable, memberId);
+        Page<Project> projectPage = projectRepository.findAllByMemberIdWhereIsStored(memberId, pageable);
         List<Project> projects = projectPage.getContent();
 
         List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream().map(p ->
