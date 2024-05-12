@@ -46,16 +46,15 @@ public class SecurityConfig {
                         sessionManagement
                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/v1/members/**").authenticated()
-                        .requestMatchers("/v1/oauth2/login-page/google").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
-                        .requestMatchers("/v1/oauth2/reissue").hasRole("USER")
-                        .requestMatchers("/v1/oauth2/test").hasRole("USER")
-                        .requestMatchers("/v1/oauth2/test1").permitAll()
-                        .requestMatchers("/v1/projects/**").hasRole("USER")
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/v1/projects/**").hasRole("USER")
                         .requestMatchers("/login/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+
+                        .requestMatchers("/v1/oauth2/reissue").hasRole("USER")
+                        .requestMatchers("/v1/members/**").hasRole("USER")
+                        .requestMatchers("/v1/projects/**").hasRole("USER")
+                        .requestMatchers("/v1/invitation/{url}").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
