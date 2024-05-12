@@ -31,17 +31,4 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "토큰 재발급 성공", authService.reissueAccessToken(request)));
     }
 
-    @GetMapping(value = "/v1/auth/test")
-    @Operation(summary = "테스트API", description = "")
-    @SwaggerApiResponses
-    public ResponseEntity<CommonResponse> testApi(@AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "테스트 성공", authService.testApi(userDetails)));
-    }
-
-    @GetMapping(value = "/v1/auth/test1")
-    @Operation(summary = "테스트API", description = "")
-    @SwaggerApiResponses
-    public ResponseEntity<CommonResponse> testApi1(@AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "테스트 성공", authService.testApi(userDetails)));
-    }
 }
