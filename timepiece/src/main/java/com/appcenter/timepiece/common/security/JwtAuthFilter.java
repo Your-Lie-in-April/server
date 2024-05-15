@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -16,8 +17,9 @@ import java.io.IOException;
 @Slf4j
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-
     private final JwtProvider jwtProvider;
+    private final RequestAttributeSecurityContextRepository requestAttributeSecurityContextRepository
+            = new RequestAttributeSecurityContextRepository();
 
     @Override
     protected void doFilterInternal(HttpServletRequest servletRequest,
@@ -46,6 +48,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             log.info("결과: {}, ", jwtProvider.validDateToken(jwtToken));
             Authentication authentication = jwtProvider.getAuthentication(jwtToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            requestAttributeSecurityContextRepository.saveContext(SecurityContextHolder.getContext(), servletRequest, servletResponse);
             log.info("[doFilterInternal] 토큰 값 검증 완료.git");
         }
 
