@@ -158,7 +158,7 @@ public class ProjectService {
         validateRequesterIsPrivileged(projectId, userDetails);
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
-        project.updateDeleteStatus(projectId);
+        project.updateDeleteStatus();
 
         projectRepository.save(project);
     }
