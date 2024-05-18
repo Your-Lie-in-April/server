@@ -93,7 +93,7 @@ public class ProjectController {
         return ResponseEntity.ok().body(CommonResponse.success("프로젝트 생성 성공", null));
     }
 
-    @PutMapping("/v1/projects/{projectId}")
+    @PatchMapping("/v1/projects/{projectId}")
     @Operation(summary = "프로젝트 삭제", description = "")
     public ResponseEntity<CommonResponse<?>> kickProject(@PathVariable Long projectId,
                                                          @AuthenticationPrincipal UserDetails userDetails) {
