@@ -42,8 +42,8 @@ public class Project extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name="project_days_of_week",
-            joinColumns = @JoinColumn(name= "project_id"))
+    @CollectionTable(name = "project_days_of_week",
+            joinColumns = @JoinColumn(name = "project_id"))
     private Set<DayOfWeek> daysOfWeek;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
@@ -58,11 +58,13 @@ public class Project extends BaseTimeEntity {
 
     private String color;
 
+    private Boolean isDeleted;
+
     @Builder
     private Project(String title, String description,
                     LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime,
                     Set<DayOfWeek> daysOfWeek, List<MemberProject> memberProjects, List<Invitation> invitations,
-                    Cover cover, String color) {
+                    Cover cover, String color, Boolean isDeleted) {
         this.title = title;
         this.description = description;
         this.startDate = startDate;
@@ -74,6 +76,7 @@ public class Project extends BaseTimeEntity {
         this.invitations = invitations;
         this.cover = cover;
         this.color = color;
+        this.isDeleted = isDeleted;
     }
 
     public static Project of(ProjectCreateUpdateRequest request, Cover cover) {
@@ -85,6 +88,7 @@ public class Project extends BaseTimeEntity {
                 .daysOfWeek(request.getDaysOfWeek())
                 .color(request.getColor())
                 .cover(cover)
+                .isDeleted(false)
                 .build();
     }
 
@@ -99,4 +103,9 @@ public class Project extends BaseTimeEntity {
         this.color = request.getColor();
         this.cover = cover;
     }
+
+    public void updateDeleteStatus() {
+        this.isDeleted = true;
+    }
+
 }

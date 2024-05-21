@@ -10,9 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,24 +22,11 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @GetMapping(value = "/v1/auth/reissue")
+    @PostMapping(value = "/v1/auth/reissue")
     @Operation(summary = "토큰 재발급", description = "")
     @SwaggerApiResponses
     public ResponseEntity<CommonResponse> reissueAccessToken(HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "토큰 재발급 성공", authService.reissueAccessToken(request)));
     }
 
-    @GetMapping(value = "/v1/auth/test")
-    @Operation(summary = "테스트API", description = "")
-    @SwaggerApiResponses
-    public ResponseEntity<CommonResponse> testApi(@AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "테스트 성공", authService.testApi(userDetails)));
-    }
-
-    @GetMapping(value = "/v1/auth/test1")
-    @Operation(summary = "테스트API", description = "")
-    @SwaggerApiResponses
-    public ResponseEntity<CommonResponse> testApi1(@AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "테스트 성공", authService.testApi(userDetails)));
-    }
 }

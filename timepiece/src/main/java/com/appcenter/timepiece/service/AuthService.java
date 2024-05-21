@@ -65,17 +65,5 @@ public class AuthService {
         return tokenResponse;
     }
 
-    public String testApi(UserDetails userDetails) {
-        log.info("[testApi] memberId 추출중");
-
-        Long memberId = ((CustomUserDetails) userDetails).getId();
-        log.info("[testApi] memberId 추출 성공. memberId = {}", memberId);
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
-        log.info("[testApi] member 찾기 성공. memberEmail = {}", member.getEmail());
-
-        return member.toString();
-    }
-
 
 }

@@ -80,7 +80,7 @@ public class ProjectController {
     @Operation(summary = "보관 프로젝트 목록 조회", description = "")
     public ResponseEntity<CommonResponse<?>> findStoredProjects(
             @RequestParam(defaultValue = "0", required = false) Integer page,
-            @RequestParam(defaultValue = "6", required = false) Integer size, @AuthenticationPrincipal UserDetails userDetails) {
+            @RequestParam(defaultValue = "9", required = false) Integer size, @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok().body(CommonResponse.success("보관 프로젝트 목록 조회 성공",
                 projectService.findStoredProjects(page, size, userDetails)));
     }
