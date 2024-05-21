@@ -104,7 +104,7 @@ public class Project extends BaseTimeEntity {
         this.cover = cover;
     }
 
-    public void updateDeleteStatus() {
+    public void deleteProject() {
         this.isDeleted = true;
     }
 
