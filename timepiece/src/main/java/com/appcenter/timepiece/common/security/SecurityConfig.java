@@ -104,7 +104,8 @@ public class SecurityConfig {
             "/v1/projects/{projectId}/members", //프로젝트에 속해있는 유저 전체 조회
             "/v1/projects/stored", //보관한 프로젝트 목록 조회
             "/v1/projects/{projectId}/schedules", //프로젝트 내 모든 사용자 시간표 조회
-            "/v1/projects/{projectId}/members/{memberId}/schedules" //사용자 시간표 조회
+            "/v1/projects/{projectId}/members/{memberId}/schedules", //사용자 시간표 조회
+            "/v1/projects/invitations" //프로젝트 초대 정보 조회
     };
 
     String[] PERMIT_USER_POST = {
