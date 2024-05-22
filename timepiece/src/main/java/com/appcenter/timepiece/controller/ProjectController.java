@@ -118,6 +118,13 @@ public class ProjectController {
                 projectService.generateInviteLink(projectId, userDetails));
     }
 
+    @GetMapping("/v1/projects/invitations")
+    @Operation(summary = "초대 링크 메타데이터 조회", description = "")
+    public CommonResponse<?> generateInviteLink(@RequestParam(required = true) String url) {
+        return CommonResponse.success("초대링크 정보를 성공적으로 조회했습니다",
+                projectService.decodeInviteLink(url));
+    }
+
     @DeleteMapping("/v1/projects/{projectId}/members/{memberId}")
     @Operation(summary = "회원 강퇴", description = "")
     public CommonResponse<Void> kick(@PathVariable Long projectId,

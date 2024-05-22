@@ -295,4 +295,14 @@ public class ProjectService {
         return projectThumbnailResponses;
     }
 
+    public InvitationResponse decodeInviteLink(String url) {
+        StringTokenizer st = new StringTokenizer(aesEncoder.decryptAES256(url), "?");
+        Long projectId = Long.valueOf(st.nextToken());
+        String invitator = st.nextToken();
+        LocalDateTime linkTime = LocalDateTime.parse(st.nextToken());
+
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
+        return InvitationResponse.of(project, invitator, linkTime);
+
+    }
 }
