@@ -1,7 +1,6 @@
 package com.appcenter.timepiece.common.exception;
 
 import com.appcenter.timepiece.common.dto.CommonResponse;
-
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -51,6 +50,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<CommonResponse<?>> handleIllegalArgumentException(IllegalArgumentException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponse.error(e.getMessage(), null));
+    }
+
+    @ExceptionHandler(DeletedProjectException.class)
+    public ResponseEntity<CommonResponse<?>> handleDeletedProjectException(DeletedProjectException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponse.error(e.getMessage(), null));
     }
 }

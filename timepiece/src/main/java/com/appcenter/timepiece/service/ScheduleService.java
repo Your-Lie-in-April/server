@@ -137,7 +137,7 @@ public class ScheduleService {
     // todo: ProjectService와 중복코드
     private void validateMemberIsInProject(Long projectId, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        boolean isExist = memberProjectRepository.existsByMemberIdAndProjectId(memberId, projectId);
+        boolean isExist = memberProjectRepository.existsByMemberIdAndProjectIdAndProjectIsDeletedIsFalse(memberId, projectId);
         if (!isExist) {
             throw new NotEnoughPrivilegeException(ExceptionMessage.NOT_MEMBER);
         }
