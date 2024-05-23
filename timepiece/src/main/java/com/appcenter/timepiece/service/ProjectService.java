@@ -295,6 +295,4 @@ public class ProjectService {
         return projectThumbnailResponses;
     }
 
-    //삭제 검증 로직 필요한곳: searchProject, deleteProject, findProject, findStoredProject
-
 }
