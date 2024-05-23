@@ -98,6 +98,11 @@ public class ProjectService {
         return pinProjectResponses;
     }
 
+    // todo: SchedulService와 중복코드
+    private LocalDateTime calculateStartDay(LocalDateTime condition) {
+        return condition.minusDays(condition.getDayOfWeek().getValue() % 7);
+    }
+
     @Transactional
     public List<ProjectThumbnailResponse> searchProjects(Integer page, Integer size, Boolean isStored, Long memberId, String keyword, UserDetails userDetails) {
         validateMemberIsOwner(memberId, userDetails);
