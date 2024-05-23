@@ -13,23 +13,39 @@ import java.util.Optional;
 @Repository
 public interface MemberProjectRepository extends JpaRepository<MemberProject, Long> {
 
+    //소속 프로젝트 전체 조회
     @Query("select mp from MemberProject mp " +
             "join fetch mp.project p " +
             "left join fetch p.cover c " +
-            "where mp.member.id = :memberId and mp.isStored=false")
+            "where mp.member.id = :memberId " +
+            "and mp.isStored=false " +
+            "and p.isDeleted=false")
     Page<MemberProject> findMemberProjectsWithProjectAndCover(Pageable pageable, Long memberId);
 
+    //프로젝트에 속해있는 유저 전체 조회
     @Query("select mp from MemberProject mp " +
-            "join mp.project p " +
-            "where p.id = :projectId")
+            "join fetch mp.project p " +
+            "where p.id = :projectId and p.isDeleted=false")
     List<MemberProject> findByProjectIdWithMember(Long projectId);
 
+    //핀 프로젝트 조회
+    @Query("select mp from MemberProject mp " +
+            "where mp.member.id = :memberId " +
+            "And mp.isPinned = true " +
+            "And mp.project.isDeleted=false")
     List<MemberProject> findByMemberIdAndIsPinnedIsTrue(Long memberId);
 
+    @Query("select mp from MemberProject mp " +
+            "where mp.member.id = :memberId " +
+            "And mp.project.id = :projectId " +
+            "And mp.project.isDeleted = false")
     Optional<MemberProject> findByMemberIdAndProjectId(Long memberId, Long projectId);
 
+    @Query("select mp from MemberProject mp " +
+            "where mp.project.id = :projectId " +
+            "And mp.project.isDeleted = false")
     List<MemberProject> findAllByProjectId(Long projectId);
 
-    boolean existsByMemberIdAndProjectId(Long memberId, Long projectId);
+    boolean existsByMemberIdAndProjectIdAndProjectIsDeletedIsFalse(Long memberId, Long projectId);
 
 }
