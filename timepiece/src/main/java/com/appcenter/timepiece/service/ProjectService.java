@@ -64,7 +64,8 @@ public class ProjectService {
         Page<MemberProject> projectPage = memberProjectRepository.findMemberProjectsWithProjectAndCover(pageable, memberId);
 
         List<MemberProject> projects = projectPage.getContent();
-        List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream().map(MemberProject::getProject)
+        List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream()
+                .map(MemberProject::getProject)
                 .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
 
         return projectThumbnailResponses;
@@ -91,8 +92,7 @@ public class ProjectService {
             Project project = memberProject.getProject();
             // todo: List<ScheduleWeekResponse>를 생성하는 로직 작성
             pinProjectResponses.add(PinProjectResponse.of(project, ((project.getCover() == null) ? null : project.getCover().getCoverImageUrl()),
-                    scheduleService.findMembersSchedules(project.getId(), LocalDate.now()
-                            , userDetails)));
+                    scheduleService.findMembersSchedules(project.getId(), LocalDate.now(), userDetails)));
         }
         return pinProjectResponses;
     }
@@ -128,7 +128,7 @@ public class ProjectService {
 
     private void validateMemberIsInProject(Long projectId, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        boolean isExist = memberProjectRepository.existsByMemberIdAndProjectId(memberId, projectId);
+        boolean isExist = memberProjectRepository.existsByMemberIdAndProjectIdAndProjectIsDeletedIsFalse(memberId, projectId);
         if (!isExist) {
             throw new NotEnoughPrivilegeException(ExceptionMessage.NOT_MEMBER);
         }
@@ -231,7 +231,7 @@ public class ProjectService {
     }
 
     private void validateJoinIsNotDuplicate(Long memberId, Long projectId) {
-        boolean isExist = memberProjectRepository.existsByMemberIdAndProjectId(memberId, projectId);
+        boolean isExist = memberProjectRepository.existsByMemberIdAndProjectIdAndProjectIsDeletedIsFalse(memberId, projectId);
         if (isExist) {
             throw new IllegalStateException(ExceptionMessage.DUPLICATE_SIGN_REQUEST.getMessage());
         }
@@ -294,5 +294,7 @@ public class ProjectService {
                 ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
         return projectThumbnailResponses;
     }
+
+    //삭제 검증 로직 필요한곳: searchProject, deleteProject, findProject, findStoredProject
 
 }

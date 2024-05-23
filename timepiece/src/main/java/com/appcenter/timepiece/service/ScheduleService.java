@@ -22,7 +22,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 
@@ -108,7 +107,7 @@ public class ScheduleService {
     // todo: ProjectService와 중복코드
     private void validateMemberIsInProject(Long projectId, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        boolean isExist = memberProjectRepository.existsByMemberIdAndProjectId(memberId, projectId);
+        boolean isExist = memberProjectRepository.existsByMemberIdAndProjectIdAndProjectIsDeletedIsFalse(memberId, projectId);
         if (!isExist) {
             throw new NotEnoughPrivilegeException(ExceptionMessage.NOT_MEMBER);
         }
@@ -286,8 +285,8 @@ public class ScheduleService {
 
     private void validateIsIdenticalDay(ScheduleDayRequest req) {
         if (req.getSchedule().stream()
-                    .map(ScheduleDto::getStartTime)
-                    .map(LocalDateTime::toLocalDate).distinct().count() != 1L) {
+                .map(ScheduleDto::getStartTime)
+                .map(LocalDateTime::toLocalDate).distinct().count() != 1L) {
             throw new IllegalArgumentException(ExceptionMessage.INVALID_DATE.getMessage());
         }
     }
