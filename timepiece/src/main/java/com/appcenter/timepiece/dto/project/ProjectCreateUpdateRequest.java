@@ -41,9 +41,6 @@ public class ProjectCreateUpdateRequest {
     @Schema(description = "요일", example = "[\"MONDAY\", \"TUESDAY\", \"WEDNESDAY\", \"THURSDAY\", \"FRIDAY\", \"SATURDAY\"]")
     private Set<DayOfWeek> daysOfWeek;
 
-    @Schema(description = "보관여부", example = "false")
-    private Boolean isStored;
-
     @Schema(description = "배경색", example = "FFFFFF")
     private String color;
 
@@ -53,8 +50,8 @@ public class ProjectCreateUpdateRequest {
 
     @Builder
     private ProjectCreateUpdateRequest(String title, String description, LocalDate startDate, LocalDate endDate,
-                                      LocalTime startTime, LocalTime endTime, Set<DayOfWeek> daysOfWeek,
-                                      Boolean isStored, String color, String coverImageUrl) {
+                                       LocalTime startTime, LocalTime endTime, Set<DayOfWeek> daysOfWeek,
+                                       String color, String coverImageUrl) {
         this.title = title;
         this.description = description;
         this.startDate = startDate;
@@ -62,7 +59,6 @@ public class ProjectCreateUpdateRequest {
         this.startTime = startTime;
         this.endTime = endTime;
         this.daysOfWeek = daysOfWeek;
-        this.isStored = isStored;
         this.color = color;
         this.coverImageUrl = coverImageUrl;
     }
