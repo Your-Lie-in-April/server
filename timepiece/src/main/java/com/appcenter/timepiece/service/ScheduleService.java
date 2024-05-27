@@ -22,7 +22,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 
@@ -54,6 +53,34 @@ public class ScheduleService {
 
         List<Schedule> schedules = scheduleRepository.findMembersWeekSchedule(memberProjects.stream().map(MemberProject::getId).toList(), sundayOfWeek, sundayOfWeek.plusDays(7));
         return memberProjects.stream().map(memberProject ->
+                        new ScheduleWeekResponse(memberProject.getMember().getNickname(),
+                                schedules.stream()
+                                        .filter(schedule -> schedule.getMemberProject().getId().equals(memberProject.getId()))
+                                        .map(schedule -> schedule.getStartTime().getDayOfWeek())
+                                        .distinct()
+                                        .map(dayOfWeek -> ScheduleDayResponse.of(dayOfWeek,
+                                                schedules.stream()
+                                                        .filter(schedule -> schedule.getMemberProject().getId().equals(memberProject.getId()))
+                                                        .filter(schedule -> schedule
+                                                                .getStartTime()
+                                                                .getDayOfWeek()
+                                                                .equals(dayOfWeek))
+                                                        .map(ScheduleDto::from)
+                                                        .collect(Collectors.toList())))
+                                        .collect(Collectors.toList())))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ScheduleWeekResponse> findMembersSchedulesWithoutMe(Long projectId, LocalDate condition, UserDetails userDetails) {
+        validateMemberIsInProject(projectId, userDetails);
+        List<MemberProject> memberProjects = memberProjectRepository.findAllByProjectId(projectId);
+        LocalDateTime sundayOfWeek = calculateStartDay(LocalDateTime.of(condition, LocalTime.MIN));
+
+        List<Schedule> schedules = scheduleRepository.findMembersWeekSchedule(memberProjects.stream().map(MemberProject::getId).toList(), sundayOfWeek, sundayOfWeek.plusDays(7));
+        return memberProjects.stream()
+                .filter(memberProject -> !memberProject.getMember().getId().equals(((CustomUserDetails) userDetails).getId()))
+                .map(memberProject ->
                         new ScheduleWeekResponse(memberProject.getMember().getNickname(),
                                 schedules.stream()
                                         .filter(schedule -> schedule.getMemberProject().getId().equals(memberProject.getId()))
@@ -286,8 +313,8 @@ public class ScheduleService {
 
     private void validateIsIdenticalDay(ScheduleDayRequest req) {
         if (req.getSchedule().stream()
-                    .map(ScheduleDto::getStartTime)
-                    .map(LocalDateTime::toLocalDate).distinct().count() != 1L) {
+                .map(ScheduleDto::getStartTime)
+                .map(LocalDateTime::toLocalDate).distinct().count() != 1L) {
             throw new IllegalArgumentException(ExceptionMessage.INVALID_DATE.getMessage());
         }
     }

@@ -32,12 +32,22 @@ public class ScheduleController {
      */
     @GetMapping("/v1/projects/{projectId}/schedules")
     @Operation(summary = "프로젝트 범위 스케줄 조회", description = "프로젝트 내 모든 구성원의 스케줄을 조회합니다. " +
-                                                    "일요일-토요일까지 일주일 스케줄을 조회합니다. " +
-                                                    "condition이 포함된 주차를 조회합니다.")
+            "일요일-토요일까지 일주일 스케줄을 조회합니다. " +
+            "condition이 포함된 주차를 조회합니다.")
     public CommonResponse<List<?>> findMembersSchedules(@PathVariable Long projectId,
                                                         @RequestParam @Schema(example = "2024-02-01") LocalDate condition,
                                                         @AuthenticationPrincipal UserDetails userDetails) {
         return CommonResponse.success("성공", scheduleService.findMembersSchedules(projectId, condition, userDetails));
+    }
+
+    @GetMapping("/v1/projects/{projectId}/schedules/without")
+    @Operation(summary = "프로젝트 범위 스케줄 조회(본인 제외)", description = "프로젝트 내 모든 구성원의 스케줄을 조회합니다. " +
+            "일요일-토요일까지 일주일 스케줄을 조회합니다. " +
+            "condition이 포함된 주차를 조회합니다.")
+    public CommonResponse<List<?>> findMembersSchedulesWithoutMe(@PathVariable Long projectId,
+                                                                 @RequestParam @Schema(example = "2024-02-01") LocalDate condition,
+                                                                 @AuthenticationPrincipal UserDetails userDetails) {
+        return CommonResponse.success("성공", scheduleService.findMembersSchedulesWithoutMe(projectId, condition, userDetails));
     }
 
     /**
@@ -52,8 +62,8 @@ public class ScheduleController {
      */
     @GetMapping("/v1/projects/{projectId}/members/{memberId}/schedules")
     @Operation(summary = "단일 멤버 스케줄 조회", description = "특정 멤버의 스케줄을 조회합니다. " +
-                                                    "일요일-토요일까지 일주일 스케줄을 조회합니다. " +
-                                                    "condition이 포함된 주차를 조회합니다.")
+            "일요일-토요일까지 일주일 스케줄을 조회합니다. " +
+            "condition이 포함된 주차를 조회합니다.")
     public CommonResponse<?> findSchedule(@PathVariable Long projectId,
                                           @PathVariable Long memberId,
                                           @RequestParam @Schema(example = "2024-02-01") LocalDate condition,
@@ -90,7 +100,7 @@ public class ScheduleController {
      */
     @PutMapping("/v1/projects/{projectId}/schedules")
     @Operation(summary = "스케줄 변경", description = "기존 스케줄을 삭제하고 새로운 스케줄을 저장합니다." +
-                                                    "주 단위(일요일-토요일)로만 동작합니다.")
+            "주 단위(일요일-토요일)로만 동작합니다.")
     public ResponseEntity<CommonResponse<?>> updateSchedule(@PathVariable Long projectId,
                                                             @RequestBody ScheduleCreateUpdateRequest request,
                                                             @AuthenticationPrincipal UserDetails userDetails) {
