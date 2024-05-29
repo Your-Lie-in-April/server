@@ -1,8 +1,6 @@
 package com.appcenter.timepiece.dto.schedule;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -55,7 +53,6 @@ public class ScheduleCreateUpdateRequest {
                 }
               ]
             """)
-    @NotNull @Size(min = 1)
     private List<ScheduleDayRequest> schedule;
 
     public ScheduleCreateUpdateRequest(List<ScheduleDayRequest> schedule) {

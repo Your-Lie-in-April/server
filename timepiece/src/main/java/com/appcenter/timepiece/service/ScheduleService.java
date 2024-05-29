@@ -8,6 +8,7 @@ import com.appcenter.timepiece.domain.MemberProject;
 import com.appcenter.timepiece.domain.Project;
 import com.appcenter.timepiece.domain.Schedule;
 import com.appcenter.timepiece.dto.schedule.*;
+import com.appcenter.timepiece.notify.NotificationService;
 import com.appcenter.timepiece.repository.MemberProjectRepository;
 import com.appcenter.timepiece.repository.ProjectRepository;
 import com.appcenter.timepiece.repository.ScheduleRepository;
@@ -22,7 +23,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 
@@ -34,6 +34,8 @@ public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final MemberProjectRepository memberProjectRepository;
     private final ProjectRepository projectRepository;
+
+    private final NotificationService notificationService;
 
     /**
      * {@summary 프로젝트 내 모든 멤버의 스케줄을 조회한다(본인포함)}
@@ -137,7 +139,10 @@ public class ScheduleService {
                 .toList();
 
         scheduleRepository.saveAll(schedulesToSave);
+
+        notificationService.notifyScheduleChanging(project, memberProject.getMember());
     }
+
 
     /**
      * {@summary 기존 스케줄 삭제 후 새 스케줄 저장}
@@ -149,6 +154,7 @@ public class ScheduleService {
      * @param projectId
      * @param userDetails
      */
+    @Transactional
     public void editSchedule(ScheduleCreateUpdateRequest request, Long projectId, UserDetails userDetails) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
@@ -168,6 +174,8 @@ public class ScheduleService {
                 .toList();
 
         scheduleRepository.saveAll(schedulesToSave);
+
+        notificationService.notifyScheduleChanging(project, memberProject.getMember());
     }
 
     private LocalDateTime calculateStartDay(LocalDateTime condition) {
@@ -182,6 +190,7 @@ public class ScheduleService {
      * @param projectId
      * @param userDetails
      */
+    @Transactional
     public void deleteSchedule(ScheduleDeleteRequest request, Long projectId, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
@@ -190,6 +199,8 @@ public class ScheduleService {
         scheduleRepository.deleteMemberSchedulesBetween(memberProject.getId(),
                 LocalDateTime.of(request.getStartDate(), LocalTime.MIN),
                 LocalDateTime.of(request.getEndDate(), LocalTime.MIN));
+
+        notificationService.notifyScheduleChanging(memberProject.getProject(), memberProject.getMember());
     }
 
     /**

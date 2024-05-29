@@ -3,6 +3,7 @@ package com.appcenter.timepiece.service;
 import com.appcenter.timepiece.common.exception.ExceptionMessage;
 import com.appcenter.timepiece.common.exception.NotEnoughPrivilegeException;
 import com.appcenter.timepiece.common.exception.NotFoundElementException;
+import com.appcenter.timepiece.notify.NotificationService;
 import com.appcenter.timepiece.common.security.CustomUserDetails;
 import com.appcenter.timepiece.domain.*;
 import com.appcenter.timepiece.dto.member.MemberResponse;
@@ -31,13 +32,16 @@ import static java.util.Objects.requireNonNull;
 @RequiredArgsConstructor
 public class ProjectService {
 
+    private final AESEncoder aesEncoder;
+
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
     private final MemberProjectRepository memberProjectRepository;
     private final CoverRepository coverRepository;
     private final InvitationRepository invitationRepository;
-    private final AESEncoder aesEncoder;
+
     private final ScheduleService scheduleService;
+    private final NotificationService notificationService;
 
     public List<ProjectResponse> findAll() {
         return projectRepository.findAllWithCover().stream().map(p ->
@@ -95,11 +99,6 @@ public class ProjectService {
                             , userDetails)));
         }
         return pinProjectResponses;
-    }
-
-    // todo: SchedulService와 중복코드
-    private LocalDateTime calculateStartDay(LocalDateTime condition) {
-        return condition.minusDays(condition.getDayOfWeek().getValue() % 7);
     }
 
     @Transactional
@@ -205,6 +204,7 @@ public class ProjectService {
         return url;
     }
 
+    @Transactional
     public void addUserToGroup(String url, UserDetails userDetails) {
         // todo:  Inivation 엔티티 존재 확인 + 어떻게 삭제할 것인지?
         StringTokenizer st = new StringTokenizer(aesEncoder.decryptAES256(url), "?");
@@ -212,7 +212,6 @@ public class ProjectService {
 
         String invitator = st.nextToken();
 
-//        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
         LocalDateTime linkTime = LocalDateTime.parse(st.nextToken());
         if (linkTime.isBefore(LocalDateTime.now())) {
             throw new IllegalStateException(ExceptionMessage.LINK_EXPIRED.getMessage());
@@ -228,6 +227,8 @@ public class ProjectService {
 
         MemberProject memberProject = MemberProject.of(member, project);
         memberProjectRepository.save(memberProject);
+
+        notificationService.notifySigning(project, member);
     }
 
     private void validateJoinIsNotDuplicate(Long memberId, Long projectId) {
@@ -264,6 +265,7 @@ public class ProjectService {
         memberProjectRepository.delete(memberProject);
     }
 
+    @Transactional
     public void transferPrivilege(Long projectId, TransferPrivilegeRequest request, UserDetails userDetails) {
         validateRequesterIsPrivileged(projectId, userDetails);
 
@@ -280,6 +282,8 @@ public class ProjectService {
 
         memberProjectRepository.save(fromMemberProject);
         memberProjectRepository.save(toMemberProject);
+
+        notificationService.notifyBecomingOwner(toMemberProject.getProject(), toMemberProject.getMember(), fromMemberProject.getMember());
     }
 
     @Transactional(readOnly = true)
