@@ -9,7 +9,4 @@ import lombok.NoArgsConstructor;
 public class TransferPrivilegeRequest {
     Long toMemberId;
 
-    public TransferPrivilegeRequest(Long toMemberId) {
-        this.toMemberId = toMemberId;
-    }
 }

@@ -14,7 +14,7 @@ import java.util.List;
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
     @Transactional
-    @Modifying(clearAutomatically = true)
+    @Modifying  // clearAutomatically = true 사용 시, LazyInitializationException 조심!
     @Query("delete from Schedule s " +
                "where s.memberProject.id = :memberProjectId " +
                "and s.startTime >= :start " +

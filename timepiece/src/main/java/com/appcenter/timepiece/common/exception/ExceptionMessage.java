@@ -28,7 +28,8 @@ public enum ExceptionMessage {
     INSUFFICIENT_PRIVILEGE("프로젝트 관리자 권한이 없습니다.", 0, HttpStatus.BAD_REQUEST),
     ADMIN_LEAVE("관리자는 나갈 수 없습니다", 0, HttpStatus.BAD_REQUEST),
     NOT_MEMBER("속하지 않은 프로젝트 정보를 조회할 수 없습니다.", 0, HttpStatus.BAD_REQUEST),
-    INTERSECT_TIME("ScheduleDto 간 중복/교차되는 시간이 들어왔습니다.", 0, HttpStatus.BAD_REQUEST);
+    INTERSECT_TIME("ScheduleDto 간 중복/교차되는 시간이 들어왔습니다.", 0, HttpStatus.BAD_REQUEST),
+    NOTIFICATION_NOT_FOUND("알림이 존재하지 않습니다.", 0, HttpStatus.NOT_FOUND);
 
 
     private final String message;
