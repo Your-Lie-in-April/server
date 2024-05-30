@@ -28,8 +28,7 @@ public class MemberProjectRepositoryImpl implements CustomMemberProjectRepositor
 
     @Override
     public Page<MemberProject> findMemberProjectsWithProjectAndCover(Pageable pageable, Long memberId, Boolean isDeleted) {
-        List<MemberProject> content = queryFactory
-                .selectFrom(memberProject)
+        List<MemberProject> content = queryFactory.selectFrom(memberProject)
                 .join(memberProject.project, project).fetchJoin()
                 .leftJoin(project.cover, cover).fetchJoin()
                 .where(memberProject.member.id.eq(memberId)
@@ -43,8 +42,7 @@ public class MemberProjectRepositoryImpl implements CustomMemberProjectRepositor
     }
 
     public List<MemberProject> findMemberProject(Long memberId, Long projectId, Boolean isPinned, Boolean isStored, Boolean isDeleted) {
-        List<MemberProject> content = queryFactory
-                .selectFrom(memberProject)
+        List<MemberProject> content = queryFactory.selectFrom(memberProject)
                 .join(memberProject.project, project).fetchJoin()
                 .where(memberIdEq(memberId)
                         , projectIdEq(projectId)
@@ -57,7 +55,8 @@ public class MemberProjectRepositoryImpl implements CustomMemberProjectRepositor
     }
 
     public Optional<MemberProject> findMemberProjectByMemberIdAndProjectId(Long memberId, Long projectId, Boolean isDeleted) {
-        Optional<MemberProject> content = queryFactory.selectFrom(memberProject).join(memberProject.project, project).fetchJoin()
+        Optional<MemberProject> content = queryFactory.selectFrom(memberProject)
+                .join(memberProject.project, project).fetchJoin()
                 .where(memberIdEq(memberId)
                         , projectIdEq(projectId)
                         , isDeletedEq(isDeleted))
