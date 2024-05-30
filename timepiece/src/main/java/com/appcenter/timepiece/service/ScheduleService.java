@@ -11,6 +11,7 @@ import com.appcenter.timepiece.dto.schedule.*;
 import com.appcenter.timepiece.repository.MemberProjectRepository;
 import com.appcenter.timepiece.repository.ProjectRepository;
 import com.appcenter.timepiece.repository.ScheduleRepository;
+import com.appcenter.timepiece.repository.customRepository.CustomMemberProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,6 +34,7 @@ public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final MemberProjectRepository memberProjectRepository;
     private final ProjectRepository projectRepository;
+    private final CustomMemberProjectRepository customRepository;
 
     /**
      * {@summary 프로젝트 내 모든 멤버의 스케줄을 조회한다(본인포함)}
@@ -48,7 +50,7 @@ public class ScheduleService {
     @Transactional(readOnly = true)
     public List<ScheduleWeekResponse> findMembersSchedules(Long projectId, LocalDate condition, UserDetails userDetails) {
         validateMemberIsInProject(projectId, userDetails);
-        List<MemberProject> memberProjects = memberProjectRepository.findAllByProjectId(projectId);
+        List<MemberProject> memberProjects = customRepository.findMemberProject(null, projectId, null, null, false);
         LocalDateTime sundayOfWeek = calculateStartDay(LocalDateTime.of(condition, LocalTime.MIN));
 
         List<Schedule> schedules = scheduleRepository.findMembersWeekSchedule(memberProjects.stream().map(MemberProject::getId).toList(), sundayOfWeek, sundayOfWeek.plusDays(7));
@@ -86,7 +88,7 @@ public class ScheduleService {
     public ScheduleWeekResponse findSchedule(Long projectId, Long memberId, LocalDate condition, UserDetails userDetails) {
         validateMemberIsInProject(projectId, userDetails);
 
-        MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
+        MemberProject memberProject = customRepository.findMemberProjectByMemberIdAndProjectId(memberId, projectId, false)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
         LocalDateTime sundayOfWeek = calculateStartDay(LocalDateTime.of(condition, LocalTime.MIN));
 
@@ -107,7 +109,7 @@ public class ScheduleService {
     // todo: ProjectService와 중복코드
     private void validateMemberIsInProject(Long projectId, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        boolean isExist = memberProjectRepository.existsByMemberIdAndProjectIdAndProjectIsDeletedIsFalse(memberId, projectId);
+        boolean isExist = customRepository.existsMemberProjectByMemberIdAndProjectId(memberId, projectId, false);
         if (!isExist) {
             throw new NotEnoughPrivilegeException(ExceptionMessage.NOT_MEMBER);
         }
@@ -127,7 +129,7 @@ public class ScheduleService {
         validateScheduleCreateUpdateRequest(request, project);
 
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
+        MemberProject memberProject = customRepository.findMemberProjectByMemberIdAndProjectId(memberId, projectId, false)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
 
         List<Schedule> schedulesToSave = request.getSchedule().stream()
@@ -154,7 +156,7 @@ public class ScheduleService {
         validateScheduleCreateUpdateRequest(request, project);
 
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
+        MemberProject memberProject = customRepository.findMemberProjectByMemberIdAndProjectId(memberId, projectId, false)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
 
         // todo: IndexOutOfBoundsException!! 발생 가능 -> Not Null, Not Empty하면 될 듯?
@@ -183,7 +185,7 @@ public class ScheduleService {
      */
     public void deleteSchedule(ScheduleDeleteRequest request, Long projectId, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
+        MemberProject memberProject = customRepository.findMemberProjectByMemberIdAndProjectId(memberId, projectId, false)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
 
         scheduleRepository.deleteMemberSchedulesBetween(memberProject.getId(),

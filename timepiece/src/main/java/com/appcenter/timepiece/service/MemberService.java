@@ -8,6 +8,7 @@ import com.appcenter.timepiece.domain.MemberProject;
 import com.appcenter.timepiece.dto.member.MemberResponse;
 import com.appcenter.timepiece.repository.MemberProjectRepository;
 import com.appcenter.timepiece.repository.MemberRepository;
+import com.appcenter.timepiece.repository.customRepository.CustomMemberProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +25,7 @@ public class MemberService {
 
     private final MemberProjectRepository memberProjectRepository;
 
+    private final CustomMemberProjectRepository customMemberProjectRepository;
 
     public List<MemberResponse> getAllMember() {
         log.info("[getAllMember] 모든 유저 조회");
@@ -46,7 +48,7 @@ public class MemberService {
         log.info("[storeProject] 프로젝트 보관");
         Long memberId = ((CustomUserDetails) userDetails).getId();
 
-        MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
+        MemberProject memberProject = customMemberProjectRepository.findMemberProjectByMemberIdAndProjectId(memberId, projectId, false)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
 
         memberProject.switchIsStored();
@@ -69,7 +71,7 @@ public class MemberService {
     public void editMemberNickname(Long projectId, String nickName, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
 
-        MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
+        MemberProject memberProject = customMemberProjectRepository.findMemberProjectByMemberIdAndProjectId(memberId, projectId, false)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
 
         memberProject.editNickName(nickName);
