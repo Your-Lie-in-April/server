@@ -44,11 +44,11 @@ public class MemberProjectRepositoryImpl implements CustomMemberProjectRepositor
     public List<MemberProject> findMemberProject(Long memberId, Long projectId, Boolean isPinned, Boolean isStored, Boolean isDeleted) {
         List<MemberProject> content = queryFactory.selectFrom(memberProject)
                 .join(memberProject.project, project).fetchJoin()
-                .where(memberIdEq(memberId)
-                        , projectIdEq(projectId)
-                        , isPinnedEq(isPinned)
-                        , isStoredEq(isStored)
-                        , isDeletedEq(isDeleted))
+                .where(memberIdEq(memberId),
+                        projectIdEq(projectId),
+                        isPinnedEq(isPinned),
+                        isStoredEq(isStored),
+                        isDeletedEq(isDeleted))
                 .fetch();
 
         return content;
@@ -57,9 +57,9 @@ public class MemberProjectRepositoryImpl implements CustomMemberProjectRepositor
     public Optional<MemberProject> findMemberProjectByMemberIdAndProjectId(Long memberId, Long projectId, Boolean isDeleted) {
         Optional<MemberProject> content = queryFactory.selectFrom(memberProject)
                 .join(memberProject.project, project).fetchJoin()
-                .where(memberIdEq(memberId)
-                        , projectIdEq(projectId)
-                        , isDeletedEq(isDeleted))
+                .where(memberIdEq(memberId),
+                        projectIdEq(projectId),
+                        isDeletedEq(isDeleted))
                 .stream().findAny();
 
         return content;
@@ -67,9 +67,9 @@ public class MemberProjectRepositoryImpl implements CustomMemberProjectRepositor
 
     public Boolean existsMemberProjectByMemberIdAndProjectId(Long memberId, Long projectId, Boolean isDeleted) {
         Integer content = queryFactory.selectOne().from(memberProject)
-                .where(memberProject.member.id.eq(memberId)
-                        , memberProject.project.id.eq(projectId)
-                        , isDeletedEq(isDeleted)).fetchFirst();
+                .where(memberProject.member.id.eq(memberId),
+                        memberProject.project.id.eq(projectId),
+                        isDeletedEq(isDeleted)).fetchFirst();
 
         return content != null;
     }
