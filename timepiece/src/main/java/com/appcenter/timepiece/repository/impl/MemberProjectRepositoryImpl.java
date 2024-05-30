@@ -39,14 +39,7 @@ public class MemberProjectRepositoryImpl implements CustomMemberProjectRepositor
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        Long total = queryFactory
-                .selectFrom(memberProject)
-                .where(memberProject.member.id.eq(memberId)
-                        .and(memberProject.isStored.isFalse())
-                        .and(isDeletedEq(isDeleted)))
-                .fetchCount();
-
-        return new PageImpl<>(content, pageable, total);
+        return new PageImpl<>(content, pageable, content.stream().count());
     }
 
     public List<MemberProject> findMemberProject(Long memberId, Long projectId, Boolean isPinned, Boolean isStored, Boolean isDeleted) {
