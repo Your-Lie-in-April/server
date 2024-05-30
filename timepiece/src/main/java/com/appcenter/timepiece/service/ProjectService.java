@@ -10,6 +10,8 @@ import com.appcenter.timepiece.dto.cover.CoverDataResponse;
 import com.appcenter.timepiece.dto.member.MemberResponse;
 import com.appcenter.timepiece.dto.project.*;
 import com.appcenter.timepiece.repository.*;
+import com.appcenter.timepiece.repository.customRepository.CustomMemberProjectRepository;
+import com.appcenter.timepiece.repository.customRepository.CustomProjectRepository;
 import com.appcenter.timepiece.util.AESEncoder;
 import com.appcenter.timepiece.util.LinkValidTime;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +42,8 @@ public class ProjectService {
     private final InvitationRepository invitationRepository;
     private final AESEncoder aesEncoder;
     private final ScheduleService scheduleService;
+    private final CustomMemberProjectRepository customMemberProjectRepository;
+    private final CustomProjectRepository customProjectRepository;
     private final NotificationService notificationService;
 
     public List<ProjectResponse> findAll() {
@@ -64,7 +68,7 @@ public class ProjectService {
     public CommonPagingResponse<?> findProjects(Integer page, Integer size, Long memberId, UserDetails userDetails) {
         validateMemberIsOwner(memberId, userDetails);
         PageRequest pageable = PageRequest.of(page, size);
-        Page<MemberProject> projectPage = customRepository.findMemberProjectsWithProjectAndCover(pageable, memberId, false);
+        Page<MemberProject> projectPage = customMemberProjectRepository.findMemberProjectsWithProjectAndCover(pageable, memberId, false);
 
         List<MemberProject> projects = projectPage.getContent();
         List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream()
@@ -88,7 +92,7 @@ public class ProjectService {
     public List<PinProjectResponse> findPinProjects(Long memberId, UserDetails userDetails) {
         validateMemberIsOwner(memberId, userDetails);
 
-        List<MemberProject> memberProjects = customRepository.findMemberProject(memberId, null, true, null, false);
+        List<MemberProject> memberProjects = customMemberProjectRepository.findMemberProject(memberId, null, true, null, false);
         List<PinProjectResponse> pinProjectResponses = new ArrayList<>();
 
         for (MemberProject memberProject : memberProjects) {
@@ -110,7 +114,7 @@ public class ProjectService {
         validateMemberIsOwner(memberId, userDetails);
 
         PageRequest pageable = PageRequest.of(page, size);
-        Page<Project> projectPage = projectRepository.findProjectByMemberIdAndTitleLikeKeyword(isStored, memberId, keyword, pageable);
+        Page<Project> projectPage = customProjectRepository.findProject(memberId, keyword, isStored, false, pageable);
         List<Project> projects = projectPage.getContent();
         List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream()
                 .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
@@ -121,7 +125,7 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public List<MemberResponse> findMembers(Long projectId, UserDetails userDetails) {
         validateMemberIsInProject(projectId, userDetails);
-        return customRepository.findMemberProject(null, projectId, null, null, false).stream()
+        return customMemberProjectRepository.findMemberProject(null, projectId, null, null, false).stream()
                 .map(memberProject -> {
                     Member member = requireNonNull(memberProject.getMember()); // NPE!
                     return MemberResponse.of(member, memberProject);
@@ -130,7 +134,7 @@ public class ProjectService {
 
     private void validateMemberIsInProject(Long projectId, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        boolean isExist = customRepository.existsMemberProjectByMemberIdAndProjectId(memberId, projectId, false);
+        boolean isExist = customMemberProjectRepository.existsMemberProjectByMemberIdAndProjectId(memberId, projectId, false);
         if (!isExist) {
             throw new NotEnoughPrivilegeException(ExceptionMessage.NOT_MEMBER);
         }
@@ -183,7 +187,7 @@ public class ProjectService {
     public void kick(Long projectId, Long memberId, UserDetails userDetails) {
         validateRequesterIsPrivileged(projectId, userDetails);
 
-        MemberProject memberProject = customRepository.findMemberProjectByMemberIdAndProjectId(memberId, projectId, false)
+        MemberProject memberProject = customMemberProjectRepository.findMemberProjectByMemberIdAndProjectId(memberId, projectId, false)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
         if (memberProject.getIsPrivileged()) {
             throw new NotEnoughPrivilegeException(ExceptionMessage.KICK_ADMIN);
@@ -240,7 +244,7 @@ public class ProjectService {
     }
 
     private void validateJoinIsNotDuplicate(Long memberId, Long projectId) {
-        boolean isExist = customRepository.existsMemberProjectByMemberIdAndProjectId(memberId, projectId, false);
+        boolean isExist = customMemberProjectRepository.existsMemberProjectByMemberIdAndProjectId(memberId, projectId, false);
         if (isExist) {
             throw new IllegalStateException(ExceptionMessage.DUPLICATE_SIGN_REQUEST.getMessage());
         }
@@ -248,7 +252,7 @@ public class ProjectService {
 
     private void validateRequesterIsPrivileged(Long projectId, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        MemberProject memberProject = customRepository.findMemberProjectByMemberIdAndProjectId(memberId, projectId, false)
+        MemberProject memberProject = customMemberProjectRepository.findMemberProjectByMemberIdAndProjectId(memberId, projectId, false)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
         if (memberProject.getIsPrivileged()) return;
         throw new NotEnoughPrivilegeException(ExceptionMessage.INSUFFICIENT_PRIVILEGE);
@@ -258,14 +262,14 @@ public class ProjectService {
     public void pinProject(Long projectId, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
 
-        MemberProject memberProject = customRepository.findMemberProjectByMemberIdAndProjectId(memberId, projectId, false)
+        MemberProject memberProject = customMemberProjectRepository.findMemberProjectByMemberIdAndProjectId(memberId, projectId, false)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
         memberProject.switchIsPinned();
     }
 
     public void goOut(Long projectId, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        MemberProject memberProject = customRepository.findMemberProjectByMemberIdAndProjectId(memberId, projectId, false)
+        MemberProject memberProject = customMemberProjectRepository.findMemberProjectByMemberIdAndProjectId(memberId, projectId, false)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
         if (memberProject.getIsPrivileged()) {
             throw new IllegalStateException(ExceptionMessage.ADMIN_LEAVE.getMessage());
@@ -280,9 +284,9 @@ public class ProjectService {
         Long fromMemberId = ((CustomUserDetails) userDetails).getId();
         Long toMemberId = request.getToMemberId();
 
-        MemberProject fromMemberProject = customRepository.findMemberProjectByMemberIdAndProjectId(fromMemberId, projectId, false)
+        MemberProject fromMemberProject = customMemberProjectRepository.findMemberProjectByMemberIdAndProjectId(fromMemberId, projectId, false)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
-        MemberProject toMemberProject = customRepository.findMemberProjectByMemberIdAndProjectId(toMemberId, projectId, false)
+        MemberProject toMemberProject = customMemberProjectRepository.findMemberProjectByMemberIdAndProjectId(toMemberId, projectId, false)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
 
         fromMemberProject.releasePrivilege();
@@ -299,7 +303,7 @@ public class ProjectService {
         Long memberId = ((CustomUserDetails) userDetails).getId();
 
         PageRequest pageable = PageRequest.of(page, size);
-        Page<Project> projectPage = projectRepository.findAllByMemberIdWhereIsStored(memberId, pageable);
+        Page<Project> projectPage = customProjectRepository.findProject(memberId, null, true, false, pageable);
         List<Project> projects = projectPage.getContent();
 
         List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream().map(p ->
