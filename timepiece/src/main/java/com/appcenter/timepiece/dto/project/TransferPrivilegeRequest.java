@@ -9,4 +9,8 @@ import lombok.NoArgsConstructor;
 public class TransferPrivilegeRequest {
     Long toMemberId;
 
+    @Override
+    public String toString() {
+        return "toMemberId = " + toMemberId;
+    }
 }

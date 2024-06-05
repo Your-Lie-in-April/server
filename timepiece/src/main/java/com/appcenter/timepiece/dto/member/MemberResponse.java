@@ -51,4 +51,9 @@ public class MemberResponse {
                 .isPrivileged(memberProject.getIsPrivileged())
                 .build();
     }
+
+    @Override
+    public String toString() {
+        return "memberId = " + memberId;
+    }
 }

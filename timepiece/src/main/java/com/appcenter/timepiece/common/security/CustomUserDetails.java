@@ -83,4 +83,9 @@ public class CustomUserDetails implements OAuth2User, UserDetails {
         return String.valueOf(id);
     }
 
+    @Override
+    public String toString() {
+        return "memberId = " + id;
+    }
+
 }

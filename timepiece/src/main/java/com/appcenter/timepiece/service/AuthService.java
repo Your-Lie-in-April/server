@@ -5,7 +5,6 @@ import com.appcenter.timepiece.common.exception.FailedTokenCreateException;
 import com.appcenter.timepiece.common.exception.NotFoundElementException;
 import com.appcenter.timepiece.common.redis.RefreshToken;
 import com.appcenter.timepiece.common.redis.RefreshTokenRepository;
-import com.appcenter.timepiece.common.security.CustomUserDetails;
 import com.appcenter.timepiece.common.security.JwtProvider;
 import com.appcenter.timepiece.domain.Member;
 import com.appcenter.timepiece.dto.member.TokenResponse;
@@ -13,7 +12,6 @@ import com.appcenter.timepiece.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -33,15 +31,12 @@ public class AuthService {
         String token = jwtProvider.resolveServiceToken(request);
 
         Long memberId = jwtProvider.getMemberId(token);
-        log.info("[reissueAccessToken] memberId 추출 성공. memberId = {}", memberId);
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
-        log.info("[reissueAccessToken] member 찾기 성공. memberEmail = {}", member.getEmail());
 
         RefreshToken refreshToken = refreshTokenRepository.findByMemberId(memberId);
 
-        log.info("[reissueAccessToken] 이전 refreshToken: {}", refreshToken.getRefreshToken());
         //refreshToken 의 유효 시간과, Header 에 담겨 온 RefreshToken 과 redis 에 저장되어있는 RefreshToken 과 일치하는지 비교한다.
 
         if (!refreshToken.getRefreshToken().equals(token)) {
@@ -49,10 +44,8 @@ public class AuthService {
         }
 
         String accessToken = jwtProvider.createAccessToken(memberId, member.getEmail(), member.getRole());
-        log.info("[reissueAccessToken] accessToken 새로 발급 성공: {}", accessToken);
 
         String newRefreshToken = jwtProvider.createRefreshToken(memberId, member.getEmail(), member.getRole());
-        log.info("[reissueAccessToken] refreshToken 새로 발급 성공: {}", newRefreshToken);
 
         TokenResponse tokenResponse = TokenResponse.builder()
                 .refreshToken(newRefreshToken)

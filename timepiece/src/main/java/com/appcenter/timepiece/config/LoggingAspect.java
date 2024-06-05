@@ -30,15 +30,13 @@ public class LoggingAspect {
         Object[] args = proceedingJoinPoint.getArgs();
         if (args.length == 0) log.info("no parameter");
         for (Object arg : args) {
-            log.info("parameter type = {}", arg.getClass().getSimpleName());
-            log.info("parameter value = {}", arg);
+            log.info("parameter = {}, {}", arg.getClass().getSimpleName(), arg.toString());
         }
 
         // proceed()를 호출하여 실제 메서드 실행
         Object returnObj = proceedingJoinPoint.proceed();
 
         // 메서드의 리턴값 로깅
-        log.info("return type = {}", returnObj.getClass().getSimpleName());
         log.info("return value = {}", returnObj);
 
         return returnObj;

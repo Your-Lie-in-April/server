@@ -25,4 +25,5 @@ public class CommonResponse<T> {
     public static <T> CommonResponse<T> error(String message, T data) {
         return new CommonResponse<T>(HttpStatus.BAD_REQUEST.value(), message, data);
     }
+
 }
