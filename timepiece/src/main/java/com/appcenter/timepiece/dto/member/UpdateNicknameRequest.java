@@ -21,4 +21,9 @@ public class UpdateNicknameRequest {
         this.projectId = projectId;
         this.nickname = nickname;
     }
+
+    @Override
+    public String toString() {
+        return "projectId = " + projectId;
+    }
 }

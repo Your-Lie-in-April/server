@@ -26,7 +26,6 @@ public class MemberService {
 
 
     public List<MemberResponse> getAllMember() {
-        log.info("[getAllMember] 모든 유저 조회");
         List<Member> members = memberRepository.findAll();
 
         return members.stream()
@@ -34,8 +33,6 @@ public class MemberService {
     }
 
     public MemberResponse getMemberInfo(Long memberId) {
-        log.info("[getMemberInfo] 유저의 정보 조회");
-
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
 
@@ -43,7 +40,6 @@ public class MemberService {
     }
 
     public void storeProject(Long projectId, UserDetails userDetails) {
-        log.info("[storeProject] 프로젝트 보관");
         Long memberId = ((CustomUserDetails) userDetails).getId();
 
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
@@ -55,10 +51,7 @@ public class MemberService {
     }
 
     public void editMemberState(String state, UserDetails userDetails) {
-        log.info("[editMemberState] 멤버 상태 수정 state = {}", state);
-
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        log.info("memberId = {}", memberId);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
 

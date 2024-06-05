@@ -47,10 +47,8 @@ public class CustomOAuth2Service implements OAuth2UserService<OAuth2UserRequest,
         Member returnMember;
 
         if (member.isPresent()) {
-            log.info("[saveOrUpdate] 이미 가입된 유저");
             returnMember = member.get().updateMember(authAttributes.getName(), authAttributes.getProfileImageUrl());
         } else {
-            log.info("[saveOrUpdate] 신규 유저");
             returnMember = new Member(authAttributes.getProvider(), authAttributes.getName(),
                     authAttributes.getEmail(), "", authAttributes.getProfileImageUrl(), List.of("ROLE_USER"));
         }
