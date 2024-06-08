@@ -40,7 +40,7 @@ public class ScheduleController {
         return CommonResponse.success("성공", scheduleService.findMembersSchedules(projectId, condition, userDetails));
     }
 
-    @GetMapping("/v1/projects/{projectId}/schedules/without")
+    @GetMapping("/v2/projects/{projectId}/schedules")
     @Operation(summary = "프로젝트 범위 스케줄 조회(본인 제외)", description = "프로젝트 내 모든 구성원의 스케줄을 조회합니다. " +
             "일요일-토요일까지 일주일 스케줄을 조회합니다. " +
             "condition이 포함된 주차를 조회합니다.")
