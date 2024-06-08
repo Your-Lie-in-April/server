@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
@@ -162,18 +164,23 @@ public class NotificationService {
     }
 
 
-    // todo: paging, sorting, exclude Checked/Deleted(soft) Notification
+    // todo: paging, sorting, | exclude Checked/Deleted(soft) Notification
     @Transactional
-    public List<NotificationResponse> getNotifications(UserDetails userDetails) {
+    public List<NotificationResponse> getNotifications(Integer page, Integer size, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        return notificationRepository.findByReceiverId(memberId).stream()
+        Sort strategy = Sort.by(Sort.Direction.ASC, "isChecked")
+                .and(Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        return notificationRepository.findByReceiverId(PageRequest.of(page, size, strategy), memberId).stream()
                 .map(NotificationResponse::from).toList();
     }
 
     @Transactional
-    public List<NotificationResponse> getNotificationsInProject(Long projectId, UserDetails userDetails) {
+    public List<NotificationResponse> getNotificationsInProject(Long projectId, Integer page, Integer size, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        return notificationRepository.findByReceiverIdAndProjectId(memberId, projectId).stream()
+        Sort strategy = Sort.by(Sort.Direction.ASC, "isChecked")
+                .and(Sort.by(Sort.Direction.DESC, "createdAt"));
+        return notificationRepository.findByReceiverIdAndProjectId(PageRequest.of(page, size, strategy), memberId, projectId).stream()
                 .map(NotificationResponse::from).toList();
     }
 
