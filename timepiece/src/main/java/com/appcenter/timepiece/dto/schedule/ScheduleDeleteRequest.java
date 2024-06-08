@@ -29,6 +29,6 @@ public class ScheduleDeleteRequest {
 
     @Override
     public String toString() {
-        return "projectId = " + projectId;
+        return "{" + "projectId = " + projectId + ", startDate = " + startDate + ", endDate = " + endDate + "}";
     }
 }

@@ -54,6 +54,6 @@ public class MemberResponse {
 
     @Override
     public String toString() {
-        return "memberId = " + memberId;
+        return "{" + "memberId = " + memberId + ", email = " + email + ", nickname = " + nickname + ", state = " + state + ", profileImageUrl = " + profileImageUrl + ", isPrivileged = " + isPrivileged + "}";
     }
 }
