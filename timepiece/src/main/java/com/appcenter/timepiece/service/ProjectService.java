@@ -3,7 +3,6 @@ package com.appcenter.timepiece.service;
 import com.appcenter.timepiece.common.exception.ExceptionMessage;
 import com.appcenter.timepiece.common.exception.NotEnoughPrivilegeException;
 import com.appcenter.timepiece.common.exception.NotFoundElementException;
-import com.appcenter.timepiece.notify.NotificationService;
 import com.appcenter.timepiece.common.security.CustomUserDetails;
 import com.appcenter.timepiece.domain.*;
 import com.appcenter.timepiece.dto.member.MemberResponse;

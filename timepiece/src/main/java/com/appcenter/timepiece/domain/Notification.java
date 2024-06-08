@@ -1,8 +1,6 @@
-package com.appcenter.timepiece.notify;
+package com.appcenter.timepiece.domain;
 
 import com.appcenter.timepiece.common.BaseTimeEntity;
-import com.appcenter.timepiece.domain.Member;
-import com.appcenter.timepiece.domain.Project;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
