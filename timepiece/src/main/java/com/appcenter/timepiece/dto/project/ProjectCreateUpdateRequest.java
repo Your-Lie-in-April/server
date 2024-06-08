@@ -62,4 +62,11 @@ public class ProjectCreateUpdateRequest {
         this.color = color;
         this.coverImageUrl = coverImageUrl;
     }
+
+    @Override
+    public String toString() {
+        return "{" + "title = " + title + ", description = " + description + ", startDate = " + startDate + ", endDate = " + endDate +
+                ", startTime = " + startTime + ", endTime = " + endTime + ", daysOfWeek = " + daysOfWeek +
+                ", color = " + color + ", coverId = " + coverImageUrl + "}";
+    }
 }

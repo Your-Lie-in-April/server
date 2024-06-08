@@ -24,6 +24,7 @@ public class UpdateNicknameRequest {
 
     @Override
     public String toString() {
-        return "projectId = " + projectId;
+        return "{" + "projectId = " + projectId + ", nickname = " + nickname + "}";
+
     }
 }

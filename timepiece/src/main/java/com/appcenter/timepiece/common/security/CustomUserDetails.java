@@ -85,7 +85,7 @@ public class CustomUserDetails implements OAuth2User, UserDetails {
 
     @Override
     public String toString() {
-        return "memberId = " + id;
+        return "{" + "id = " + id + ", email = " + email + "}";
     }
 
 }
