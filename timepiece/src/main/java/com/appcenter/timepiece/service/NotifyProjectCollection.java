@@ -1,4 +1,4 @@
-package com.appcenter.timepiece.notify;
+package com.appcenter.timepiece.service;
 
 import com.appcenter.timepiece.domain.Member;
 import com.appcenter.timepiece.domain.MemberProject;

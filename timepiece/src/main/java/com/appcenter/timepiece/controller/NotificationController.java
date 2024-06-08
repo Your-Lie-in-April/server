@@ -1,7 +1,8 @@
-package com.appcenter.timepiece.notify;
+package com.appcenter.timepiece.controller;
 
 import com.appcenter.timepiece.common.dto.CommonResponse;
 import com.appcenter.timepiece.config.SwaggerApiResponses;
+import com.appcenter.timepiece.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

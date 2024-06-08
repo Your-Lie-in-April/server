@@ -8,7 +8,6 @@ import com.appcenter.timepiece.domain.MemberProject;
 import com.appcenter.timepiece.domain.Project;
 import com.appcenter.timepiece.domain.Schedule;
 import com.appcenter.timepiece.dto.schedule.*;
-import com.appcenter.timepiece.notify.NotificationService;
 import com.appcenter.timepiece.repository.MemberProjectRepository;
 import com.appcenter.timepiece.repository.ProjectRepository;
 import com.appcenter.timepiece.repository.ScheduleRepository;

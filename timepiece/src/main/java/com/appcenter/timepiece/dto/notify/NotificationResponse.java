@@ -1,6 +1,7 @@
-package com.appcenter.timepiece.notify;
+package com.appcenter.timepiece.dto.notify;
 
 import com.appcenter.timepiece.domain.Member;
+import com.appcenter.timepiece.domain.Notification;
 import com.appcenter.timepiece.domain.Project;
 import lombok.AccessLevel;
 import lombok.Builder;

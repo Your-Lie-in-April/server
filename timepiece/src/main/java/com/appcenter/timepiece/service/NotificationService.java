@@ -1,4 +1,4 @@
-package com.appcenter.timepiece.notify;
+package com.appcenter.timepiece.service;
 
 import com.appcenter.timepiece.common.exception.ExceptionMessage;
 import com.appcenter.timepiece.common.exception.NotEnoughPrivilegeException;
@@ -6,8 +6,11 @@ import com.appcenter.timepiece.common.exception.NotFoundElementException;
 import com.appcenter.timepiece.common.security.CustomUserDetails;
 import com.appcenter.timepiece.domain.Member;
 import com.appcenter.timepiece.domain.MemberProject;
+import com.appcenter.timepiece.domain.Notification;
 import com.appcenter.timepiece.domain.Project;
+import com.appcenter.timepiece.dto.notify.NotificationResponse;
 import com.appcenter.timepiece.repository.MemberProjectRepository;
+import com.appcenter.timepiece.repository.NotificationRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
