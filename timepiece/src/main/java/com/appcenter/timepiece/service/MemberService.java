@@ -8,7 +8,7 @@ import com.appcenter.timepiece.domain.MemberProject;
 import com.appcenter.timepiece.dto.member.MemberResponse;
 import com.appcenter.timepiece.repository.MemberProjectRepository;
 import com.appcenter.timepiece.repository.MemberRepository;
-import com.appcenter.timepiece.repository.customRepository.CustomMemberProjectRepository;
+import com.appcenter.timepiece.repository.customRepository.JpaMemberProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,9 +23,8 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
-    private final MemberProjectRepository memberProjectRepository;
-
-    private final CustomMemberProjectRepository customMemberProjectRepository;
+    private final JpaMemberProjectRepository jpaMemberProjectRepository;
+    private MemberProjectRepository memberProjectRepository;
 
     public List<MemberResponse> getAllMember() {
         List<Member> members = memberRepository.findAll();
@@ -44,12 +43,12 @@ public class MemberService {
     public void storeProject(Long projectId, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
 
-        MemberProject memberProject = customMemberProjectRepository.findMemberProjectByMemberIdAndProjectId(memberId, projectId, false)
+        MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
 
         memberProject.switchIsStored();
 
-        memberProjectRepository.save(memberProject);
+        jpaMemberProjectRepository.save(memberProject);
     }
 
     public void editMemberState(String state, UserDetails userDetails) {
@@ -64,11 +63,11 @@ public class MemberService {
     public void editMemberNickname(Long projectId, String nickName, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
 
-        MemberProject memberProject = customMemberProjectRepository.findMemberProjectByMemberIdAndProjectId(memberId, projectId, false)
+        MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
 
         memberProject.editNickName(nickName);
-        memberProjectRepository.save(memberProject);
+        jpaMemberProjectRepository.save(memberProject);
     }
 
 }
