@@ -45,7 +45,7 @@ public class MemberService {
     public void storeProject(Long projectId, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
 
-        MemberProject memberProject = customMemberProjectRepository.findMemberProjectByMemberIdAndProjectId(memberId, projectId, false)
+        MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
 
         memberProject.switchIsStored();
@@ -66,7 +66,7 @@ public class MemberService {
     public MemberResponse editMemberNickname(Long projectId, String nickName, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
 
-        MemberProject memberProject = customMemberProjectRepository.findMemberProjectByMemberIdAndProjectId(memberId, projectId, false)
+        MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
 
         memberProject.editNickName(nickName);
