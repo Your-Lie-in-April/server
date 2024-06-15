@@ -73,6 +73,34 @@ public class ScheduleService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<ScheduleWeekResponse> findMembersSchedulesWithoutMe(Long projectId, LocalDate condition, UserDetails userDetails) {
+        validateMemberIsInProject(projectId, userDetails);
+        List<MemberProject> memberProjects = memberProjectRepository.findAllByProjectId(projectId);
+        LocalDateTime sundayOfWeek = calculateStartDay(LocalDateTime.of(condition, LocalTime.MIN));
+
+        List<Schedule> schedules = scheduleRepository.findMembersWeekSchedule(memberProjects.stream().map(MemberProject::getId).toList(), sundayOfWeek, sundayOfWeek.plusDays(7));
+        return memberProjects.stream()
+                .filter(memberProject -> !memberProject.getMember().getId().equals(((CustomUserDetails) userDetails).getId()))
+                .map(memberProject ->
+                        new ScheduleWeekResponse(memberProject.getMember().getNickname(),
+                                schedules.stream()
+                                        .filter(schedule -> schedule.getMemberProject().getId().equals(memberProject.getId()))
+                                        .map(schedule -> schedule.getStartTime().getDayOfWeek())
+                                        .distinct()
+                                        .map(dayOfWeek -> ScheduleDayResponse.of(dayOfWeek,
+                                                schedules.stream()
+                                                        .filter(schedule -> schedule.getMemberProject().getId().equals(memberProject.getId()))
+                                                        .filter(schedule -> schedule
+                                                                .getStartTime()
+                                                                .getDayOfWeek()
+                                                                .equals(dayOfWeek))
+                                                        .map(ScheduleDto::from)
+                                                        .collect(Collectors.toList())))
+                                        .collect(Collectors.toList())))
+                .collect(Collectors.toList());
+    }
+
     /**
      * {@summary 특정 프로젝트-사용자의 condition 날짜가 포함된 주차 스케줄 조회}
      * <p>condition이 속한 주차(= 해당 주차의 일요일 ~ 토요일까지)의 사용자 스케줄을 조회한다.
@@ -296,8 +324,8 @@ public class ScheduleService {
 
     private void validateIsIdenticalDay(ScheduleDayRequest req) {
         if (req.getSchedule().stream()
-                    .map(ScheduleDto::getStartTime)
-                    .map(LocalDateTime::toLocalDate).distinct().count() != 1L) {
+                .map(ScheduleDto::getStartTime)
+                .map(LocalDateTime::toLocalDate).distinct().count() != 1L) {
             throw new IllegalArgumentException(ExceptionMessage.INVALID_DATE.getMessage());
         }
     }
