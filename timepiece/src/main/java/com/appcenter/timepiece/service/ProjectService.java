@@ -185,7 +185,7 @@ public class ProjectService {
         memberProjectRepository.delete(memberProject);
     }
 
-    public String generateInviteLink(Long projectId, UserDetails userDetails) {
+    public InvitationLinkResponse generateInviteLink(Long projectId, UserDetails userDetails) {
         validateRequesterIsPrivileged(projectId, userDetails);
 
         Member member = memberRepository.findById(((CustomUserDetails) userDetails).getId())
@@ -200,7 +200,8 @@ public class ProjectService {
 
         String url = aesEncoder.encryptAES256(urlData);
         invitationRepository.save(Invitation.of(project, url));
-        return url;
+
+        return InvitationLinkResponse.of(project, url);
     }
 
     @Transactional
