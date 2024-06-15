@@ -5,6 +5,7 @@ import com.appcenter.timepiece.common.exception.NotEnoughPrivilegeException;
 import com.appcenter.timepiece.common.exception.NotFoundElementException;
 import com.appcenter.timepiece.common.security.CustomUserDetails;
 import com.appcenter.timepiece.domain.*;
+import com.appcenter.timepiece.dto.cover.CoverDataResponse;
 import com.appcenter.timepiece.dto.member.MemberResponse;
 import com.appcenter.timepiece.dto.project.*;
 import com.appcenter.timepiece.repository.*;
@@ -143,8 +144,7 @@ public class ProjectService {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
-        Cover cover = coverRepository.findByCoverImageUrl(request.getCoverImageUrl())
-                .orElse(null);
+        Cover cover = coverRepository.findById(Long.valueOf(request.getCoverImageId())).orElse(null);;
         Project project = projectRepository.save(Project.of(request, cover));
         MemberProject memberProject = MemberProject.of(member, project);
         memberProject.grantPrivilege();
@@ -167,8 +167,7 @@ public class ProjectService {
 
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
-        Cover cover = coverRepository.findByCoverImageUrl(request.getCoverImageUrl())
-                .orElse(null);
+        Cover cover = coverRepository.findById(Long.valueOf(request.getCoverImageId())).orElse(null);;
 
         project.updateFrom(request, cover);
     }
@@ -307,5 +306,10 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
         return InvitationResponse.of(project, invitator, linkTime);
 
+    }
+
+    public List<CoverDataResponse> getCoverMetadata(Integer page, Integer size) {
+        Page<Cover> covers = coverRepository.findAll(PageRequest.of(page, size));
+        return covers.stream().map(CoverDataResponse::of).toList();
     }
 }

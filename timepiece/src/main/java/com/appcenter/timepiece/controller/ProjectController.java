@@ -2,6 +2,7 @@ package com.appcenter.timepiece.controller;
 
 import com.appcenter.timepiece.common.dto.CommonResponse;
 import com.appcenter.timepiece.config.SwaggerApiResponses;
+import com.appcenter.timepiece.dto.cover.CoverDataResponse;
 import com.appcenter.timepiece.dto.project.ProjectCreateUpdateRequest;
 import com.appcenter.timepiece.dto.project.TransferPrivilegeRequest;
 import com.appcenter.timepiece.service.ProjectService;
@@ -11,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RequestMapping("")
@@ -158,4 +161,12 @@ public class ProjectController {
         projectService.addUserToGroup(url, userDetails);
         return CommonResponse.success("프로젝트 멤버로 추가 되었습니다", null);
     }
+
+    @GetMapping("/v1/covers")
+    @Operation(summary = "커버 이미지 메타데이터 조회", description = "")
+    public CommonResponse<List<CoverDataResponse>> join(@RequestParam(defaultValue = "0", required = false) Integer page,
+                                                        @RequestParam(defaultValue = "10", required = false) Integer size) {
+        return CommonResponse.success("조회 요청이 성공했습니다.", projectService.getCoverMetadata(page, size));
+    }
 }
+

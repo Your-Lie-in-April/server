@@ -44,14 +44,14 @@ public class ProjectCreateUpdateRequest {
     @Schema(description = "배경색", example = "FFFFFF")
     private String color;
 
-    @Schema(description = "커버가 저장된 URL",
-            example = "https://cover-images.inuappcenter.com/121238128/308169809-wf61e-49f5-a5fa-2")
-    private String coverImageUrl;
+    @Schema(description = "커버 이미지 식별자",
+            example = "10")
+    private String coverImageId;
 
     @Builder
-    private ProjectCreateUpdateRequest(String title, String description, LocalDate startDate, LocalDate endDate,
-                                       LocalTime startTime, LocalTime endTime, Set<DayOfWeek> daysOfWeek,
-                                       String color, String coverImageUrl) {
+    public ProjectCreateUpdateRequest(String title, String description, LocalDate startDate, LocalDate endDate,
+                                      LocalTime startTime, LocalTime endTime,
+                                      Set<DayOfWeek> daysOfWeek, String color, String coverImageId) {
         this.title = title;
         this.description = description;
         this.startDate = startDate;
@@ -60,6 +60,6 @@ public class ProjectCreateUpdateRequest {
         this.endTime = endTime;
         this.daysOfWeek = daysOfWeek;
         this.color = color;
-        this.coverImageUrl = coverImageUrl;
+        this.coverImageId = coverImageId;
     }
 }
