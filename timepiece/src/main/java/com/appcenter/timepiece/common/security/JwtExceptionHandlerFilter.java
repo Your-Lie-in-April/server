@@ -31,25 +31,25 @@ public class JwtExceptionHandlerFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (DecodingException e) {
             setErrorResponse(response, ExceptionMessage.TOKEN_INVALID_FORMAT);
-            log.info("[JwtExceptionHandlerFilter] error name = DecodingException");
+            log.error("[JwtExceptionHandlerFilter] error name = DecodingException");
         } catch (MalformedJwtException e) {
             setErrorResponse(response, ExceptionMessage.TOKEN_UNAUTHENTICATED);
-            log.info("[JwtExceptionHandlerFilter] error name = MalformedJwtException");
+            log.error("[JwtExceptionHandlerFilter] error name = MalformedJwtException");
         } catch (ExpiredJwtException e) {
             setErrorResponse(response, ExceptionMessage.TOKEN_EXPIRED);
-            log.info("[JwtExceptionHandlerFilter] error name = ExpiredJwtException");
+            log.error("[JwtExceptionHandlerFilter] error name = ExpiredJwtException");
         } catch (IllegalArgumentException e) {
             setErrorResponse(response, ExceptionMessage.TOKEN_NOT_FOUND);
-            log.info("[JwtExceptionHandlerFilter] error name = IllegalArgumentException");
+            log.error("[JwtExceptionHandlerFilter] error name = IllegalArgumentException");
         } catch (SignatureException e) {
             setErrorResponse(response, ExceptionMessage.TOKEN_INVALID_FORMAT);
-            log.info("[JwtExceptionHandlerFilter] error name = SignatureException");
+            log.error("[JwtExceptionHandlerFilter] error name = SignatureException");
         } catch (StringIndexOutOfBoundsException e) {
             setErrorResponse(response, ExceptionMessage.TOKEN_INVALID_FORMAT);
-            log.info("[JwtExceptionHandlerFilter] error name = StringIndexOutOfBoundsException");
+            log.error("[JwtExceptionHandlerFilter] error name = StringIndexOutOfBoundsException");
         } catch (NullPointerException e) {
             setErrorResponse(response, ExceptionMessage.TOKEN_NOT_FOUND);
-            log.info("[JwtExceptionHandlerFilter] error name = NullPointerException");
+            log.error("[JwtExceptionHandlerFilter] error name = NullPointerException");
         } catch (MismatchTokenTypeException e) {
             setErrorResponse(response, ExceptionMessage.TOKEN_TYPE_INVALID);
         }

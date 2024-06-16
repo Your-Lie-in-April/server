@@ -15,46 +15,50 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = NotFoundElementException.class)
     public ResponseEntity<CommonResponse> handleNotFoundElementException(NotFoundElementException ex) {
-        log.error(ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CommonResponse<>(0, ex.getMessage(), null));
+        log.error("[handleNotFoundElementException] {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CommonResponse.error(ex.getMessage(), null));
 
     }
 
     @ExceptionHandler(value = FailedTokenCreateException.class)
     public ResponseEntity<CommonResponse> handleTokenCreateError(FailedTokenCreateException ex) {
-        log.error(ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CommonResponse(0, ex.getMessage(), null));
+        log.error("[handleTokenCreateError] {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponse.error(ex.getMessage(), null));
     }
 
     @ExceptionHandler(value = JwtEmptyException.class)
     public ResponseEntity<CommonResponse> handleJwtEmptyException(JwtEmptyException ex) {
-        log.error(ex.getMessage());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CommonResponse<>(0, ex.getMessage(), null));
+        log.error("[handleJwtEmptyException] {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonResponse.error(ex.getMessage(), null));
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<CommonResponse> handleExpiredJwtException(ExpiredJwtException e) {
-        log.error("[ExpiredJwtException] 토큰에러");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonResponse.error(e.getMessage(), null));
+    public ResponseEntity<CommonResponse> handleExpiredJwtException(ExpiredJwtException ex) {
+        log.error("[handleExpiredJwtException] {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(CommonResponse.error(ex.getMessage(), null));
     }
 
     @ExceptionHandler(NotEnoughPrivilegeException.class)
-    public ResponseEntity<CommonResponse<?>> handleNotEnoughPrivilegeException(NotEnoughPrivilegeException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponse.error(e.getMessage(), null));
+    public ResponseEntity<CommonResponse<?>> handleNotEnoughPrivilegeException(NotEnoughPrivilegeException ex) {
+        log.error("[handleNotEnoughPrivilegeException] {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponse.error(ex.getMessage(), null));
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<CommonResponse<?>> handleIllegalStateException(IllegalStateException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponse.error(e.getMessage(), null));
+    public ResponseEntity<CommonResponse<?>> handleIllegalStateException(IllegalStateException ex) {
+        log.error("[handleNotEnoughPrivilegeException {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponse.error(ex.getMessage(), null));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<CommonResponse<?>> handleIllegalArgumentException(IllegalArgumentException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponse.error(e.getMessage(), null));
+    public ResponseEntity<CommonResponse<?>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.error("[handleIllegalArgumentException] {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponse.error(ex.getMessage(), null));
     }
 
     @ExceptionHandler(DeletedProjectException.class)
-    public ResponseEntity<CommonResponse<?>> handleDeletedProjectException(DeletedProjectException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponse.error(e.getMessage(), null));
+    public ResponseEntity<CommonResponse<?>> handleDeletedProjectException(DeletedProjectException ex) {
+        log.error("[handleDeletedProjectException] {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponse.error(ex.getMessage(), null));
     }
 }
