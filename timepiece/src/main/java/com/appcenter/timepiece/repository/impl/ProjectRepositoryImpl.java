@@ -4,7 +4,7 @@ import com.appcenter.timepiece.domain.Project;
 import com.appcenter.timepiece.generated.com.appcenter.timepiece.domain.QMember;
 import com.appcenter.timepiece.generated.com.appcenter.timepiece.domain.QMemberProject;
 import com.appcenter.timepiece.generated.com.appcenter.timepiece.domain.QProject;
-import com.appcenter.timepiece.repository.customRepository.CustomProjectRepository;
+import com.appcenter.timepiece.repository.customRepository.ProjectRepositoryCustom;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -17,13 +17,23 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class ProjectRepositoryImpl implements CustomProjectRepository {
+public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
     private QProject project = QProject.project;
     private QMember member = QMember.member;
     private QMemberProject memberProject = QMemberProject.memberProject;
+
+    @Override
+    public Page<Project> searchProject(Long memberId, String keyword, Boolean isStored, Pageable pageable) {
+        return findProject(memberId, keyword, isStored, false, pageable);
+    }
+
+    @Override
+    public Page<Project> findProjectIsStored(Long memberId, Pageable pageable) {
+        return findProject(memberId, null, true, false, pageable);
+    }
 
     public Page<Project> findProject(Long memberId, String keyword, Boolean isStored, Boolean isDeleted, Pageable pageable) {
         List<Project> content = queryFactory
