@@ -57,12 +57,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(DeletedProjectException.class)
-    public ResponseEntity<CommonResponse<?>> handleDeletedProjectException(DeletedProjectException ex) {
-        log.error("[handleDeletedProjectException] {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponse.error(ex.getMessage(), null));
-    }
-
-    @ExceptionHandler(DeletedProjectException.class)
     public ResponseEntity<CommonResponse<?>> handleDeletedProjectException(DeletedProjectException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponse.error(e.getMessage(), null));
     }
