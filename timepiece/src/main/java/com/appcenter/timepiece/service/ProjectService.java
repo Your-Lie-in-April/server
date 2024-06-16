@@ -10,7 +10,6 @@ import com.appcenter.timepiece.dto.cover.CoverDataResponse;
 import com.appcenter.timepiece.dto.member.MemberResponse;
 import com.appcenter.timepiece.dto.project.*;
 import com.appcenter.timepiece.repository.*;
-import com.appcenter.timepiece.repository.customRepository.CustomProjectRepository;
 import com.appcenter.timepiece.util.AESEncoder;
 import com.appcenter.timepiece.util.LinkValidTime;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +39,6 @@ public class ProjectService {
     private final InvitationRepository invitationRepository;
     private final AESEncoder aesEncoder;
     private final ScheduleService scheduleService;
-    private final CustomProjectRepository customProjectRepository;
     private final MemberProjectRepository memberProjectRepository;
     private final NotificationService notificationService;
 
@@ -112,7 +110,7 @@ public class ProjectService {
         validateMemberIsOwner(memberId, userDetails);
 
         PageRequest pageable = PageRequest.of(page, size);
-        Page<Project> projectPage = customProjectRepository.findProject(memberId, keyword, isStored, false, pageable);
+        Page<Project> projectPage = projectRepository.searchProject(memberId, keyword, isStored, pageable);
         List<Project> projects = projectPage.getContent();
         List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream()
                 .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
@@ -303,7 +301,7 @@ public class ProjectService {
         Long memberId = ((CustomUserDetails) userDetails).getId();
 
         PageRequest pageable = PageRequest.of(page, size);
-        Page<Project> projectPage = customProjectRepository.findProject(memberId, null, true, false, pageable);
+        Page<Project> projectPage = projectRepository.findProjectIsStored(memberId, pageable);
         List<Project> projects = projectPage.getContent();
 
         List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream().map(p ->
