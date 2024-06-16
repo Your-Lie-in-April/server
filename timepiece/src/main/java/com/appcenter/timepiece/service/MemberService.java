@@ -8,7 +8,6 @@ import com.appcenter.timepiece.domain.MemberProject;
 import com.appcenter.timepiece.dto.member.MemberResponse;
 import com.appcenter.timepiece.repository.MemberProjectRepository;
 import com.appcenter.timepiece.repository.MemberRepository;
-import com.appcenter.timepiece.repository.customRepository.CustomMemberProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,8 +24,6 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     private final MemberProjectRepository memberProjectRepository;
-
-    private final CustomMemberProjectRepository customMemberProjectRepository;
 
     public List<MemberResponse> getAllMember() {
         List<Member> members = memberRepository.findAll();

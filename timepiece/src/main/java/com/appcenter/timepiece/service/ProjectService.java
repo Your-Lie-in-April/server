@@ -11,7 +11,6 @@ import com.appcenter.timepiece.dto.member.MemberResponse;
 import com.appcenter.timepiece.dto.project.*;
 import com.appcenter.timepiece.repository.*;
 import com.appcenter.timepiece.repository.customRepository.CustomProjectRepository;
-import com.appcenter.timepiece.repository.customRepository.JpaMemberProjectRepository;
 import com.appcenter.timepiece.util.AESEncoder;
 import com.appcenter.timepiece.util.LinkValidTime;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +40,6 @@ public class ProjectService {
     private final InvitationRepository invitationRepository;
     private final AESEncoder aesEncoder;
     private final ScheduleService scheduleService;
-    private final JpaMemberProjectRepository jpaMemberProjectRepository;
     private final CustomProjectRepository customProjectRepository;
     private final MemberProjectRepository memberProjectRepository;
     private final NotificationService notificationService;
@@ -161,7 +159,7 @@ public class ProjectService {
         MemberProject memberProject = MemberProject.of(member, project);
         memberProject.grantPrivilege();
 
-        jpaMemberProjectRepository.save(memberProject);
+        memberProjectRepository.save(memberProject);
     }
 
     public void deleteProject(Long projectId, UserDetails userDetails) {
@@ -193,7 +191,7 @@ public class ProjectService {
             throw new NotEnoughPrivilegeException(ExceptionMessage.KICK_ADMIN);
         }
 
-        jpaMemberProjectRepository.delete(memberProject);
+        memberProjectRepository.delete(memberProject);
     }
 
     public InvitationLinkResponse generateInviteLink(Long projectId, UserDetails userDetails) {
@@ -238,10 +236,9 @@ public class ProjectService {
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
 
         MemberProject memberProject = MemberProject.of(member, project);
-        jpaMemberProjectRepository.save(memberProject);
-        memberProjectRepository.save(memberProject);
 
         notificationService.notifySigning(project, member);
+        memberProjectRepository.save(memberProject);
     }
 
     private void validateJoinIsNotDuplicate(Long memberId, Long projectId) {
@@ -275,7 +272,7 @@ public class ProjectService {
         if (memberProject.getIsPrivileged()) {
             throw new IllegalStateException(ExceptionMessage.ADMIN_LEAVE.getMessage());
         }
-        jpaMemberProjectRepository.delete(memberProject);
+        memberProjectRepository.delete(memberProject);
     }
 
     @Transactional
@@ -293,12 +290,12 @@ public class ProjectService {
         fromMemberProject.releasePrivilege();
         toMemberProject.grantPrivilege();
 
-        jpaMemberProjectRepository.save(fromMemberProject);
-        jpaMemberProjectRepository.save(toMemberProject);
         memberProjectRepository.save(fromMemberProject);
         memberProjectRepository.save(toMemberProject);
 
         notificationService.notifyBecomingOwner(toMemberProject.getProject(), toMemberProject.getMember(), fromMemberProject.getMember());
+        memberProjectRepository.save(fromMemberProject);
+        memberProjectRepository.save(toMemberProject);
     }
 
     @Transactional(readOnly = true)
