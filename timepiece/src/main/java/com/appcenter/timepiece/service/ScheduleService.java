@@ -30,8 +30,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ScheduleService {
 
-    private final ScheduleRepository scheduleRepository;
     private final MemberProjectRepository memberProjectRepository;
+    private final ScheduleRepository scheduleRepository;
     private final ProjectRepository projectRepository;
 
     private final NotificationService notificationService;

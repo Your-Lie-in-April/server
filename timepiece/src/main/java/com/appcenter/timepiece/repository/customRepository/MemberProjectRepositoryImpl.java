@@ -1,9 +1,10 @@
-package com.appcenter.timepiece.repository.impl;
+package com.appcenter.timepiece.repository.customRepository;
 
 import com.appcenter.timepiece.domain.MemberProject;
 import com.appcenter.timepiece.generated.com.appcenter.timepiece.domain.QCover;
 import com.appcenter.timepiece.generated.com.appcenter.timepiece.domain.QMemberProject;
 import com.appcenter.timepiece.generated.com.appcenter.timepiece.domain.QProject;
+import com.appcenter.timepiece.repository.impl.MemberProjectRepositoryCustom;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Repository
-public class QueryDSLMemberProjectRepository {
+public class MemberProjectRepositoryImpl implements MemberProjectRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
@@ -25,7 +26,32 @@ public class QueryDSLMemberProjectRepository {
     private QCover cover = QCover.cover;
     private QMemberProject memberProject = QMemberProject.memberProject;
 
-    public Page<MemberProject> findMemberProjectsWithProjectAndCover(Pageable pageable, Long memberId, Boolean isDeleted) {
+    @Override
+    public Page<MemberProject> findMemberProjectsWithProjectAndCover(Pageable pageable, Long memberId) {
+        return findMemberProjects(pageable, memberId, false);
+    }
+
+    @Override
+    public List<MemberProject> findByMemberIdAndIsPinnedIsTrue(Long memberId) {
+        return findMemberProjects(memberId, null, true, null, false);
+    }
+
+    @Override
+    public List<MemberProject> findAllByProjectId(Long projectId) {
+        return findMemberProjects(null, projectId, null, null, false);
+    }
+
+    @Override
+    public boolean existsByMemberIdAndProjectId(Long memberId, Long projectId) {
+        return existsMemberProject(memberId, projectId, null, null, false);
+    }
+
+    @Override
+    public Optional<MemberProject> findByMemberIdAndProjectId(Long memberId, Long projectId) {
+        return findMemberProject(memberId, projectId, false);
+    }
+
+    private Page<MemberProject> findMemberProjects(Pageable pageable, Long memberId, Boolean isDeleted) {
         List<MemberProject> content = queryFactory.selectFrom(memberProject)
                 .join(memberProject.project, project).fetchJoin()
                 .leftJoin(project.cover, cover).fetchJoin()
@@ -39,7 +65,7 @@ public class QueryDSLMemberProjectRepository {
         return new PageImpl<>(content, pageable, content.stream().count());
     }
 
-    public List<MemberProject> findMemberProject(Long memberId, Long projectId, Boolean isPinned, Boolean isStored, Boolean isDeleted) {
+    private List<MemberProject> findMemberProjects(Long memberId, Long projectId, Boolean isPinned, Boolean isStored, Boolean isDeleted) {
         List<MemberProject> content = queryFactory.selectFrom(memberProject)
                 .join(memberProject.project, project).fetchJoin()
                 .where(memberIdEq(memberId),
@@ -52,7 +78,7 @@ public class QueryDSLMemberProjectRepository {
         return content;
     }
 
-    public Optional<MemberProject> findMemberProjectByMemberIdAndProjectId(Long memberId, Long projectId, Boolean isDeleted) {
+    private Optional<MemberProject> findMemberProject(Long memberId, Long projectId, Boolean isDeleted) {
         Optional<MemberProject> content = queryFactory.selectFrom(memberProject)
                 .join(memberProject.project, project).fetchJoin()
                 .where(memberIdEq(memberId),
@@ -63,11 +89,13 @@ public class QueryDSLMemberProjectRepository {
         return content;
     }
 
-    public Boolean existsMemberProjectByMemberIdAndProjectId(Long memberId, Long projectId, Boolean isDeleted) {
+    private boolean existsMemberProject(Long memberId, Long projectId, Boolean isPinned, Boolean isStored, Boolean isDeleted) {
         Integer content = queryFactory.selectOne().from(memberProject)
                 .where(memberProject.member.id.eq(memberId),
                         memberProject.project.id.eq(projectId),
-                        isDeletedEq(isDeleted)).fetchFirst();
+                        isDeletedEq(isDeleted),
+                        isPinnedEq(isPinned),
+                        isStoredEq(isStored)).fetchFirst();
 
         return content != null;
     }
