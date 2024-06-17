@@ -32,7 +32,7 @@ public class NotificationController {
 
     @Operation(summary = "이전 알림 조회", description = "DB에 저장된 알림을 조회합니다.")
     @GetMapping(value = "/v1/notifications")
-    public CommonResponse<?> subscribe(@RequestParam(defaultValue = "0", required = false) Integer page,
+    public CommonResponse<?> getNotifications(@RequestParam(defaultValue = "0", required = false) Integer page,
                                        @RequestParam(defaultValue = "12", required = false) Integer size,
                                        @AuthenticationPrincipal UserDetails userDetails) {
         return CommonResponse.success("알림 조회에 성공했습니다.",notificationService.getNotifications(page, size, userDetails));
@@ -40,7 +40,7 @@ public class NotificationController {
 
     @Operation(summary = "(프로젝트 내)이전 알림 조회", description = "DB에 저장된 특정 프로젝트의 알림을 조회합니다.")
     @GetMapping(value = "/v1/projects/{projectId}/notifications")
-    public CommonResponse<?> subscribe(@RequestParam(defaultValue = "0", required = false) Integer page,
+    public CommonResponse<?> getNotificationsInProject(@RequestParam(defaultValue = "0", required = false) Integer page,
                                        @RequestParam(defaultValue = "12", required = false) Integer size,
                                        @PathVariable Long projectId,
                                        @AuthenticationPrincipal UserDetails userDetails) {
