@@ -174,7 +174,7 @@ public class NotificationService {
         Sort strategy = Sort.by(Sort.Direction.ASC, "isChecked")
                 .and(Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        return notificationRepository.findByReceiverId(PageRequest.of(page, size, strategy), memberId).stream()
+        return notificationRepository.findByReceiverIdAndIsDeletedIsFalse(PageRequest.of(page, size, strategy), memberId).stream()
                 .map(NotificationResponse::from).toList();
     }
 
@@ -183,7 +183,7 @@ public class NotificationService {
         Long memberId = ((CustomUserDetails) userDetails).getId();
         Sort strategy = Sort.by(Sort.Direction.ASC, "isChecked")
                 .and(Sort.by(Sort.Direction.DESC, "createdAt"));
-        return notificationRepository.findByReceiverIdAndProjectId(PageRequest.of(page, size, strategy), memberId, projectId).stream()
+        return notificationRepository.findByReceiverIdAndProjectIdAndIsDeletedIsFalse(PageRequest.of(page, size, strategy), memberId, projectId).stream()
                 .map(NotificationResponse::from).toList();
     }
 
