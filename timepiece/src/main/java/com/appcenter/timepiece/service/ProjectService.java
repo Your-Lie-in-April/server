@@ -1,5 +1,6 @@
 package com.appcenter.timepiece.service;
 
+import com.appcenter.timepiece.common.dto.CommonPagingResponse;
 import com.appcenter.timepiece.common.exception.ExceptionMessage;
 import com.appcenter.timepiece.common.exception.NotEnoughPrivilegeException;
 import com.appcenter.timepiece.common.exception.NotFoundElementException;
@@ -60,7 +61,7 @@ public class ProjectService {
      * @param memberId 자동생성되는 멤버 식별자(PK)
      * @return 메인페이지에 나타나는 프로젝트 썸네일 정보를 담은 dto 리스트를 리턴합니다.
      */
-    public List<ProjectThumbnailResponse> findProjects(Integer page, Integer size, Long memberId, UserDetails userDetails) {
+    public CommonPagingResponse<?> findProjects(Integer page, Integer size, Long memberId, UserDetails userDetails) {
         validateMemberIsOwner(memberId, userDetails);
         PageRequest pageable = PageRequest.of(page, size);
         Page<MemberProject> projectPage = memberProjectRepository.findMemberProjectsWithProjectAndCover(pageable, memberId);
@@ -70,7 +71,7 @@ public class ProjectService {
                 .map(MemberProject::getProject)
                 .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
 
-        return projectThumbnailResponses;
+        return new CommonPagingResponse<>(page, size, projectPage.getTotalElements(), projectPage.getTotalPages(), projectThumbnailResponses);
     }
 
     /**
@@ -105,7 +106,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public List<ProjectThumbnailResponse> searchProjects(Integer page, Integer size, Boolean isStored, Long memberId, String keyword, UserDetails userDetails) {
+    public CommonPagingResponse<?> searchProjects(Integer page, Integer size, Boolean isStored, Long memberId, String keyword, UserDetails userDetails) {
         validateMemberIsOwner(memberId, userDetails);
 
         PageRequest pageable = PageRequest.of(page, size);
@@ -113,8 +114,7 @@ public class ProjectService {
         List<Project> projects = projectPage.getContent();
         List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream()
                 .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
-
-        return projectThumbnailResponses;
+        return new CommonPagingResponse<>(page, size, projectPage.getTotalElements(), projectPage.getTotalPages(), projectThumbnailResponses);
 
     }
 
@@ -290,7 +290,7 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProjectThumbnailResponse> findStoredProjects(Integer page, Integer size, UserDetails userDetails) {
+    public CommonPagingResponse<?> findStoredProjects(Integer page, Integer size, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
 
         PageRequest pageable = PageRequest.of(page, size);
@@ -299,7 +299,7 @@ public class ProjectService {
 
         List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream().map(p ->
                 ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
-        return projectThumbnailResponses;
+        return new CommonPagingResponse<>(page, size, projectPage.getTotalElements(), projectPage.getTotalPages(), projectThumbnailResponses);
     }
 
     public InvitationResponse decodeInviteLink(String url) {
@@ -313,8 +313,9 @@ public class ProjectService {
 
     }
 
-    public List<CoverDataResponse> getCoverMetadata(Integer page, Integer size) {
+    public CommonPagingResponse<?> getCoverMetadata(Integer page, Integer size) {
         Page<Cover> covers = coverRepository.findAll(PageRequest.of(page, size));
-        return covers.stream().map(CoverDataResponse::of).toList();
+        return new CommonPagingResponse<>(page, size, covers.getTotalElements(), covers.getTotalPages(),
+                covers.stream().map(CoverDataResponse::of).toList());
     }
 }

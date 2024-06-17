@@ -1,5 +1,6 @@
 package com.appcenter.timepiece.service;
 
+import com.appcenter.timepiece.common.dto.CommonPagingResponse;
 import com.appcenter.timepiece.common.exception.ExceptionMessage;
 import com.appcenter.timepiece.common.exception.NotEnoughPrivilegeException;
 import com.appcenter.timepiece.common.exception.NotFoundElementException;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -169,22 +171,25 @@ public class NotificationService {
 
     // todo: paging, sorting, | exclude Checked/Deleted(soft) Notification
     @Transactional
-    public List<NotificationResponse> getNotifications(Integer page, Integer size, UserDetails userDetails) {
+    public CommonPagingResponse<?> getNotifications(Integer page, Integer size, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
         Sort strategy = Sort.by(Sort.Direction.ASC, "isChecked")
                 .and(Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        return notificationRepository.findByReceiverIdAndIsDeletedIsFalse(PageRequest.of(page, size, strategy), memberId).stream()
-                .map(NotificationResponse::from).toList();
+        Page<Notification> notifications = notificationRepository.findByReceiverIdAndIsDeletedIsFalse(PageRequest.of(page, size, strategy), memberId);
+        List<NotificationResponse> notificationResponses =  notifications.stream().map(NotificationResponse::from).toList();
+        return new CommonPagingResponse<>(page, size, notifications.getTotalElements(), notifications.getTotalPages(),
+                notificationResponses);
     }
 
     @Transactional
-    public List<NotificationResponse> getNotificationsInProject(Long projectId, Integer page, Integer size, UserDetails userDetails) {
+    public CommonPagingResponse<?> getNotificationsInProject(Long projectId, Integer page, Integer size, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
         Sort strategy = Sort.by(Sort.Direction.ASC, "isChecked")
                 .and(Sort.by(Sort.Direction.DESC, "createdAt"));
-        return notificationRepository.findByReceiverIdAndProjectIdAndIsDeletedIsFalse(PageRequest.of(page, size, strategy), memberId, projectId).stream()
-                .map(NotificationResponse::from).toList();
+        Page<Notification> notifications = notificationRepository.findByReceiverIdAndProjectIdAndIsDeletedIsFalse(PageRequest.of(page, size, strategy), memberId, projectId);
+        List<NotificationResponse> notificationResponses =  notifications.stream().map(NotificationResponse::from).toList();
+        return new CommonPagingResponse<>(page, size, notifications.getTotalElements(), notifications.getTotalPages(),
+                notificationResponses);
     }
 
     @Transactional
