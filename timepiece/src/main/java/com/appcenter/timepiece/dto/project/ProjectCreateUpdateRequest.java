@@ -67,6 +67,6 @@ public class ProjectCreateUpdateRequest {
     public String toString() {
         return "{" + "title = " + title + ", description = " + description + ", startDate = " + startDate + ", endDate = " + endDate +
                 ", startTime = " + startTime + ", endTime = " + endTime + ", daysOfWeek = " + daysOfWeek +
-                ", color = " + color + ", coverId = " + coverImageUrl + "}";
+                ", color = " + color + ", coverId = " + coverImageId + "}";
     }
 }
