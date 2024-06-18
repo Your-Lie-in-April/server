@@ -55,7 +55,7 @@ public class ScheduleService {
 
         List<Schedule> schedules = scheduleRepository.findMembersWeekSchedule(memberProjects.stream().map(MemberProject::getId).toList(), sundayOfWeek, sundayOfWeek.plusDays(7));
         return memberProjects.stream().map(memberProject ->
-                        new ScheduleWeekResponse(memberProject.getMember().getNickname(),
+                        new ScheduleWeekResponse(memberProject.getNickname(),
                                 schedules.stream()
                                         .filter(schedule -> schedule.getMemberProject().getId().equals(memberProject.getId()))
                                         .map(schedule -> schedule.getStartTime().getDayOfWeek())
@@ -83,7 +83,7 @@ public class ScheduleService {
         return memberProjects.stream()
                 .filter(memberProject -> !memberProject.getMember().getId().equals(((CustomUserDetails) userDetails).getId()))
                 .map(memberProject ->
-                        new ScheduleWeekResponse(memberProject.getMember().getNickname(),
+                        new ScheduleWeekResponse(memberProject.getNickname(),
                                 schedules.stream()
                                         .filter(schedule -> schedule.getMemberProject().getId().equals(memberProject.getId()))
                                         .map(schedule -> schedule.getStartTime().getDayOfWeek())
