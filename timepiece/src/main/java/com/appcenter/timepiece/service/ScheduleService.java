@@ -51,7 +51,7 @@ public class ScheduleService {
     public List<ScheduleWeekResponse> findMembersSchedules(Long projectId, LocalDate condition, UserDetails userDetails) {
         validateMemberIsInProject(projectId, userDetails);
         List<MemberProject> memberProjects = memberProjectRepository.findAllByProjectId(projectId);
-        LocalDateTime sundayOfWeek = calculateStartDay(LocalDateTime.of(condition, LocalTime.MIN));
+        LocalDateTime sundayOfWeek = calculateStartDay(condition);
 
         List<Schedule> schedules = scheduleRepository.findMembersWeekSchedule(memberProjects.stream().map(MemberProject::getId).toList(), sundayOfWeek, sundayOfWeek.plusDays(7));
         return memberProjects.stream().map(memberProject ->
@@ -77,7 +77,7 @@ public class ScheduleService {
     public List<ScheduleWeekResponse> findMembersSchedulesWithoutMe(Long projectId, LocalDate condition, UserDetails userDetails) {
         validateMemberIsInProject(projectId, userDetails);
         List<MemberProject> memberProjects = memberProjectRepository.findAllByProjectId(projectId);
-        LocalDateTime sundayOfWeek = calculateStartDay(LocalDateTime.of(condition, LocalTime.MIN));
+        LocalDateTime sundayOfWeek = calculateStartDay(condition);
 
         List<Schedule> schedules = scheduleRepository.findMembersWeekSchedule(memberProjects.stream().map(MemberProject::getId).toList(), sundayOfWeek, sundayOfWeek.plusDays(7));
         return memberProjects.stream()
@@ -118,7 +118,7 @@ public class ScheduleService {
 
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
-        LocalDateTime sundayOfWeek = calculateStartDay(LocalDateTime.of(condition, LocalTime.MIN));
+        LocalDateTime sundayOfWeek = calculateStartDay(condition);
 
         List<Schedule> schedules = scheduleRepository.findMemberWeekSchedule(memberProject.getId(), sundayOfWeek, sundayOfWeek.plusDays(7));
         return new ScheduleWeekResponse(memberProject.getNickname(), schedules.stream()
@@ -193,7 +193,7 @@ public class ScheduleService {
 
         // todo: IndexOutOfBoundsException!! 발생 가능 -> Not Null, Not Empty하면 될 듯?
         LocalDateTime sundayOfWeek = calculateStartDay(request.getSchedule().get(0).getSchedule().get(0).getStartTime());
-        sundayOfWeek = sundayOfWeek.withHour(0).withMinute(0).withSecond(0).withNano(0);
+//        sundayOfWeek = sundayOfWeek.withHour(0).withMinute(0).withSecond(0).withNano(0);
         scheduleRepository.deleteMemberSchedulesBetween(memberProject.getId(), sundayOfWeek, sundayOfWeek.plusDays(7));
 
         List<Schedule> schedulesToSave = request.getSchedule().stream()
@@ -206,7 +206,14 @@ public class ScheduleService {
         notificationService.notifyScheduleChanging(project, memberProject.getMember());
     }
 
-    private LocalDateTime calculateStartDay(LocalDateTime condition) {
+
+    private LocalDateTime calculateStartDay(LocalDate localDate) {
+        LocalDateTime condition = LocalDateTime.of(localDate, LocalTime.MIN);
+        return condition.minusDays(condition.getDayOfWeek().getValue() % 7);
+    }
+
+    private LocalDateTime calculateStartDay(LocalDateTime localDateTime) {
+        LocalDateTime condition = LocalDateTime.of(localDateTime.toLocalDate(), LocalTime.MIN);
         return condition.minusDays(condition.getDayOfWeek().getValue() % 7);
     }
 
