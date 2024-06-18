@@ -193,7 +193,6 @@ public class ScheduleService {
 
         // todo: IndexOutOfBoundsException!! 발생 가능 -> Not Null, Not Empty하면 될 듯?
         LocalDateTime sundayOfWeek = calculateStartDay(request.getSchedule().get(0).getSchedule().get(0).getStartTime());
-//        sundayOfWeek = sundayOfWeek.withHour(0).withMinute(0).withSecond(0).withNano(0);
         scheduleRepository.deleteMemberSchedulesBetween(memberProject.getId(), sundayOfWeek, sundayOfWeek.plusDays(7));
 
         List<Schedule> schedulesToSave = request.getSchedule().stream()
