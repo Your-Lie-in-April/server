@@ -1,4 +1,4 @@
-package com.appcenter.timepiece.repository.customRepository;
+package com.appcenter.timepiece.repository;
 
 import com.appcenter.timepiece.domain.MemberProject;
 import org.springframework.data.domain.Page;
