@@ -6,6 +6,7 @@ docker/
 application.yml
 application-oauth.yml
 application.properties
+timepiece/src/main/generated/
 
 ### Intellij+all ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
