@@ -57,6 +57,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
     //Querydsl 추가
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
@@ -67,4 +68,18 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+def generatedDir = 'src/main/generated'
+
+tasks.withType(JavaCompile) {
+    options.getGeneratedSourceOutputDirectory().set(file(generatedDir))
+}
+
+sourceSets {
+    main.java.srcDirs("$projectDir/build/generated")
+}
+
+clean {
+    delete file(generatedDir)
 }
