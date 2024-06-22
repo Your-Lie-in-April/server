@@ -1,9 +1,9 @@
 package com.appcenter.timepiece.repository.impl;
 
 import com.appcenter.timepiece.domain.Project;
-import com.appcenter.timepiece.generated.com.appcenter.timepiece.domain.QMember;
-import com.appcenter.timepiece.generated.com.appcenter.timepiece.domain.QMemberProject;
-import com.appcenter.timepiece.generated.com.appcenter.timepiece.domain.QProject;
+import com.appcenter.timepiece.domain.QMember;
+import com.appcenter.timepiece.domain.QMemberProject;
+import com.appcenter.timepiece.domain.QProject;
 import com.appcenter.timepiece.repository.customRepository.ProjectRepositoryCustom;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
