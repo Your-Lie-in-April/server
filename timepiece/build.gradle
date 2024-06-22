@@ -81,5 +81,5 @@ sourceSets {
 }
 
 clean {
-    delete file(generatedDir)
+    delete file("src/main/generated")
 }
