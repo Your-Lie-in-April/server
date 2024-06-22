@@ -1,7 +1,6 @@
 package com.appcenter.timepiece.repository;
 
 import com.appcenter.timepiece.domain.Project;
-import com.appcenter.timepiece.repository.customRepository.ProjectRepositoryCustom;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

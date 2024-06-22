@@ -1,10 +1,9 @@
-package com.appcenter.timepiece.repository.impl;
+package com.appcenter.timepiece.repository;
 
 import com.appcenter.timepiece.domain.Project;
 import com.appcenter.timepiece.domain.QMember;
 import com.appcenter.timepiece.domain.QMemberProject;
 import com.appcenter.timepiece.domain.QProject;
-import com.appcenter.timepiece.repository.customRepository.ProjectRepositoryCustom;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
