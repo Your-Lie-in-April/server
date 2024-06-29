@@ -43,7 +43,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
                 .where(member.id.eq(memberId),
                         isStoredEq(isStored),
                         isDeletedEq(isDeleted),
-                        keywordEq(keyword))
+                        keywordLike(keyword))
                 .fetch();
 
         return new PageImpl<>(content, pageable, content.stream().count());
@@ -57,7 +57,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
         return isStoredCond != null ? memberProject.isStored.eq(isStoredCond) : null;
     }
 
-    private BooleanExpression keywordEq(String keywordCond) {
+    private BooleanExpression keywordLike(String keywordCond) {
         return keywordCond != null ? project.title.containsIgnoreCase(keywordCond) : null;
     }
 }
