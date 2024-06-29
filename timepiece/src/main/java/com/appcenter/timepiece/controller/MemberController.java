@@ -41,11 +41,18 @@ public class MemberController {
     }
 
     @PutMapping(value = "/v1/projects/members/nickname")
-    @Operation(summary = "닉네임 재설정", description = "")
+    @Operation(summary = "닉네임 재설정", description = "", deprecated = true)
     @SwaggerApiResponses
     public ResponseEntity<CommonResponse> editUserNickname(Long projectId, String nickname, @AuthenticationPrincipal UserDetails userDetails) {
         memberService.editMemberNickname(projectId, nickname, userDetails);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
+    }
+
+    @PutMapping(value = "/v2/projects/members/nickname")
+    @Operation(summary = "닉네임 재설정 v2", description = "")
+    @SwaggerApiResponses
+    public CommonResponse<?> editUserNickname2(Long projectId, String nickname, @AuthenticationPrincipal UserDetails userDetails) {
+        return CommonResponse.success("사용자 닉네임 수정 성공했습니다.", memberService.editMemberNickname(projectId, nickname, userDetails));
     }
 
     @PutMapping(value = "/v1/members/{state}")
