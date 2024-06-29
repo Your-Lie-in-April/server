@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -59,7 +60,8 @@ public class MemberService {
         memberRepository.save(member);
     }
 
-    public void editMemberNickname(Long projectId, String nickName, UserDetails userDetails) {
+    @Transactional
+    public MemberResponse editMemberNickname(Long projectId, String nickName, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
 
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
@@ -67,6 +69,7 @@ public class MemberService {
 
         memberProject.editNickName(nickName);
         memberProjectRepository.save(memberProject);
+        return MemberResponse.of(memberProject.getMember(), memberProject);
     }
 
 }
