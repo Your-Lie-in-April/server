@@ -24,7 +24,6 @@ public class MemberService {
 
     private final MemberProjectRepository memberProjectRepository;
 
-
     public List<MemberResponse> getAllMember() {
         List<Member> members = memberRepository.findAll();
 

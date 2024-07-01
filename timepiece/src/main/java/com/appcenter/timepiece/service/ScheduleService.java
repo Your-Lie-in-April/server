@@ -30,10 +30,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ScheduleService {
 
-    private final ScheduleRepository scheduleRepository;
     private final MemberProjectRepository memberProjectRepository;
+    private final ScheduleRepository scheduleRepository;
     private final ProjectRepository projectRepository;
-
     private final NotificationService notificationService;
 
     /**
@@ -137,7 +136,7 @@ public class ScheduleService {
     // todo: ProjectService와 중복코드
     private void validateMemberIsInProject(Long projectId, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        boolean isExist = memberProjectRepository.existsByMemberIdAndProjectIdAndProjectIsDeletedIsFalse(memberId, projectId);
+        boolean isExist = memberProjectRepository.existsByMemberIdAndProjectId(memberId, projectId);
         if (!isExist) {
             throw new NotEnoughPrivilegeException(ExceptionMessage.NOT_MEMBER);
         }

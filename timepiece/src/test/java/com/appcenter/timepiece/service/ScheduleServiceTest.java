@@ -88,7 +88,7 @@ class ScheduleServiceTest {
 
         Mockito.when(projectRepository.findById(1L))
                 .thenReturn(Optional.of(project));
-//        Mockito.when(memberProjectRepository.findByMemberIdAndProjectId(1L, 1L))
+//        Mockito.when(memberProjectRepository.findMemberProjectByMemberIdAndProjectId(1L, 1L))
 //                        .thenReturn(Optional.of(memberProject));
 
         Throwable exception = assertThrows(IllegalArgumentException.class, () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
