@@ -44,6 +44,8 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
                         isStoredEq(isStored),
                         isDeletedEq(isDeleted),
                         keywordLike(keyword))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
 
         return new PageImpl<>(content, pageable, content.stream().count());
