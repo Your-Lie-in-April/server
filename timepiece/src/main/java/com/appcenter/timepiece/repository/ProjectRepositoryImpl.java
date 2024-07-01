@@ -26,15 +26,15 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 
     @Override
     public Page<Project> searchProject(Long memberId, String keyword, Boolean isStored, Pageable pageable) {
-        return findProject(memberId, keyword, isStored, false, pageable);
+        return findProjects(memberId, keyword, isStored, false, pageable);
     }
 
     @Override
     public Page<Project> findProjectIsStored(Long memberId, Pageable pageable) {
-        return findProject(memberId, null, true, false, pageable);
+        return findProjects(memberId, null, true, false, pageable);
     }
 
-    public Page<Project> findProject(Long memberId, String keyword, Boolean isStored, Boolean isDeleted, Pageable pageable) {
+    public Page<Project> findProjects(Long memberId, String keyword, Boolean isStored, Boolean isDeleted, Pageable pageable) {
         List<Project> content = queryFactory
                 .selectDistinct(project)
                 .from(project)
