@@ -184,6 +184,7 @@ public class ProjectService {
         memberProjectRepository.delete(memberProject);
     }
 
+    @Transactional
     public InvitationLinkResponse generateInviteLink(Long projectId, UserDetails userDetails) {
         validateRequesterIsPrivileged(projectId, userDetails);
 
@@ -209,6 +210,8 @@ public class ProjectService {
         StringTokenizer st = new StringTokenizer(aesEncoder.decryptAES256(url), "?");
         Long projectId = Long.valueOf(st.nextToken());
 
+        String invitator = st.nextToken();
+
 //        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
         LocalDateTime linkTime = LocalDateTime.parse(st.nextToken());
         if (linkTime.isBefore(LocalDateTime.now())) {
@@ -224,9 +227,9 @@ public class ProjectService {
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
 
         MemberProject memberProject = MemberProject.of(member, project);
+        memberProjectRepository.save(memberProject);
 
         notificationService.notifySigning(project, member);
-        memberProjectRepository.save(memberProject);
     }
 
     private void validateJoinIsNotDuplicate(Long memberId, Long projectId) {
