@@ -110,7 +110,7 @@ public class ProjectService {
         validateMemberIsOwner(memberId, userDetails);
 
         PageRequest pageable = PageRequest.of(page, size);
-        Page<Project> projectPage = projectRepository.searchProject(memberId, keyword, isStored, pageable);
+        Page<Project> projectPage = projectRepository.searchProjects(memberId, keyword, isStored, pageable);
         List<Project> projects = projectPage.getContent();
         List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream()
                 .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
