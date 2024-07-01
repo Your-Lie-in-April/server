@@ -33,7 +33,6 @@ public class ScheduleService {
     private final MemberProjectRepository memberProjectRepository;
     private final ScheduleRepository scheduleRepository;
     private final ProjectRepository projectRepository;
-
     private final NotificationService notificationService;
 
     /**
