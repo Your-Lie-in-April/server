@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface ProjectRepositoryCustom {
 
-    Page<Project> searchProject(Long memberId, String keyword, Boolean isStored, Pageable pageable);
+    Page<Project> searchProjects(Long memberId, String keyword, Boolean isStored, Pageable pageable);
 
     Page<Project> findProjectIsStored(Long memberId, Pageable pageable);
 
