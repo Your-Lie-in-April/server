@@ -25,7 +25,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
     private QMemberProject memberProject = QMemberProject.memberProject;
 
     @Override
-    public Page<Project> searchProject(Long memberId, String keyword, Boolean isStored, Pageable pageable) {
+    public Page<Project> searchProjects(Long memberId, String keyword, Boolean isStored, Pageable pageable) {
         return findProjects(memberId, keyword, isStored, false, pageable);
     }
 
