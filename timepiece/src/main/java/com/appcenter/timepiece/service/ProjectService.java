@@ -175,7 +175,7 @@ public class ProjectService {
 
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
-        Cover cover = coverRepository.findById(Long.valueOf(request.getCoverImageId())).orElse(null);;
+        Cover cover = coverRepository.findById(Long.valueOf(request.getCoverImageId())).orElse(null);
 
         project.updateFrom(request, cover);
     }
@@ -287,9 +287,6 @@ public class ProjectService {
 
         fromMemberProject.releasePrivilege();
         toMemberProject.grantPrivilege();
-
-        memberProjectRepository.save(fromMemberProject);
-        memberProjectRepository.save(toMemberProject);
 
         notificationService.notifyBecomingOwner(toMemberProject.getProject(), toMemberProject.getMember(), fromMemberProject.getMember());
         memberProjectRepository.save(fromMemberProject);
