@@ -100,11 +100,6 @@ public class ProjectService {
         return pinProjectResponses;
     }
 
-    // todo: SchedulService와 중복코드
-    private LocalDateTime calculateStartDay(LocalDateTime condition) {
-        return condition.minusDays(condition.getDayOfWeek().getValue() % 7);
-    }
-
     @Transactional
     public CommonPagingResponse<?> searchProjects(Integer page, Integer size, Boolean isStored, Long memberId, String keyword, UserDetails userDetails) {
         validateMemberIsOwner(memberId, userDetails);
@@ -147,7 +142,8 @@ public class ProjectService {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
-        Cover cover = coverRepository.findById(Long.valueOf(request.getCoverImageId())).orElse(null);;
+        Cover cover = coverRepository.findById(Long.valueOf(request.getCoverImageId())).orElse(null);
+        ;
         Project project = projectRepository.save(Project.of(request, cover));
         MemberProject memberProject = MemberProject.of(member, project);
         memberProject.grantPrivilege();
@@ -170,7 +166,8 @@ public class ProjectService {
 
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
-        Cover cover = coverRepository.findById(Long.valueOf(request.getCoverImageId())).orElse(null);;
+        Cover cover = coverRepository.findById(Long.valueOf(request.getCoverImageId())).orElse(null);
+        ;
 
         project.updateFrom(request, cover);
     }
@@ -211,8 +208,6 @@ public class ProjectService {
         // todo:  Inivation 엔티티 존재 확인 + 어떻게 삭제할 것인지?
         StringTokenizer st = new StringTokenizer(aesEncoder.decryptAES256(url), "?");
         Long projectId = Long.valueOf(st.nextToken());
-
-        String invitator = st.nextToken();
 
 //        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
         LocalDateTime linkTime = LocalDateTime.parse(st.nextToken());
@@ -282,9 +277,6 @@ public class ProjectService {
 
         fromMemberProject.releasePrivilege();
         toMemberProject.grantPrivilege();
-
-        memberProjectRepository.save(fromMemberProject);
-        memberProjectRepository.save(toMemberProject);
 
         notificationService.notifyBecomingOwner(toMemberProject.getProject(), toMemberProject.getMember(), fromMemberProject.getMember());
         memberProjectRepository.save(fromMemberProject);
