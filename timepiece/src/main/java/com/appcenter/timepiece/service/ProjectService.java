@@ -192,6 +192,7 @@ public class ProjectService {
         memberProjectRepository.delete(memberProject);
     }
 
+    @Transactional
     public InvitationLinkResponse generateInviteLink(Long projectId, UserDetails userDetails) {
         validateRequesterIsPrivileged(projectId, userDetails);
 
@@ -234,9 +235,9 @@ public class ProjectService {
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
 
         MemberProject memberProject = MemberProject.of(member, project);
+        memberProjectRepository.save(memberProject);
 
         notificationService.notifySigning(project, member);
-        memberProjectRepository.save(memberProject);
     }
 
     private void validateJoinIsNotDuplicate(Long memberId, Long projectId) {
