@@ -147,7 +147,12 @@ public class ProjectService {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
-        Cover cover = coverRepository.findById(Long.valueOf(request.getCoverImageId())).orElse(null);;
+
+        Cover cover = null;
+        if (request.getCoverImageId() != null) {
+            cover = coverRepository.findById(Long.valueOf(request.getCoverImageId())).orElse(null);
+        }
+
         Project project = projectRepository.save(Project.of(request, cover));
         MemberProject memberProject = MemberProject.of(member, project);
         memberProject.grantPrivilege();
