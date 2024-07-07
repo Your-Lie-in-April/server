@@ -17,7 +17,7 @@ import java.util.Set;
         requiredProperties = {
                 "title", "description", "startDate", "endDate",
                 "startTime", "endTime", "daysOfWeek",
-                "color", "coverId"})
+                "color", "coverImageId"})
 public class ProjectCreateUpdateRequest {
 
     @Schema(description = "제목", example = "프로젝트 제목입니다.")
@@ -41,8 +41,8 @@ public class ProjectCreateUpdateRequest {
     @Schema(description = "요일", example = "[\"MONDAY\", \"TUESDAY\", \"WEDNESDAY\", \"THURSDAY\", \"FRIDAY\", \"SATURDAY\"]")
     private Set<DayOfWeek> daysOfWeek;
 
-    @Schema(description = "배경색", example = "FFFFFF")
-    private String color;
+    @Schema(description = "배경색", example = "#FFFFFF")
+    private String color="#000000";
 
     @Schema(description = "커버 이미지 식별자",
             example = "10")
