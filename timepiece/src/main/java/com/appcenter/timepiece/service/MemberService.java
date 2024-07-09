@@ -39,6 +39,7 @@ public class MemberService {
         return MemberResponse.from(member);
     }
 
+    @Transactional
     public void storeProject(Long projectId, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
 
