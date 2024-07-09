@@ -48,7 +48,17 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        return new PageImpl<>(content, pageable, content.stream().count());
+        Long total = queryFactory.selectDistinct(project)
+                .from(project)
+                .join(project.memberProjects, memberProject)
+                .join(memberProject.member, member)
+                .where(member.id.eq(memberId),
+                        isStoredEq(isStored),
+                        isDeletedEq(isDeleted),
+                        keywordLike(keyword))
+                .fetchCount();
+
+        return new PageImpl<>(content, pageable, total);
     }
 
     private BooleanExpression isDeletedEq(Boolean isDeletedCond) {
