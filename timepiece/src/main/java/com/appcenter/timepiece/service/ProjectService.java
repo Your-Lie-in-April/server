@@ -149,7 +149,7 @@ public class ProjectService {
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
 
         Cover cover = null;
-        if (request.getCoverImageId() != null) {
+        if (request.getCoverImageId() != null && !request.getCoverImageId().isEmpty()) {
             cover = coverRepository.findById(Long.valueOf(request.getCoverImageId())).orElse(null);
         }
 
