@@ -160,6 +160,7 @@ public class ProjectService {
         memberProjectRepository.save(memberProject);
     }
 
+    @Transactional
     public void deleteProject(Long projectId, UserDetails userDetails) {
         validateRequesterIsPrivileged(projectId, userDetails);
         Project project = projectRepository.findById(projectId)
@@ -180,6 +181,7 @@ public class ProjectService {
         project.updateFrom(request, cover);
     }
 
+    @Transactional
     public void kick(Long projectId, Long memberId, UserDetails userDetails) {
         validateRequesterIsPrivileged(projectId, userDetails);
 
@@ -264,6 +266,7 @@ public class ProjectService {
         memberProject.switchIsPinned();
     }
 
+    @Transactional
     public void goOut(Long projectId, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
@@ -315,7 +318,6 @@ public class ProjectService {
 
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
         return InvitationResponse.of(project, invitator, linkTime);
-
     }
 
     public CommonPagingResponse<?> getCoverMetadata(Integer page, Integer size) {
