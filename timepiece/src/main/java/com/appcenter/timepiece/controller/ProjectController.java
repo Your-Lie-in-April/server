@@ -161,7 +161,7 @@ public class ProjectController {
 
     @GetMapping("/v1/covers")
     @Operation(summary = "커버 이미지 메타데이터 조회", description = "")
-    public CommonResponse<?> join(@RequestParam(defaultValue = "0", required = false) Integer page,
+    public CommonResponse<?> getCoverMetadata(@RequestParam(defaultValue = "0", required = false) Integer page,
                                                         @RequestParam(defaultValue = "10", required = false) Integer size) {
         return CommonResponse.success("조회 요청이 성공했습니다.", projectService.getCoverMetadata(page, size));
     }

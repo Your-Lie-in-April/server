@@ -93,7 +93,8 @@ public class SecurityConfig {
             "/login/**", //oauth2 로그인창
             "/swagger-ui/**", //스웨거 명세
             "/v3/api-docs/**", //스웨거 명세
-            "/v1/invitation/{url}" //회원 초대(추가)
+            "/v1/invitation/{url}", //회원 초대(추가)
+            "/cover-image/**"
     };
 
     String[] PERMIT_USER_GET = {
