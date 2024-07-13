@@ -22,4 +22,12 @@ public class Cover {
 
     @OneToMany(mappedBy = "cover")
     private List<Project> projects = new ArrayList<>();
+
+    private Cover(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
+    }
+
+    public static Cover of(String coverImageUrl) {
+        return new Cover(coverImageUrl);
+    }
 }
