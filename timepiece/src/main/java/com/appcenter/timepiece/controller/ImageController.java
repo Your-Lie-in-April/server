@@ -19,10 +19,10 @@ public class ImageController {
 
     private final ImageService imageService;
 
-    @PostMapping(value="/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadImage(@RequestParam("id") String id, @RequestPart("file") MultipartFile file) {
+    @PostMapping(value="/v1/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> uploadImage(@RequestPart("file") MultipartFile file) {
         try {
-            imageService.uploadImage(id, file);
+            imageService.uploadImage(file);
             return ResponseEntity.ok(CommonResponse.success("Image uploaded successfully", null));
         } catch (IOException e) {
             return ResponseEntity.status(500).body(CommonResponse.error("Failed to upload image", null));
@@ -30,7 +30,7 @@ public class ImageController {
     }
 
     @GetMapping("/cover-image/{id}")
-    public ResponseEntity<byte[]> getImage(@PathVariable String id) {
+    public ResponseEntity<byte[]> getCoverImage(@PathVariable String id) {
         Optional<byte[]> imageData = imageService.getImage(id);
         MediaType imageType = imageService.getImageType(id);
         if (imageData.isPresent()) {
