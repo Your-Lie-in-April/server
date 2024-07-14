@@ -12,6 +12,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("")
 @SwaggerApiResponses
@@ -32,20 +34,22 @@ public class NotificationController {
 
     @Operation(summary = "이전 알림 조회", description = "DB에 저장된 알림을 조회합니다.")
     @GetMapping(value = "/v1/notifications")
-    public CommonResponse<?> getNotifications(@RequestParam(defaultValue = "0", required = false) Integer page,
+    public CommonResponse<?> getNotifications(@RequestParam(required = false) LocalDateTime cursor,
+                                              @RequestParam(defaultValue = "false", required = false) Boolean isChecked,
                                        @RequestParam(defaultValue = "12", required = false) Integer size,
                                        @AuthenticationPrincipal UserDetails userDetails) {
-        return CommonResponse.success("알림 조회에 성공했습니다.",notificationService.getNotifications(page, size, userDetails));
+        return CommonResponse.success("알림 조회에 성공했습니다.",notificationService.getNotifications(cursor, isChecked, size, userDetails));
     }
 
     @Operation(summary = "(프로젝트 내)이전 알림 조회", description = "DB에 저장된 특정 프로젝트의 알림을 조회합니다.")
     @GetMapping(value = "/v1/projects/{projectId}/notifications")
-    public CommonResponse<?> getNotificationsInProject(@RequestParam(defaultValue = "0", required = false) Integer page,
-                                       @RequestParam(defaultValue = "12", required = false) Integer size,
-                                       @PathVariable Long projectId,
-                                       @AuthenticationPrincipal UserDetails userDetails) {
+    public CommonResponse<?> getNotificationsInProject(@RequestParam(required = false) LocalDateTime cursor,
+                                                       @RequestParam(defaultValue = "false", required = false) Boolean isChecked,
+                                                       @RequestParam(defaultValue = "12", required = false) Integer size,
+                                                       @PathVariable Long projectId,
+                                                       @AuthenticationPrincipal UserDetails userDetails) {
         return CommonResponse.success("알림 조회에 성공했습니다.",
-                notificationService.getNotificationsInProject(projectId, page, size, userDetails));
+                notificationService.getNotificationsInProject(projectId, cursor, isChecked, size, userDetails));
     }
 
     @Operation(summary = "알림 삭제", description = "notificationId에 해당하는 알림을 삭제합니다.")
