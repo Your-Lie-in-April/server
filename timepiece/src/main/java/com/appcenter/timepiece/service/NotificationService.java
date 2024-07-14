@@ -1,6 +1,6 @@
 package com.appcenter.timepiece.service;
 
-import com.appcenter.timepiece.common.dto.CommonPagingResponse;
+import com.appcenter.timepiece.common.dto.CommonCursorPagingResponse;
 import com.appcenter.timepiece.common.exception.ExceptionMessage;
 import com.appcenter.timepiece.common.exception.NotEnoughPrivilegeException;
 import com.appcenter.timepiece.common.exception.NotFoundElementException;
@@ -17,9 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
@@ -30,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -171,25 +169,29 @@ public class NotificationService {
 
     // todo: paging, sorting, | exclude Checked/Deleted(soft) Notification
     @Transactional
-    public CommonPagingResponse<?> getNotifications(Integer page, Integer size, UserDetails userDetails) {
+    public CommonCursorPagingResponse<?> getNotifications(LocalDateTime cursor, Boolean isChecked, Integer size, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        Sort strategy = Sort.by(Sort.Direction.ASC, "isChecked")
-                .and(Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Notification> notifications = notificationRepository.findByReceiverIdAndIsDeletedIsFalse(PageRequest.of(page, size, strategy), memberId);
+        List<Notification> notifications = notificationRepository.findAllByTimestampAfter(memberId, cursor, isChecked, size+1);
+        Boolean hasMore = notifications.size() > size;
+        if (hasMore) {
+            notifications.remove(notifications.size() - 1);
+        }
         List<NotificationResponse> notificationResponses =  notifications.stream().map(NotificationResponse::from).toList();
-        return new CommonPagingResponse<>(page, size, notifications.getTotalElements(), notifications.getTotalPages(),
-                notificationResponses);
+        LocalDateTime nextCursor = notifications.get(notifications.size() - 1).getCreatedAt();
+        return new CommonCursorPagingResponse<>(size, nextCursor, hasMore, notificationResponses);
     }
 
     @Transactional
-    public CommonPagingResponse<?> getNotificationsInProject(Long projectId, Integer page, Integer size, UserDetails userDetails) {
+    public CommonCursorPagingResponse<?> getNotificationsInProject(Long projectId, LocalDateTime cursor, Boolean isChecked, Integer size, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        Sort strategy = Sort.by(Sort.Direction.ASC, "isChecked")
-                .and(Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Notification> notifications = notificationRepository.findByReceiverIdAndProjectIdAndIsDeletedIsFalse(PageRequest.of(page, size, strategy), memberId, projectId);
+        List<Notification> notifications = notificationRepository.findAllByTimestampAfter(memberId, projectId, cursor, isChecked, size+1);
+        Boolean hasMore = notifications.size() > size;
+        if (hasMore) {
+            notifications.remove(notifications.size() - 1);
+        }
         List<NotificationResponse> notificationResponses =  notifications.stream().map(NotificationResponse::from).toList();
-        return new CommonPagingResponse<>(page, size, notifications.getTotalElements(), notifications.getTotalPages(),
-                notificationResponses);
+        LocalDateTime nextCursor = notifications.get(notifications.size() - 1).getCreatedAt();
+        return new CommonCursorPagingResponse<>(size, nextCursor, hasMore, notificationResponses);
     }
 
     @Transactional
