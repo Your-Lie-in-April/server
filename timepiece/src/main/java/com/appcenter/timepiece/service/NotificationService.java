@@ -173,11 +173,13 @@ public class NotificationService {
         Long memberId = ((CustomUserDetails) userDetails).getId();
         List<Notification> notifications = notificationRepository.findAllByTimestampAfter(memberId, cursor, isChecked, size+1);
         Boolean hasMore = notifications.size() > size;
+        LocalDateTime nextCursor = null;
         if (hasMore) {
             notifications.remove(notifications.size() - 1);
+            nextCursor = notifications.get(notifications.size() - 1).getCreatedAt();
         }
         List<NotificationResponse> notificationResponses =  notifications.stream().map(NotificationResponse::from).toList();
-        LocalDateTime nextCursor = notifications.get(notifications.size() - 1).getCreatedAt();
+
         return new CommonCursorPagingResponse<>(size, nextCursor, hasMore, notificationResponses);
     }
 
@@ -186,11 +188,12 @@ public class NotificationService {
         Long memberId = ((CustomUserDetails) userDetails).getId();
         List<Notification> notifications = notificationRepository.findAllByTimestampAfter(memberId, projectId, cursor, isChecked, size+1);
         Boolean hasMore = notifications.size() > size;
+        LocalDateTime nextCursor = null;
         if (hasMore) {
             notifications.remove(notifications.size() - 1);
+            nextCursor = notifications.get(notifications.size() - 1).getCreatedAt();
         }
         List<NotificationResponse> notificationResponses =  notifications.stream().map(NotificationResponse::from).toList();
-        LocalDateTime nextCursor = notifications.get(notifications.size() - 1).getCreatedAt();
         return new CommonCursorPagingResponse<>(size, nextCursor, hasMore, notificationResponses);
     }
 

@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @Slf4j
 public class NotificationController {
-
     private final NotificationService notificationService;
 
     @Operation(summary = "SSE Connect", description = "SSE 커넥션을 맺습니다.")
@@ -34,7 +33,7 @@ public class NotificationController {
 
     @Operation(summary = "이전 알림 조회", description = "DB에 저장된 알림을 조회합니다.")
     @GetMapping(value = "/v1/notifications")
-    public CommonResponse<?> getNotifications(@RequestParam(required = false) LocalDateTime cursor,
+    public CommonResponse<?> getNotifications(@RequestParam(defaultValue = "#{T(java.time.LocalDateTime).now()}", required = false) LocalDateTime cursor,
                                               @RequestParam(defaultValue = "false", required = false) Boolean isChecked,
                                        @RequestParam(defaultValue = "12", required = false) Integer size,
                                        @AuthenticationPrincipal UserDetails userDetails) {
@@ -43,7 +42,7 @@ public class NotificationController {
 
     @Operation(summary = "(프로젝트 내)이전 알림 조회", description = "DB에 저장된 특정 프로젝트의 알림을 조회합니다.")
     @GetMapping(value = "/v1/projects/{projectId}/notifications")
-    public CommonResponse<?> getNotificationsInProject(@RequestParam(required = false) LocalDateTime cursor,
+    public CommonResponse<?> getNotificationsInProject(@RequestParam(defaultValue = "#{T(java.time.LocalDateTime).now()}", required = false) LocalDateTime cursor,
                                                        @RequestParam(defaultValue = "false", required = false) Boolean isChecked,
                                                        @RequestParam(defaultValue = "12", required = false) Integer size,
                                                        @PathVariable Long projectId,
