@@ -6,6 +6,7 @@ import com.appcenter.timepiece.dto.project.ProjectCreateUpdateRequest;
 import com.appcenter.timepiece.dto.project.TransferPrivilegeRequest;
 import com.appcenter.timepiece.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -87,7 +88,7 @@ public class ProjectController {
 
     @PostMapping("/v1/projects")
     @Operation(summary = "프로젝트 생성", description = "")
-    public ResponseEntity<CommonResponse<?>> createProject(@RequestBody ProjectCreateUpdateRequest request,
+    public ResponseEntity<CommonResponse<?>> createProject(@RequestBody @Valid ProjectCreateUpdateRequest request,
                                                            @AuthenticationPrincipal UserDetails userDetails) {
         projectService.createProject(request, userDetails);
         return ResponseEntity.ok().body(CommonResponse.success("프로젝트 생성 성공", null));
@@ -162,7 +163,7 @@ public class ProjectController {
     @GetMapping("/v1/covers")
     @Operation(summary = "커버 이미지 메타데이터 조회", description = "")
     public CommonResponse<?> getCoverMetadata(@RequestParam(defaultValue = "0", required = false) Integer page,
-                                                        @RequestParam(defaultValue = "10", required = false) Integer size) {
+                                              @RequestParam(defaultValue = "10", required = false) Integer size) {
         return CommonResponse.success("조회 요청이 성공했습니다.", projectService.getCoverMetadata(page, size));
     }
 }
