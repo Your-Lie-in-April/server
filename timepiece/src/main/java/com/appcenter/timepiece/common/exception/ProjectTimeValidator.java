@@ -9,11 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 public class ProjectTimeValidator implements ConstraintValidator<ProjectTimeConstraint, ProjectCreateUpdateRequest> {
 
     @Override
-    public boolean isValid(ProjectCreateUpdateRequest projectDto, ConstraintValidatorContext context) {
-        if (projectDto.getStartTime() == null || projectDto.getEndTime() == null) {
+    public boolean isValid(ProjectCreateUpdateRequest request, ConstraintValidatorContext context) {
+        if (request.getStartTime() == null || request.getEndTime() == null) {
             return true;
         }
 
-        return !projectDto.getEndTime().isBefore(projectDto.getStartTime());
+        return !request.getEndTime().isBefore(request.getStartTime());
     }
 }
