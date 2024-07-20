@@ -174,9 +174,13 @@ public class ProjectService {
     public void updateProject(Long projectId, ProjectCreateUpdateRequest request, UserDetails userDetails) {
         validateRequesterIsPrivileged(projectId, userDetails);
 
+        Cover cover = null;
+        if (request.getCoverImageId() != null && !request.getCoverImageId().isEmpty()) {
+            cover = coverRepository.findById(Long.valueOf(request.getCoverImageId())).orElse(null);
+        }
+
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
-        Cover cover = coverRepository.findById(Long.valueOf(request.getCoverImageId())).orElse(null);
 
         project.updateFrom(request, cover);
     }
