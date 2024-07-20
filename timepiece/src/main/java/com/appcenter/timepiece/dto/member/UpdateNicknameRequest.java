@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @Schema(description = "사용자 닉네임 변경 요청에 사용됩니다.",
         requiredProperties = {"projectId", "nickname"})
 public class UpdateNicknameRequest {
-
     @Schema(description = "프로젝트 식별자", example = "123")
     private Long projectId;
 
