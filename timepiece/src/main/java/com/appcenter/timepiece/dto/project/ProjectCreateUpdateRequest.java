@@ -3,6 +3,7 @@ package com.appcenter.timepiece.dto.project;
 import com.appcenter.timepiece.common.exception.ProjectDateConstraint;
 import com.appcenter.timepiece.common.exception.ProjectTimeConstraint;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -28,6 +29,7 @@ import java.util.Set;
 public class ProjectCreateUpdateRequest {
 
     @Schema(description = "제목", example = "프로젝트 제목입니다.")
+    @NotBlank(message = "제목 입력은 필수입니다.")
     private String title;
 
     @Schema(description = "설명", example = "프로젝트에 대한 설명입니다.")
