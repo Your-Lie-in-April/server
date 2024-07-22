@@ -6,6 +6,7 @@ import com.appcenter.timepiece.dto.schedule.ScheduleDeleteRequest;
 import com.appcenter.timepiece.service.ScheduleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -83,7 +84,7 @@ public class ScheduleController {
     @PostMapping("/v1/projects/{projectId}/schedules")
     @Operation(summary = "스케줄 생성", description = "스케줄을 생성합니다. 주 단위(일요일-토요일)로만 동작합니다.")
     public ResponseEntity<CommonResponse<?>> createSchedule(@PathVariable Long projectId,
-                                                            @RequestBody ScheduleCreateUpdateRequest request,
+                                                            @RequestBody @Valid ScheduleCreateUpdateRequest request,
                                                             @AuthenticationPrincipal UserDetails userDetails) {
         scheduleService.createSchedule(request, projectId, userDetails);
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.success("성공", null));
