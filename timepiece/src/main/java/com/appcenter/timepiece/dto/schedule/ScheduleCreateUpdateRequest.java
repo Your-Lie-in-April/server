@@ -1,6 +1,7 @@
 package com.appcenter.timepiece.dto.schedule;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -55,6 +56,7 @@ public class ScheduleCreateUpdateRequest {
                       ]
                     """)
     @NotEmpty(message = "스케줄은 적어도 하나 이상의 값을 넣어야 저장할 수 있습니다.")
+    @Valid
     private List<ScheduleDayRequest> schedule;
 
     public ScheduleCreateUpdateRequest(List<ScheduleDayRequest> schedule) {
