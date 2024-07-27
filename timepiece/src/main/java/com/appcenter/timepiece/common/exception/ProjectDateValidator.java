@@ -5,7 +5,6 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.extern.slf4j.Slf4j;
 
-
 @Slf4j
 public class ProjectDateValidator implements ConstraintValidator<ProjectDateConstraint, ProjectCreateUpdateRequest> {
 
@@ -15,6 +14,6 @@ public class ProjectDateValidator implements ConstraintValidator<ProjectDateCons
             return true;
         }
 
-        return !request.getEndDate().isBefore(request.getStartDate());
+        return request.getEndDate().isAfter(request.getStartDate());
     }
 }

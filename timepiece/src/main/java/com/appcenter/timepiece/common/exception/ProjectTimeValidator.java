@@ -14,6 +14,6 @@ public class ProjectTimeValidator implements ConstraintValidator<ProjectTimeCons
             return true;
         }
 
-        return !request.getEndTime().isBefore(request.getStartTime());
+        return request.getEndTime().isAfter(request.getStartTime());
     }
 }
