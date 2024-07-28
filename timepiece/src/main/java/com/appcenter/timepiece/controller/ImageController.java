@@ -20,11 +20,12 @@ public class ImageController {
 
     private final ImageService imageService;
 
-    @Operation(summary = "이미지 등록(redis)", hidden = true)
+    @Operation(summary = "이미지 등록(redis)")
     @PostMapping(value="/v1/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadImage(@RequestPart("file") MultipartFile file) {
+    public ResponseEntity<?> uploadImage(@RequestPart("thumbnail") MultipartFile thumbnail,
+                                         @RequestPart("coverImage") MultipartFile coverImage) {
         try {
-            imageService.uploadImage(file);
+            imageService.uploadImage(thumbnail, coverImage);
             return ResponseEntity.ok(CommonResponse.success("Image uploaded successfully", null));
         } catch (IOException e) {
             return ResponseEntity.status(500).body(CommonResponse.error("Failed to upload image", null));

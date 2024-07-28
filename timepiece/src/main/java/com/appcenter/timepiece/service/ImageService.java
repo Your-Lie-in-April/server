@@ -23,11 +23,14 @@ public class ImageService {
     @Value("${server.host}")
     private String host;
 
-    public void uploadImage(MultipartFile file) throws IOException {
-        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-        Cover cover = Cover.of(host + "/cover-image/" + fileName);
-        byte[] imageData = file.getBytes();
-        redisImageTemplate.opsForValue().set(fileName, imageData);
+    public void uploadImage(MultipartFile thumbnail, MultipartFile coverImage) throws IOException {
+        String thumbnailName = UUID.randomUUID() + "_" + thumbnail.getOriginalFilename();
+        String coverName = UUID.randomUUID() + "_" + coverImage.getOriginalFilename();
+        Cover cover = Cover.of(host + "/cover-image/" + thumbnailName, host + "/cover-image/" + coverName);
+        byte[] thumbnailImageData = thumbnail.getBytes();
+        byte[] coverImageData = coverImage.getBytes();
+        redisImageTemplate.opsForValue().set(thumbnailName, thumbnailImageData);
+        redisImageTemplate.opsForValue().set(coverName, coverImageData);
         coverRepository.save(cover);
     }
 
