@@ -36,17 +36,19 @@ public class ProjectResponse {
 
     @Getter
     private static class CoverInfo {
-        private Long coverId;
+        private Long id;
+        private String thumbnailUrl;
         private String coverImageUrl;
 
-        private CoverInfo(Long coverId, String coverImageUrl) {
-            this.coverId = coverId;
+        public CoverInfo(Long thumbnailId, String thumbnailUrl, String coverImageUrl) {
+            this.id = thumbnailId;
+            this.thumbnailUrl = thumbnailUrl;
             this.coverImageUrl = coverImageUrl;
         }
 
         public static CoverInfo of(Cover cover) {
             if (cover == null) return null;
-            return new CoverInfo(cover.getId(), cover.getCoverImageUrl());
+            return new CoverInfo(cover.getId(), cover.getThumbnailUrl(), cover.getCoverImageUrl());
         }
 
     }
