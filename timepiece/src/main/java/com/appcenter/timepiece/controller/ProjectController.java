@@ -26,7 +26,7 @@ public class ProjectController {
      * DB에 저장된 모든 프로젝트를 조회하여 ProjectResponse 타입의 List를 리턴합니다.
      */
     @GetMapping("/v1/projects/all")
-    @Operation(summary = "프로젝트 전체 조회", description = "")
+    @Operation(summary = "프로젝트 전체 조회", description = "Just for test", deprecated = true)
     public ResponseEntity<CommonResponse<?>> findAllForTest() {
         return ResponseEntity.ok().body(CommonResponse.success("전체 프로젝트 조회 성공", projectService.findAll()));
     }
