@@ -2,6 +2,7 @@ package com.appcenter.timepiece.controller;
 
 import com.appcenter.timepiece.common.dto.CommonResponse;
 import com.appcenter.timepiece.service.ImageService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -19,6 +20,7 @@ public class ImageController {
 
     private final ImageService imageService;
 
+    @Operation(summary = "이미지 등록(redis)", hidden = true)
     @PostMapping(value="/v1/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadImage(@RequestPart("file") MultipartFile file) {
         try {
@@ -29,6 +31,7 @@ public class ImageController {
         }
     }
 
+    @Operation(summary = "이미지 조회(Get)", hidden = true)
     @GetMapping("/cover-image/{id}")
     public ResponseEntity<byte[]> getCoverImage(@PathVariable String id) {
         Optional<byte[]> imageData = imageService.getImage(id);
