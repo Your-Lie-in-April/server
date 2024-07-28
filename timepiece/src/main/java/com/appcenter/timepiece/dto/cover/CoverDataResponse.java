@@ -17,6 +17,6 @@ public class CoverDataResponse {
     }
 
     public static CoverDataResponse of(Cover cover) {
-        return new CoverDataResponse(cover.getId() + 10, cover.getCoverImageUrl());
+        return new CoverDataResponse(cover.getId(), cover.getThumbnailUrl());
     }
 }
