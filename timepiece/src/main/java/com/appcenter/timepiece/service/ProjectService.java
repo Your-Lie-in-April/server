@@ -68,7 +68,7 @@ public class ProjectService {
         List<MemberProject> projects = projectPage.getContent();
         List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream()
                 .map(MemberProject::getProject)
-                .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
+                .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getThumbnailUrl()))).toList();
 
         return new CommonPagingResponse<>(page, size, projectPage.getTotalElements(), projectPage.getTotalPages(), projectThumbnailResponses);
     }
@@ -112,7 +112,7 @@ public class ProjectService {
         Page<Project> projectPage = projectRepository.searchProjects(memberId, keyword, isStored, pageable);
         List<Project> projects = projectPage.getContent();
         List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream()
-                .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
+                .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getThumbnailUrl()))).toList();
         return new CommonPagingResponse<>(page, size, projectPage.getTotalElements(), projectPage.getTotalPages(), projectThumbnailResponses);
 
     }
@@ -309,7 +309,7 @@ public class ProjectService {
         List<Project> projects = projectPage.getContent();
 
         List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream().map(p ->
-                ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
+                ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getThumbnailUrl()))).toList();
         return new CommonPagingResponse<>(page, size, projectPage.getTotalElements(), projectPage.getTotalPages(), projectThumbnailResponses);
     }
 

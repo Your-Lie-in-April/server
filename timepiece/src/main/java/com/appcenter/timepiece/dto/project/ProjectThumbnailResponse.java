@@ -16,25 +16,25 @@ public class ProjectThumbnailResponse {
 
     private String color;
 
-    private String coverImageUrl;
+    private String thumbnailUrl;
 
     @Builder(access = AccessLevel.PRIVATE)
     private ProjectThumbnailResponse(Long projectId, String title, String description,
-                                     String color, String coverImageUrl) {
+                                     String color, String thumbnailUrl) {
         this.projectId = projectId;
         this.title = title;
         this.description = description;
         this.color = color;
-        this.coverImageUrl = coverImageUrl;
+        this.thumbnailUrl = thumbnailUrl;
     }
 
-    public static ProjectThumbnailResponse of(Project project, String coverImageUrl) {
+    public static ProjectThumbnailResponse of(Project project, String thumbnailUrl) {
         return ProjectThumbnailResponse.builder()
                 .projectId(project.getId())
                 .title(project.getTitle())
                 .description(project.getDescription())
                 .color(project.getColor())
-                .coverImageUrl(coverImageUrl)
+                .thumbnailUrl(thumbnailUrl)
                 .build();
     }
 }
