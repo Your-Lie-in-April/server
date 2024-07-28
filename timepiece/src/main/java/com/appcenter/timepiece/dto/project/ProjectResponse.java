@@ -1,5 +1,6 @@
 package com.appcenter.timepiece.dto.project;
 
+import com.appcenter.timepiece.domain.Cover;
 import com.appcenter.timepiece.domain.Project;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -29,16 +30,33 @@ public class ProjectResponse {
 
     private Set<DayOfWeek> daysOfWeek;
 
-    private String coverImageUrl;
+    private CoverInfo coverInfo;
 
     private String color;
+
+    @Getter
+    private static class CoverInfo {
+        private Long coverId;
+        private String coverImageUrl;
+
+        private CoverInfo(Long coverId, String coverImageUrl) {
+            this.coverId = coverId;
+            this.coverImageUrl = coverImageUrl;
+        }
+
+        public static CoverInfo of(Cover cover) {
+            if (cover == null) return null;
+            return new CoverInfo(cover.getId(), cover.getCoverImageUrl());
+        }
+
+    }
 
     @Builder(access = AccessLevel.PRIVATE)
     private ProjectResponse(Long projectId, String title, String description,
                             LocalDate startDate, LocalDate endDate,
                             LocalTime startTime, LocalTime endTime,
                             Set<DayOfWeek> daysOfWeek,
-                            String coverImageUrl, String color) {
+                            CoverInfo coverInfo, String color) {
         this.projectId = projectId;
         this.title = title;
         this.description = description;
@@ -47,11 +65,11 @@ public class ProjectResponse {
         this.startTime = startTime;
         this.endTime = endTime;
         this.daysOfWeek = daysOfWeek;
-        this.coverImageUrl = coverImageUrl;
+        this.coverInfo = coverInfo;
         this.color = color;
     }
 
-    public static ProjectResponse of(Project project, String coverImageUrl) {
+    public static ProjectResponse of(Project project, Cover cover) {
         return ProjectResponse.builder()
                 .projectId(project.getId())
                 .title(project.getTitle())
@@ -61,7 +79,7 @@ public class ProjectResponse {
                 .startTime(project.getStartTime())
                 .endTime(project.getEndTime())
                 .daysOfWeek(project.getDaysOfWeek())
-                .coverImageUrl(coverImageUrl)
+                .coverInfo(CoverInfo.of(cover))
                 .color(project.getColor())
                 .build();
     }
