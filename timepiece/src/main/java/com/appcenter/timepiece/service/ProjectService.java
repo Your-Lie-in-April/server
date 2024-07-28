@@ -42,10 +42,10 @@ public class ProjectService {
     private final MemberProjectRepository memberProjectRepository;
     private final NotificationService notificationService;
 
+    @Transactional(readOnly = true)
     public List<ProjectResponse> findAll() {
         return projectRepository.findAllWithCover().stream().map(p ->
-                ProjectResponse.of(p,
-                        ((p.getCover() == null) ? null : p.getCover().getCoverImageUrl()))).toList();
+                ProjectResponse.of(p, p.getCover())).toList();
     }
 
     @Transactional(readOnly = true)
@@ -53,8 +53,7 @@ public class ProjectService {
         validateMemberIsInProject(projectId, userDetails);
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
-        Cover cover = project.getCover();
-        return ProjectResponse.of(project, (cover == null) ? null : cover.getCoverImageUrl());
+        return ProjectResponse.of(project, project.getCover());
     }
 
     /**
