@@ -57,6 +57,7 @@ public class ProjectController {
     }
 
     @GetMapping("/v1/projects/members/{memberId}/{keyword}")
+    @Operation(summary = "프로젝트 검색", description = "")
     public ResponseEntity<CommonResponse<?>> searchProjects(@RequestParam(defaultValue = "0", required = false) Integer page,
                                                             @RequestParam(defaultValue = "6", required = false) Integer size,
                                                             @PathVariable Long memberId,
