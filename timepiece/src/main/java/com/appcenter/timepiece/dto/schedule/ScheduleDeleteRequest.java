@@ -15,7 +15,7 @@ import java.time.LocalDate;
 public class ScheduleDeleteRequest {
 
     @Schema(description = "프로젝트 식별자", example = "1")
-    @NotBlank(message = "프로젝트 식별자 입력은 필수입니다.")
+    @NotBlank(message = "프로젝트 선택은 필수입니다.")
     private Long projectId;
 
     @Schema(description = "시작일", example = "2024-01-29")

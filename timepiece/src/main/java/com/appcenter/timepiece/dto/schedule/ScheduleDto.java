@@ -9,10 +9,10 @@ import java.time.LocalDateTime;
 @Getter
 public class ScheduleDto {
 
-    @NotNull(message = "프로젝트 시작 날짜를 입력 해 주세요.")
+    @NotNull(message = "시작 날짜를 입력은 필수입니다.")
     private LocalDateTime startTime;
 
-    @NotNull(message = "프로젝트 마지막 날짜를 입력 해 주세요.")
+    @NotNull(message = "종료 날짜 입력은 필수입니다.")
     private LocalDateTime endTime;
 
     public ScheduleDto(LocalDateTime startTime, LocalDateTime endTime) {

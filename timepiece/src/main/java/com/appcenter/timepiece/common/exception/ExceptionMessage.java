@@ -49,7 +49,6 @@ public enum ExceptionMessage {
         return message;
     }
 
-
     public Integer getErrorCode() {
         return errorCode;
     }
