@@ -6,6 +6,7 @@ import com.appcenter.timepiece.common.security.CustomUserDetails;
 import com.appcenter.timepiece.domain.Member;
 import com.appcenter.timepiece.domain.MemberProject;
 import com.appcenter.timepiece.dto.member.MemberResponse;
+import com.appcenter.timepiece.dto.member.UpdateNicknameRequest;
 import com.appcenter.timepiece.repository.MemberProjectRepository;
 import com.appcenter.timepiece.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -61,13 +62,13 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponse editMemberNickname(Long projectId, String nickName, UserDetails userDetails) {
+    public MemberResponse editMemberNickname(UpdateNicknameRequest updateNicknameRequest, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
 
-        MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
+        MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, updateNicknameRequest.getProjectId())
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
 
-        memberProject.editNickName(nickName);
+        memberProject.editNickName(updateNicknameRequest.getNickname());
         memberProjectRepository.save(memberProject);
         return MemberResponse.of(memberProject.getMember(), memberProject);
     }

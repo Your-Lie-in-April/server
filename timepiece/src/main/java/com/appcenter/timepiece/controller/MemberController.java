@@ -2,9 +2,11 @@ package com.appcenter.timepiece.controller;
 
 import com.appcenter.timepiece.common.dto.CommonResponse;
 import com.appcenter.timepiece.config.SwaggerApiResponses;
+import com.appcenter.timepiece.dto.member.UpdateNicknameRequest;
 import com.appcenter.timepiece.service.MemberService;
 import com.appcenter.timepiece.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -43,16 +45,16 @@ public class MemberController {
     @PutMapping(value = "/v1/projects/members/nickname")
     @Operation(summary = "닉네임 재설정", description = "", deprecated = true)
     @SwaggerApiResponses
-    public ResponseEntity<CommonResponse> editUserNickname(Long projectId, String nickname, @AuthenticationPrincipal UserDetails userDetails) {
-        memberService.editMemberNickname(projectId, nickname, userDetails);
+    public ResponseEntity<CommonResponse> editUserNickname(@RequestBody @Valid UpdateNicknameRequest updateNicknameRequest, @AuthenticationPrincipal UserDetails userDetails) {
+        memberService.editMemberNickname(updateNicknameRequest, userDetails);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
     }
 
     @PutMapping(value = "/v2/projects/members/nickname")
     @Operation(summary = "닉네임 재설정 v2", description = "")
     @SwaggerApiResponses
-    public CommonResponse<?> editUserNickname2(Long projectId, String nickname, @AuthenticationPrincipal UserDetails userDetails) {
-        return CommonResponse.success("사용자 닉네임 수정 성공했습니다.", memberService.editMemberNickname(projectId, nickname, userDetails));
+    public CommonResponse<?> editUserNickname2(@RequestBody @Valid UpdateNicknameRequest updateNicknameRequest, @AuthenticationPrincipal UserDetails userDetails) {
+        return CommonResponse.success("사용자 닉네임 수정 성공했습니다.", memberService.editMemberNickname(updateNicknameRequest, userDetails));
     }
 
     @PutMapping(value = "/v1/members/{state}")
