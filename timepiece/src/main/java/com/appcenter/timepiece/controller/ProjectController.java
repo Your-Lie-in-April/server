@@ -52,7 +52,8 @@ public class ProjectController {
 
     @GetMapping("/v1/projects/members/{memberId}/pin")
     @Operation(summary = "핀 설정된 프로젝트 조회(+시간표)", description = "")
-    public ResponseEntity<CommonResponse<?>> findPinProjects(@PathVariable Long memberId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<CommonResponse<?>> findPinProjects(@PathVariable Long memberId,
+                                                             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok().body(CommonResponse.success("핀 설정된 프로젝트 조회 성공",
                 projectService.findPinProjects(memberId, userDetails)));
     }
@@ -81,7 +82,8 @@ public class ProjectController {
     @Operation(summary = "보관 프로젝트 목록 조회", description = "")
     public ResponseEntity<CommonResponse<?>> findStoredProjects(
             @RequestParam(defaultValue = "0", required = false) Integer page,
-            @RequestParam(defaultValue = "9", required = false) Integer size, @AuthenticationPrincipal UserDetails userDetails) {
+            @RequestParam(defaultValue = "9", required = false) Integer size,
+            @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok().body(CommonResponse.success("보관 프로젝트 목록 조회 성공",
                 projectService.findStoredProjects(page, size, userDetails)));
     }
@@ -105,7 +107,7 @@ public class ProjectController {
     @PutMapping("/v1/projects/{projectId}")
     @Operation(summary = "프로젝트 수정", description = "")
     public ResponseEntity<CommonResponse<?>> updateProject(@PathVariable Long projectId,
-                                                           @RequestBody ProjectCreateUpdateRequest request,
+                                                           @RequestBody @Valid ProjectCreateUpdateRequest request,
                                                            @AuthenticationPrincipal UserDetails userDetails) {
         projectService.updateProject(projectId, request, userDetails);
         return ResponseEntity.ok().body(CommonResponse.success("프로젝트 수정 성공", null));
@@ -146,7 +148,7 @@ public class ProjectController {
     @PatchMapping("/v1/projects/{projectId}/transfer-privilege")
     @Operation(summary = "관리자 권한 양도", description = "")
     public CommonResponse<Void> transferPrivilege(@PathVariable Long projectId,
-                                                  @RequestBody TransferPrivilegeRequest request,
+                                                  @RequestBody @Valid TransferPrivilegeRequest request,
                                                   @AuthenticationPrincipal UserDetails userDetails) {
         projectService.transferPrivilege(projectId, request, userDetails);
         return CommonResponse.success("프로젝트 관리 권한을 양도하였습니다.", null);
