@@ -8,15 +8,18 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CoverDataResponse {
-    Long id;
-    String url;
 
-    private CoverDataResponse(Long id, String url) {
+    private Long id;
+    private String thumbnailUrl;
+    private String coverImageUrl;
+
+    private CoverDataResponse(Long id, String thumbnailUrl, String coverImageUrl) {
         this.id = id;
-        this.url = url;
+        this.thumbnailUrl = thumbnailUrl;
+        this.coverImageUrl = coverImageUrl;
     }
 
     public static CoverDataResponse of(Cover cover) {
-        return new CoverDataResponse(cover.getId(), cover.getThumbnailUrl());
+        return new CoverDataResponse(cover.getId(), cover.getThumbnailUrl(), cover.getCoverImageUrl());
     }
 }
