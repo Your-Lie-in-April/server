@@ -1,7 +1,9 @@
 package com.appcenter.timepiece.common.exception;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+@Getter
 public enum ExceptionMessage {
     TOKEN_EXPIRED("토큰이 만료되었습니다.", 0, HttpStatus.UNAUTHORIZED),
     TOKEN_NOT_AUTHORIZED("권한이 없습니다", 0, HttpStatus.FORBIDDEN),
@@ -13,7 +15,7 @@ public enum ExceptionMessage {
     MEMBER_PROJECT_NOT_FOUND("멤버-프로젝트가 존재하지 않습니다.", 0, HttpStatus.NOT_FOUND),
     MEMBER_UNAUTHENTICATED("접근 권한이 없는 페이지입니다.", 0, HttpStatus.UNAUTHORIZED),
     PROJECT_NOT_FOUND("프로젝트가 존재하지 않습니다.", 0, HttpStatus.NOT_FOUND),
-    IS_NOT_SAME_DAY("startTime과 endTime의 날짜가 다름", 0, HttpStatus.BAD_REQUEST),
+    IS_NOT_SAME_DAY("startTime과 endTime의 날짜가 다릅니다.", 0, HttpStatus.BAD_REQUEST),
     INVALID_PROJECT_DAY_OF_WEEK("프로젝트 수행일이 아님", 0, HttpStatus.BAD_REQUEST),
     INVALID_TIME_SEQUENCE("startTime이 endTime 이후일 수 없습니다.", 0, HttpStatus.BAD_REQUEST),
     INVALID_PROJECT_TIME("스케줄 작성 요청이 프로젝트 수행 시간을 벗어납니다.", 0, HttpStatus.BAD_REQUEST),
@@ -29,7 +31,8 @@ public enum ExceptionMessage {
     ADMIN_LEAVE("관리자는 나갈 수 없습니다", 0, HttpStatus.BAD_REQUEST),
     NOT_MEMBER("속하지 않은 프로젝트 정보를 조회할 수 없습니다.", 0, HttpStatus.BAD_REQUEST),
     INTERSECT_TIME("ScheduleDto 간 중복/교차되는 시간이 들어왔습니다.", 0, HttpStatus.BAD_REQUEST),
-    NOTIFICATION_NOT_FOUND("알림이 존재하지 않습니다.", 0, HttpStatus.NOT_FOUND);
+    NOTIFICATION_NOT_FOUND("알림이 존재하지 않습니다.", 0, HttpStatus.NOT_FOUND),
+    FAILED_VALIDATION("유효성 검사 실패", 0, HttpStatus.BAD_REQUEST);
 
 
     private final String message;

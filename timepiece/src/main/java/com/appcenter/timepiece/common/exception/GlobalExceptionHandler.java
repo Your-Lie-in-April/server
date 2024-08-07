@@ -3,15 +3,19 @@ package com.appcenter.timepiece.common.exception;
 import com.appcenter.timepiece.common.dto.CommonResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @Slf4j
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = NotFoundElementException.class)
     public ResponseEntity<CommonResponse> handleNotFoundElementException(NotFoundElementException ex) {
@@ -61,9 +65,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponse.error(e.getMessage(), null));
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<CommonResponse<?>> handleInValidElementException(MethodArgumentNotValidException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponse.error("유효성 검사 실패", e.getBindingResult().getAllErrors().get(0).getDefaultMessage()));
-    }
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        String errorMessage = ex.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+        log.error("유효성 검사 실패: {}", errorMessage);
 
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponse.error(ExceptionMessage.FAILED_VALIDATION.getMessage(), errorMessage));
+    }
 }
