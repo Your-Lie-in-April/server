@@ -2,6 +2,7 @@ package com.appcenter.timepiece.dto.member;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
         requiredProperties = {"projectId", "nickname"})
 public class UpdateNicknameRequest {
     @Schema(description = "프로젝트 식별자", example = "123")
-    @NotBlank(message = "프로젝트 선택은 필수입니다.")
+    @NotNull(message = "프로젝트 선택은 필수입니다.")
     private Long projectId;
 
     @Schema(description = "변경할 닉네임(To)", example = "나무")
