@@ -1,5 +1,6 @@
 package com.appcenter.timepiece.dto.project;
 
+import com.appcenter.timepiece.common.exception.ProjectCoverConstraint;
 import com.appcenter.timepiece.common.exception.ProjectDateConstraint;
 import com.appcenter.timepiece.common.exception.ProjectTimeConstraint;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,6 +27,7 @@ import java.util.Set;
                 "color", "coverImageId"})
 @ProjectDateConstraint(message = "프로젝트 종료일은 시작일을 앞설 수 없습니다.")
 @ProjectTimeConstraint(message = "프로젝트 종료시간은 시작시간을 앞설 수 없습니다.")
+@ProjectCoverConstraint(message = "프로젝트 커버로 이미지와 색상 중 하나를 선택 해 주세요")
 public class ProjectCreateUpdateRequest {
 
     @Schema(description = "제목", example = "프로젝트 제목입니다.")
