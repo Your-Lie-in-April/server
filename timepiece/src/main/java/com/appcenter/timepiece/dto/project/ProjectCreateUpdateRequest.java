@@ -56,7 +56,7 @@ public class ProjectCreateUpdateRequest {
     private Set<DayOfWeek> daysOfWeek;
 
     @Schema(description = "배경색", example = "#FFFFFF")
-    @Pattern(regexp = "^#([A-Fa-f0-9]{6})$", message = "유효하지 않은 색상 코드입니다.")
+    @Pattern(regexp = "^$|^#([A-Fa-f0-9]{6})$", message = "유효하지 않은 색상 코드입니다.")
     private String color = "#000000";
 
     @Schema(description = "커버 이미지 식별자", example = "10")
