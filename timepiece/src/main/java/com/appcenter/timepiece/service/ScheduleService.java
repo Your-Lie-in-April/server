@@ -289,6 +289,10 @@ public class ScheduleService {
         }
     }
 
+    /**
+     * 전날 Schedule이 다음날 00시에 종료하고, 다음날 Schedule이 존재한다면? -> StartTime으로만 확인한다.
+     * @param req
+     */
     private void validateIsIdenticalDayPerWeek(ScheduleCreateUpdateRequest req) {
         Set<LocalDate> set = new HashSet<>();
         for (ScheduleDayRequest scheduleDayRequest : req.getSchedule()) {
@@ -299,6 +303,11 @@ public class ScheduleService {
         }
     }
 
+    /**
+     * 마지막날 24시 -> (마지막+1)일 00시는 허용토록 해야한다.
+     * @param req
+     * @param project
+     */
     private void validateIsAppropriatePeriodPerWeek(ScheduleCreateUpdateRequest req, Project project) {
         List<LocalDate> dates = req.getSchedule().stream()
                 .map(scheduleDayRequest ->
@@ -347,6 +356,12 @@ public class ScheduleService {
         }
     }
 
+    /**
+     * startTime으로 비교
+     * 주의: 스케줄 생성 요청에 24시(00시)가 포함되는 경우, endTime에는 허용 요일의 다음날 00시가 포함될 수 있음
+     * @param req
+     * @param project
+     */
     private void validateIsAppropriateDayOfWeekPerDay(ScheduleDayRequest req, Project project) {
         Set<DayOfWeek> dayOfWeeks = project.getDaysOfWeek();
         DayOfWeek day = req.getSchedule().get(0).getStartTime().getDayOfWeek();
@@ -378,8 +393,7 @@ public class ScheduleService {
         LocalTime endTime = endDateTime.toLocalTime();
 
         validateIsMultipleOfHalfHourPerSchedule(startTime, endTime);
-        validateTimeSequencePerSchedule(startTime, endTime);
-        validateIsSameDayPerSchedule(startDate, endDate);
+        validateIsSameDayAndTimeSequencePerSchedule(startDate, startTime, endDate, endTime);
         validateIsAppropriateTimePerSchedule(startTime, endTime, project);
     }
 
@@ -389,20 +403,51 @@ public class ScheduleService {
         }
     }
 
-    private void validateTimeSequencePerSchedule(LocalTime startTime, LocalTime endTime) {
-        if (startTime.isAfter(endTime)) {
+//    private void validateTimeSequencePerSchedule(LocalTime startTime, LocalTime endTime) {
+//        if (startTime.isAfter(endTime)) {
+//            throw new IllegalArgumentException(ExceptionMessage.INVALID_TIME_SEQUENCE.getMessage());
+//        }
+//    }
+
+//    private void validateIsSameDayPerSchedule(LocalDate startDate, LocalDate endDate) {
+//        if (!Objects.equals(startDate, endDate)) {
+//            throw new IllegalArgumentException(ExceptionMessage.IS_NOT_SAME_DAY.getMessage());
+//        }
+//    }
+
+    /**
+     *
+     * @param startDate
+     * @param startTime
+     * @param endDate
+     * @param endTime
+     */
+    private void validateIsSameDayAndTimeSequencePerSchedule(LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+        if (endTime.equals(LocalTime.MIN)) {
+            if (startDate.plusDays(1).equals(endDate)) {
+                return;
+            }
             throw new IllegalArgumentException(ExceptionMessage.INVALID_TIME_SEQUENCE.getMessage());
         }
-    }
-
-    private void validateIsSameDayPerSchedule(LocalDate startDate, LocalDate endDate) {
-        if (!Objects.equals(startDate, endDate)) {
-            throw new IllegalArgumentException(ExceptionMessage.IS_NOT_SAME_DAY.getMessage());
+        if (Objects.equals(startDate, endDate))  {
+            if (startTime.isAfter(endTime)) {
+                throw new IllegalArgumentException(ExceptionMessage.INVALID_TIME_SEQUENCE.getMessage());
+            }
+            return;
         }
+        throw new IllegalArgumentException(ExceptionMessage.IS_NOT_SAME_DAY.getMessage());
     }
 
+    /**
+     * 프로젝트 종료 시간이 00시인 경우 처리가 필요합니다.
+     * @param startTime
+     * @param endTime
+     * @param project
+     */
     private void validateIsAppropriateTimePerSchedule(LocalTime startTime, LocalTime endTime, Project project) {
-        if (startTime.isBefore(project.getStartTime()) || endTime.isAfter(project.getEndTime())) {
+        LocalTime lastTime = (project.getEndTime().equals(LocalTime.MIN)) ?
+                LocalTime.of(23,59, 59, 59) : project.getEndTime();
+        if (startTime.isBefore(project.getStartTime()) || endTime.isAfter(lastTime)) {
             throw new IllegalArgumentException(ExceptionMessage.INVALID_PROJECT_TIME.getMessage());
         }
     }
