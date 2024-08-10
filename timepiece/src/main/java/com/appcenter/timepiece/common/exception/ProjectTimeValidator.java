@@ -10,7 +10,12 @@ public class ProjectTimeValidator implements ConstraintValidator<ProjectTimeCons
 
     @Override
     public boolean isValid(ProjectCreateUpdateRequest request, ConstraintValidatorContext context) {
+
         if (request.getStartTime() == null || request.getEndTime() == null) {
+            return true;
+        }
+
+        if (request.getEndTime().toString().equals("00:00") && !request.getStartTime().toString().equals("00:00")) {
             return true;
         }
 
