@@ -316,10 +316,7 @@ public class ScheduleService {
         if (dates.get(0).isBefore(project.getStartDate()) || dates.get(dates.size() - 1).isAfter(project.getEndDate())) {
             throw new IllegalArgumentException(ExceptionMessage.INVALID_PROJECT_PERIOD.getMessage());
         }
-
-
     }
-
 
     /**
      * ScheduleCreateUpdateRequest 일(Day) 단위 검증 <br>
@@ -370,7 +367,6 @@ public class ScheduleService {
         }
     }
 
-
     /**
      * ScheduleCreateUpdateRequest ScheduleDto 단위 검증 <br>
      * 수행목록 <br>
@@ -403,20 +399,9 @@ public class ScheduleService {
         }
     }
 
-//    private void validateTimeSequencePerSchedule(LocalTime startTime, LocalTime endTime) {
-//        if (startTime.isAfter(endTime)) {
-//            throw new IllegalArgumentException(ExceptionMessage.INVALID_TIME_SEQUENCE.getMessage());
-//        }
-//    }
-
-//    private void validateIsSameDayPerSchedule(LocalDate startDate, LocalDate endDate) {
-//        if (!Objects.equals(startDate, endDate)) {
-//            throw new IllegalArgumentException(ExceptionMessage.IS_NOT_SAME_DAY.getMessage());
-//        }
-//    }
-
     /**
-     *
+     * 스케줄 생성 요청의 endTime이 자정일 경우, endDate가 startDate 보다 하루 이후여야 합니다.
+     * 자정이 아닐 경우, 동일 날짜이고 startTime < endTime을 만족해야 합니다.
      * @param startDate
      * @param startTime
      * @param endDate
