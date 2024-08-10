@@ -59,7 +59,7 @@ public class ProjectController {
     }
 
     @GetMapping("/v1/projects/members/{memberId}/{keyword}")
-    @Operation(summary = "프로젝트 검색", description = "")
+    @Operation(summary = "프로젝트 검색", description = "", deprecated = true)
     public ResponseEntity<CommonResponse<?>> searchProjects(@RequestParam(defaultValue = "0", required = false) Integer page,
                                                             @RequestParam(defaultValue = "6", required = false) Integer size,
                                                             @PathVariable Long memberId,
@@ -70,7 +70,19 @@ public class ProjectController {
                 projectService.searchProjects(page, size, isStored, memberId, keyword, userDetails)));
     }
 
-    // todo: 해당 기능은 Project가 아닌 Member의 책임이 아닐까?
+    @GetMapping("/v2/projects/members/{memberId}")
+    @Operation(summary = "프로젝트 검색", description = "")
+    public ResponseEntity<CommonResponse<?>> searchProjectsParam(@RequestParam(defaultValue = "0", required = false) Integer page,
+                                                                 @RequestParam(defaultValue = "6", required = false) Integer size,
+                                                                 @RequestParam String keyword,
+                                                                 @PathVariable Long memberId,
+                                                                 @RequestParam(defaultValue = "false", required = false) Boolean isStored,
+                                                                 @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok().body(CommonResponse.success("프로젝트 검색 성공",
+                projectService.searchProjects(page, size, isStored, memberId, keyword, userDetails)));
+    }
+
+    // TODO: 해당 기능은 PROJECT가 아닌 MEMBER의 책임이 아닐까?
     @GetMapping("/v1/projects/{projectId}/members")
     @Operation(summary = "프로젝트에 속해있는 유저 전체 조회", description = "")
     public ResponseEntity<CommonResponse<?>> findMembersInProject(@PathVariable Long projectId,
