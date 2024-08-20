@@ -7,8 +7,6 @@ import com.appcenter.timepiece.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -28,24 +26,24 @@ public class MemberController {
     @GetMapping(value = "/v1/members/all")
     @Operation(summary = "멤버 전체 조회", description = "현재 서비스에 가입되어있는 멤버를 모두 조회한다.")
     @SwaggerApiResponses
-    public ResponseEntity<CommonResponse> allUsers() {
+    public CommonResponse<?> allUsers() {
 
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", memberService.getAllMember()));
+        return CommonResponse.success("성공", memberService.getAllMember());
     }
 
     @GetMapping(value = "/v1/members/{memberId}")
     @Operation(summary = "멤버 정보 조회", description = "")
     @SwaggerApiResponses
-    public ResponseEntity<CommonResponse> MemberInfo(@PathVariable Long memberId) {
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", memberService.getMemberInfo(memberId)));
+    public CommonResponse<?> MemberInfo(@PathVariable Long memberId) {
+        return CommonResponse.success("성공", memberService.getMemberInfo(memberId));
     }
 
     @PutMapping(value = "/v1/projects/members/nickname")
     @Operation(summary = "닉네임 재설정", description = "", deprecated = true)
     @SwaggerApiResponses
-    public ResponseEntity<CommonResponse> editUserNickname(Long projectId, String nickname, @AuthenticationPrincipal UserDetails userDetails) {
+    public CommonResponse<?> editUserNickname(Long projectId, String nickname, @AuthenticationPrincipal UserDetails userDetails) {
         memberService.editMemberNickname(projectId, nickname, userDetails);
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
+        return CommonResponse.success("성공", null);
     }
 
     @PutMapping(value = "/v2/projects/members/nickname")
@@ -58,9 +56,9 @@ public class MemberController {
     @PutMapping(value = "/v1/members/{state}")
     @Operation(summary = "상태메시지 설정", description = "")
     @SwaggerApiResponses
-    public ResponseEntity<CommonResponse> editUserState(@PathVariable String state, @AuthenticationPrincipal UserDetails userDetails) {
+    public CommonResponse<?> editUserState(@PathVariable String state, @AuthenticationPrincipal UserDetails userDetails) {
         memberService.editMemberState(state, userDetails);
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
+        return CommonResponse.success("성공", null);
 
     }
 
@@ -68,9 +66,9 @@ public class MemberController {
     @Operation(summary = "프로젝트 보관 설정/해제", description = "")
     @SwaggerApiResponses
     @Deprecated
-    public ResponseEntity<CommonResponse> storeProject(@PathVariable Long projectId, @AuthenticationPrincipal UserDetails userDetails) {
+    public CommonResponse<?> storeProject(@PathVariable Long projectId, @AuthenticationPrincipal UserDetails userDetails) {
         memberService.storeProject(projectId, userDetails);
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
+        return CommonResponse.success("성공", null);
     }
 
     @PatchMapping("/v2/members/storage/{projectId}")

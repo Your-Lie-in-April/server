@@ -28,77 +28,77 @@ public class ProjectController {
      */
     @GetMapping("/v1/projects/all")
     @Operation(summary = "프로젝트 전체 조회", description = "Just for test", deprecated = true)
-    public ResponseEntity<CommonResponse<?>> findAllForTest() {
-        return ResponseEntity.ok().body(CommonResponse.success("전체 프로젝트 조회 성공", projectService.findAll()));
+    public CommonResponse<?> findAllForTest() {
+        return CommonResponse.success("전체 프로젝트 조회 성공", projectService.findAll());
     }
 
     @GetMapping("/v1/projects/{projectId}")
     @Operation(summary = "프로젝트 정보 조회", description = "프로젝트의 상세 정보를 조회합니다.")
-    public ResponseEntity<CommonResponse<?>> findProject(@PathVariable Long projectId,
-                                                         @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok().body(CommonResponse.success("프로젝트 조회 성공", projectService.findProject(projectId, userDetails)));
+    public CommonResponse<?> findProject(@PathVariable Long projectId,
+                                         @AuthenticationPrincipal UserDetails userDetails) {
+        return CommonResponse.success("프로젝트 조회 성공", projectService.findProject(projectId, userDetails));
     }
 
     @GetMapping("/v1/projects/members/{memberId}")
     @Operation(summary = "소속 프로젝트 전체 조회(썸네일)", description = "")
-    public ResponseEntity<CommonResponse<?>> findProjects(
+    public CommonResponse<?> findProjects(
             @RequestParam(defaultValue = "0", required = false) Integer page,
             @RequestParam(defaultValue = "6", required = false) Integer size,
             @PathVariable Long memberId, @AuthenticationPrincipal UserDetails userDetails) {
 
-        return ResponseEntity.ok().body(CommonResponse.success("프로젝트 목록 조회 성공",
-                projectService.findProjects(page, size, memberId, userDetails)));
+        return CommonResponse.success("프로젝트 목록 조회 성공",
+                projectService.findProjects(page, size, memberId, userDetails));
     }
 
     @GetMapping("/v1/projects/members/{memberId}/pin")
     @Operation(summary = "핀 설정된 프로젝트 조회(+시간표)", description = "")
-    public ResponseEntity<CommonResponse<?>> findPinProjects(@PathVariable Long memberId,
-                                                             @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok().body(CommonResponse.success("핀 설정된 프로젝트 조회 성공",
-                projectService.findPinProjects(memberId, userDetails)));
+    public CommonResponse<?> findPinProjects(@PathVariable Long memberId,
+                                             @AuthenticationPrincipal UserDetails userDetails) {
+        return CommonResponse.success("핀 설정된 프로젝트 조회 성공",
+                projectService.findPinProjects(memberId, userDetails));
     }
 
     @GetMapping("/v1/projects/members/{memberId}/{keyword}")
     @Operation(summary = "프로젝트 검색", description = "", deprecated = true)
-    public ResponseEntity<CommonResponse<?>> searchProjects(@RequestParam(defaultValue = "0", required = false) Integer page,
-                                                            @RequestParam(defaultValue = "6", required = false) Integer size,
-                                                            @PathVariable Long memberId,
-                                                            @PathVariable String keyword,
-                                                            @RequestParam(defaultValue = "false", required = false) Boolean isStored,
-                                                            @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok().body(CommonResponse.success("프로젝트 검색 성공",
-                projectService.searchProjects(page, size, isStored, memberId, keyword, userDetails)));
+    public CommonResponse<?> searchProjects(@RequestParam(defaultValue = "0", required = false) Integer page,
+                                            @RequestParam(defaultValue = "6", required = false) Integer size,
+                                            @PathVariable Long memberId,
+                                            @PathVariable String keyword,
+                                            @RequestParam(defaultValue = "false", required = false) Boolean isStored,
+                                            @AuthenticationPrincipal UserDetails userDetails) {
+        return CommonResponse.success("프로젝트 검색 성공",
+                projectService.searchProjects(page, size, isStored, memberId, keyword, userDetails));
     }
 
     @GetMapping("/v2/projects/members/{memberId}")
     @Operation(summary = "프로젝트 검색", description = "")
-    public ResponseEntity<CommonResponse<?>> searchProjectsParam(@RequestParam(defaultValue = "0", required = false) Integer page,
-                                                                 @RequestParam(defaultValue = "6", required = false) Integer size,
-                                                                 @RequestParam String keyword,
-                                                                 @PathVariable Long memberId,
-                                                                 @RequestParam(defaultValue = "false", required = false) Boolean isStored,
-                                                                 @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok().body(CommonResponse.success("프로젝트 검색 성공",
-                projectService.searchProjects(page, size, isStored, memberId, keyword, userDetails)));
+    public CommonResponse<?> searchProjectsParam(@RequestParam(defaultValue = "0", required = false) Integer page,
+                                                 @RequestParam(defaultValue = "6", required = false) Integer size,
+                                                 @RequestParam String keyword,
+                                                 @PathVariable Long memberId,
+                                                 @RequestParam(defaultValue = "false", required = false) Boolean isStored,
+                                                 @AuthenticationPrincipal UserDetails userDetails) {
+        return CommonResponse.success("프로젝트 검색 성공",
+                projectService.searchProjects(page, size, isStored, memberId, keyword, userDetails));
     }
 
     // TODO: 해당 기능은 PROJECT가 아닌 MEMBER의 책임이 아닐까?
     @GetMapping("/v1/projects/{projectId}/members")
     @Operation(summary = "프로젝트에 속해있는 유저 전체 조회", description = "")
-    public ResponseEntity<CommonResponse<?>> findMembersInProject(@PathVariable Long projectId,
-                                                                  @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok().body(CommonResponse.success("프로젝트 내 사용자 조회 성공",
-                projectService.findMembers(projectId, userDetails)));
+    public CommonResponse<?> findMembersInProject(@PathVariable Long projectId,
+                                                  @AuthenticationPrincipal UserDetails userDetails) {
+        return CommonResponse.success("프로젝트 내 사용자 조회 성공",
+                projectService.findMembers(projectId, userDetails));
     }
 
     @GetMapping("/v1/projects/stored")
     @Operation(summary = "보관 프로젝트 목록 조회", description = "")
-    public ResponseEntity<CommonResponse<?>> findStoredProjects(
+    public CommonResponse<?> findStoredProjects(
             @RequestParam(defaultValue = "0", required = false) Integer page,
             @RequestParam(defaultValue = "9", required = false) Integer size,
             @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok().body(CommonResponse.success("보관 프로젝트 목록 조회 성공",
-                projectService.findStoredProjects(page, size, userDetails)));
+        return CommonResponse.success("보관 프로젝트 목록 조회 성공",
+                projectService.findStoredProjects(page, size, userDetails));
     }
 
     @PostMapping("/v1/projects")
@@ -111,19 +111,19 @@ public class ProjectController {
 
     @DeleteMapping("/v1/projects/{projectId}")
     @Operation(summary = "프로젝트 삭제", description = "")
-    public ResponseEntity<CommonResponse<?>> kickProject(@PathVariable Long projectId,
-                                                         @AuthenticationPrincipal UserDetails userDetails) {
+    public CommonResponse<?> kickProject(@PathVariable Long projectId,
+                                         @AuthenticationPrincipal UserDetails userDetails) {
         projectService.deleteProject(projectId, userDetails);
-        return ResponseEntity.ok().body(CommonResponse.success("프로젝트 삭제 성공", null));
+        return CommonResponse.success("프로젝트 삭제 성공", null);
     }
 
     @PutMapping("/v1/projects/{projectId}")
     @Operation(summary = "프로젝트 수정", description = "")
-    public ResponseEntity<CommonResponse<?>> updateProject(@PathVariable Long projectId,
-                                                           @RequestBody @Valid ProjectCreateUpdateRequest request,
-                                                           @AuthenticationPrincipal UserDetails userDetails) {
+    public CommonResponse<?> updateProject(@PathVariable Long projectId,
+                                           @RequestBody @Valid ProjectCreateUpdateRequest request,
+                                           @AuthenticationPrincipal UserDetails userDetails) {
         projectService.updateProject(projectId, request, userDetails);
-        return ResponseEntity.ok().body(CommonResponse.success("프로젝트 수정 성공", null));
+        return CommonResponse.success("프로젝트 수정 성공", null);
     }
 
     @PostMapping("/v1/projects/{projectId}/invitation")
