@@ -58,7 +58,6 @@ public class MemberController {
     @PutMapping(value = "/v1/members/{state}")
     @Operation(summary = "상태메시지 설정", description = "")
     @SwaggerApiResponses
-    @Deprecated
     public ResponseEntity<CommonResponse> editUserState(@PathVariable String state, @AuthenticationPrincipal UserDetails userDetails) {
         memberService.editMemberState(state, userDetails);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
@@ -68,6 +67,7 @@ public class MemberController {
     @PatchMapping("/v1/members/storage/{projectId}")
     @Operation(summary = "프로젝트 보관 설정/해제", description = "")
     @SwaggerApiResponses
+    @Deprecated
     public ResponseEntity<CommonResponse> storeProject(@PathVariable Long projectId, @AuthenticationPrincipal UserDetails userDetails) {
         memberService.storeProject(projectId, userDetails);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "성공", null));
