@@ -102,11 +102,11 @@ public class ScheduleController {
     @PutMapping("/v1/projects/{projectId}/schedules")
     @Operation(summary = "스케줄 변경", description = "기존 스케줄을 삭제하고 새로운 스케줄을 저장합니다." +
             "주 단위(일요일-토요일)로만 동작합니다.")
-    public ResponseEntity<CommonResponse<?>> updateSchedule(@PathVariable Long projectId,
-                                                            @RequestBody @Valid ScheduleCreateUpdateRequest request,
-                                                            @AuthenticationPrincipal UserDetails userDetails) {
+    public CommonResponse<?> updateSchedule(@PathVariable Long projectId,
+                                            @RequestBody @Valid ScheduleCreateUpdateRequest request,
+                                            @AuthenticationPrincipal UserDetails userDetails) {
         scheduleService.editSchedule(request, projectId, userDetails);
-        return ResponseEntity.ok().body(CommonResponse.success("성공", null));
+        return CommonResponse.success("성공", null);
     }
 
     /**
@@ -120,10 +120,10 @@ public class ScheduleController {
      */
     @Operation(summary = "스케줄 삭제", description = "지정된 범위(startDate <= target < endDate)의 스케줄을 삭제합니다.")
     @DeleteMapping("/v1/projects/{projectId}/schedules")
-    public ResponseEntity<CommonResponse<?>> deleteSchedule(@PathVariable Long projectId,
-                                                            @RequestBody @Valid ScheduleDeleteRequest request,
-                                                            @AuthenticationPrincipal UserDetails userDetails) {
+    public CommonResponse<?> deleteSchedule(@PathVariable Long projectId,
+                                            @RequestBody @Valid ScheduleDeleteRequest request,
+                                            @AuthenticationPrincipal UserDetails userDetails) {
         scheduleService.deleteSchedule(request, projectId, userDetails);
-        return ResponseEntity.ok().body(CommonResponse.success("성공", null));
+        return CommonResponse.success("성공", null);
     }
 }

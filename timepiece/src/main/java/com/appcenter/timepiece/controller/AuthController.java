@@ -26,7 +26,7 @@ public class AuthController {
     @Operation(summary = "토큰 재발급", description = "")
     @SwaggerApiResponses
     public ResponseEntity<CommonResponse> reissueAccessToken(HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResponse(1, "토큰 재발급 성공", authService.reissueAccessToken(request)));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("토큰 재발급 성공", authService.reissueAccessToken(request)));
     }
 
 }
