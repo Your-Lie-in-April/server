@@ -51,6 +51,20 @@ public class MemberService {
         memberProjectRepository.save(memberProject);
     }
 
+    @Transactional
+    public Boolean storeProject2(Long projectId, UserDetails userDetails) {
+        Long memberId = ((CustomUserDetails) userDetails).getId();
+
+        MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
+
+        memberProject.switchIsStored();
+
+        memberProjectRepository.save(memberProject);
+
+        return memberProject.getIsStored();
+    }
+
     public void editMemberState(String state, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
         Member member = memberRepository.findById(memberId)
