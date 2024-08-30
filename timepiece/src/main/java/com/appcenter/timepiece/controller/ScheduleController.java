@@ -38,7 +38,7 @@ public class ScheduleController {
     public CommonResponse<List<?>> findMembersSchedules(@PathVariable Long projectId,
                                                         @RequestParam @Schema(example = "2024-02-01") LocalDate condition,
                                                         @AuthenticationPrincipal UserDetails userDetails) {
-        return CommonResponse.success("성공", scheduleService.findMembersSchedules(projectId, condition, userDetails));
+        return CommonResponse.success("프로젝트 스케줄 조회 성공", scheduleService.findMembersSchedules(projectId, condition, userDetails));
     }
 
     @GetMapping("/v2/projects/{projectId}/schedules")
@@ -48,7 +48,7 @@ public class ScheduleController {
     public CommonResponse<List<?>> findMembersSchedulesWithoutMe(@PathVariable Long projectId,
                                                                  @RequestParam @Schema(example = "2024-02-01") LocalDate condition,
                                                                  @AuthenticationPrincipal UserDetails userDetails) {
-        return CommonResponse.success("성공", scheduleService.findMembersSchedulesWithoutMe(projectId, condition, userDetails));
+        return CommonResponse.success("프로젝트 스케줄 조회 성공", scheduleService.findMembersSchedulesWithoutMe(projectId, condition, userDetails));
     }
 
     /**
@@ -69,7 +69,7 @@ public class ScheduleController {
                                           @PathVariable Long memberId,
                                           @RequestParam @Schema(example = "2024-02-01") LocalDate condition,
                                           @AuthenticationPrincipal UserDetails userDetails) {
-        return CommonResponse.success("성공", scheduleService.findSchedule(projectId, memberId, condition, userDetails));
+        return CommonResponse.success("멤버 스케줄 조회 성공", scheduleService.findSchedule(projectId, memberId, condition, userDetails));
     }
 
     /**
@@ -87,7 +87,7 @@ public class ScheduleController {
                                                             @RequestBody @Valid ScheduleCreateUpdateRequest request,
                                                             @AuthenticationPrincipal UserDetails userDetails) {
         scheduleService.createSchedule(request, projectId, userDetails);
-        return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.success("성공", null));
+        return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.success("스케줄 생성 성공", null));
     }
 
     /**
@@ -106,7 +106,7 @@ public class ScheduleController {
                                             @RequestBody @Valid ScheduleCreateUpdateRequest request,
                                             @AuthenticationPrincipal UserDetails userDetails) {
         scheduleService.editSchedule(request, projectId, userDetails);
-        return CommonResponse.success("성공", null);
+        return CommonResponse.success("스케줄 변경 성공", null);
     }
 
     /**
@@ -124,6 +124,6 @@ public class ScheduleController {
                                             @RequestBody @Valid ScheduleDeleteRequest request,
                                             @AuthenticationPrincipal UserDetails userDetails) {
         scheduleService.deleteSchedule(request, projectId, userDetails);
-        return CommonResponse.success("성공", null);
+        return CommonResponse.success("스케줄 삭제 성공", null);
     }
 }
