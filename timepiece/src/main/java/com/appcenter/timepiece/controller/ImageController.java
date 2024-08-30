@@ -22,13 +22,13 @@ public class ImageController {
 
     @Operation(summary = "이미지 등록(redis)")
     @PostMapping(value="/v1/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadImage(@RequestPart("thumbnail") MultipartFile thumbnail,
+    public CommonResponse<?> uploadImage(@RequestPart("thumbnail") MultipartFile thumbnail,
                                          @RequestPart("coverImage") MultipartFile coverImage) {
         try {
             imageService.uploadImage(thumbnail, coverImage);
-            return ResponseEntity.ok(CommonResponse.success("Image uploaded successfully", null));
+            return CommonResponse.success("이미지를 성공적으로 업로드하였습니다.", null);
         } catch (IOException e) {
-            return ResponseEntity.status(500).body(CommonResponse.error("Failed to upload image", null));
+            return CommonResponse.error("이미지 업로드에 실패했습니다.", null);
         }
     }
 
@@ -42,8 +42,7 @@ public class ImageController {
                     .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + id + "\"")
                     .contentType(imageType) // 이미지 타입에 맞춰 변경 가능
                     .body(imageData.get());
-        } else {
-            return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.notFound().build();
     }
 }

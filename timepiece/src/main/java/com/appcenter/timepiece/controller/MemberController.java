@@ -28,14 +28,14 @@ public class MemberController {
     @SwaggerApiResponses
     public CommonResponse<?> allUsers() {
 
-        return CommonResponse.success("성공", memberService.getAllMember());
+        return CommonResponse.success("(테스트)멤버 조회 성공", memberService.getAllMember());
     }
 
     @GetMapping(value = "/v1/members/{memberId}")
     @Operation(summary = "멤버 정보 조회", description = "")
     @SwaggerApiResponses
     public CommonResponse<?> MemberInfo(@PathVariable Long memberId) {
-        return CommonResponse.success("성공", memberService.getMemberInfo(memberId));
+        return CommonResponse.success("멤버 정보 조회 성공", memberService.getMemberInfo(memberId));
     }
 
     @PutMapping(value = "/v1/projects/members/nickname")
@@ -43,7 +43,7 @@ public class MemberController {
     @SwaggerApiResponses
     public CommonResponse<?> editUserNickname(Long projectId, String nickname, @AuthenticationPrincipal UserDetails userDetails) {
         memberService.editMemberNickname(projectId, nickname, userDetails);
-        return CommonResponse.success("성공", null);
+        return CommonResponse.success("닉네임 재설정 성공", null);
     }
 
     @PutMapping(value = "/v2/projects/members/nickname")
@@ -58,14 +58,13 @@ public class MemberController {
     @SwaggerApiResponses
     public CommonResponse<?> editUserState(@PathVariable String state, @AuthenticationPrincipal UserDetails userDetails) {
         memberService.editMemberState(state, userDetails);
-        return CommonResponse.success("성공", null);
+        return CommonResponse.success("상태메시지 설정 성공", null);
 
     }
 
     @PatchMapping("/v1/members/storage/{projectId}")
-    @Operation(summary = "프로젝트 보관 설정/해제", description = "")
+    @Operation(summary = "프로젝트 보관 설정/해제", description = "", deprecated = true)
     @SwaggerApiResponses
-    @Deprecated
     public CommonResponse<?> storeProject(@PathVariable Long projectId, @AuthenticationPrincipal UserDetails userDetails) {
         memberService.storeProject(projectId, userDetails);
         return CommonResponse.success("성공", null);
@@ -75,7 +74,7 @@ public class MemberController {
     @Operation(summary = "프로젝트 보관설정/해제 v2(프로젝트 보관 여부 반환)")
     @SwaggerApiResponses
     public CommonResponse<?> storeProject2(@PathVariable Long projectId, @AuthenticationPrincipal UserDetails userDetails) {
-        return CommonResponse.success("성공", memberService.storeProject2(projectId, userDetails));
+        return CommonResponse.success("프로젝트 보관상태 변경", memberService.storeProject2(projectId, userDetails));
     }
 
     @PatchMapping("/v1/members/pin/{projectId}")
@@ -83,7 +82,7 @@ public class MemberController {
     @SwaggerApiResponses
     public CommonResponse<?> pinProject(@PathVariable Long projectId, @AuthenticationPrincipal UserDetails userDetails) {
         projectService.pinProject(projectId, userDetails);
-        return CommonResponse.success("프로젝트 핀 설정에 성공했습니다.", null);
+        return CommonResponse.success("프로젝트 핀 상태 변경", null);
     }
 
 }
