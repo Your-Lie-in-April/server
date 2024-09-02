@@ -39,7 +39,7 @@ public class ImageController {
         MediaType imageType = imageService.getImageType(id);
         if (imageData.isPresent()) {
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + id + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline;")
                     .contentType(imageType) // 이미지 타입에 맞춰 변경 가능
                     .body(imageData.get());
         }
