@@ -4,8 +4,9 @@
 data.sql
 docker/
 application.yml
-application-oauth.yml
+application*.yml
 application.properties
+.env
 
 ### Intellij+all ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
