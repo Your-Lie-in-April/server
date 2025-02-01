@@ -7,22 +7,32 @@ import com.appcenter.timepiece.common.security.CustomUserDetails;
 import com.appcenter.timepiece.domain.MemberProject;
 import com.appcenter.timepiece.domain.Project;
 import com.appcenter.timepiece.domain.Schedule;
-import com.appcenter.timepiece.dto.schedule.*;
+import com.appcenter.timepiece.domain.ScheduleDtoFactory;
+import com.appcenter.timepiece.dto.schedule.ScheduleCreateUpdateRequest;
+import com.appcenter.timepiece.dto.schedule.ScheduleDayRequest;
+import com.appcenter.timepiece.dto.schedule.ScheduleDeleteRequest;
+import com.appcenter.timepiece.dto.schedule.ScheduleDto;
+import com.appcenter.timepiece.dto.schedule.ScheduleWeekResponse;
 import com.appcenter.timepiece.repository.MemberProjectRepository;
 import com.appcenter.timepiece.repository.ProjectRepository;
 import com.appcenter.timepiece.repository.ScheduleRepository;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -38,8 +48,7 @@ public class ScheduleService {
     /**
      * {@summary 프로젝트 내 모든 멤버의 스케줄을 조회한다(본인포함)}
      * <p>자신을 포함한 모든 멤버의 스케줄을 조회한다.
-     * 모든 프로젝트 멤버의 스케줄을 전체 조회한 후,스케줄 중 멤버별로 중복되는 요일을 필터링,
-     * 자신의 스케줄을 필터링하여 요일별로 묶어 반환한다. </p>
+     * 모든 프로젝트 멤버의 스케줄을 전체 조회한 후,스케줄 중 멤버별로 중복되는 요일을 필터링, 자신의 스케줄을 필터링하여 요일별로 묶어 반환한다. </p>
      *
      * @param projectId
      * @param condition
@@ -47,57 +56,69 @@ public class ScheduleService {
      * @return
      */
     @Transactional(readOnly = true)
-    public List<ScheduleWeekResponse> findMembersSchedules(Long projectId, LocalDate condition, UserDetails userDetails) {
+    public List<ScheduleWeekResponse> findMembersSchedules(Long projectId, LocalDate condition,
+                                                           UserDetails userDetails) {
         validateMemberIsInProject(projectId, userDetails);
         List<MemberProject> memberProjects = memberProjectRepository.findAllByProjectId(projectId);
-        LocalDateTime sundayOfWeek = calculateStartDay(condition);
 
-        List<Schedule> schedules = scheduleRepository.findMembersWeekSchedule(memberProjects.stream().map(MemberProject::getId).toList(), sundayOfWeek, sundayOfWeek.plusDays(7));
-        return memberProjects.stream().map(memberProject ->
+        List<Long> memberProjectIds = memberProjects.stream().map(MemberProject::getId).toList();
+        LocalDateTime sundayOfWeek = calculateStartDay(condition);
+        LocalDateTime endOfWeek = sundayOfWeek.plusDays(7);
+
+        List<Schedule> schedules = scheduleRepository.findMembersWeekSchedule(memberProjectIds, sundayOfWeek,
+                endOfWeek);
+
+        Map<Long, List<Schedule>> schedulesByMemberProjectId = schedules.stream()
+                .collect(Collectors.groupingBy(schedule -> schedule.getMemberProject().getId()));
+
+        Map<Long, Map<DayOfWeek, List<Schedule>>> schedulesByDayOfWeekByMemberProjectId = new HashMap<>();
+        for (Map.Entry<Long, List<Schedule>> entry : schedulesByMemberProjectId.entrySet()) {
+            schedulesByDayOfWeekByMemberProjectId.put(entry.getKey(), groupingByDayOfWeek(entry.getValue()));
+        }
+
+        return memberProjects.stream()
+                .map(memberProject ->
                         new ScheduleWeekResponse(memberProject.getNickname(),
-                                schedules.stream()
-                                        .filter(schedule -> schedule.getMemberProject().getId().equals(memberProject.getId()))
-                                        .map(schedule -> schedule.getStartTime().getDayOfWeek())
-                                        .distinct()
-                                        .map(dayOfWeek -> ScheduleDayResponse.of(dayOfWeek,
-                                                schedules.stream()
-                                                        .filter(schedule -> schedule.getMemberProject().getId().equals(memberProject.getId()))
-                                                        .filter(schedule -> schedule
-                                                                .getStartTime()
-                                                                .getDayOfWeek()
-                                                                .equals(dayOfWeek))
-                                                        .map(ScheduleDto::from)
-                                                        .collect(Collectors.toList())))
-                                        .collect(Collectors.toList())))
-                .collect(Collectors.toList());
+                                ScheduleDtoFactory.scheduleDayResponsesFrom(
+                                        schedulesByDayOfWeekByMemberProjectId.get(memberProject.getId())))
+                ).toList();
     }
 
     @Transactional(readOnly = true)
-    public List<ScheduleWeekResponse> findMembersSchedulesWithoutMe(Long projectId, LocalDate condition, UserDetails userDetails) {
+    public List<ScheduleWeekResponse> findMembersSchedulesWithoutMe(Long projectId, LocalDate condition,
+                                                                    UserDetails userDetails) {
         validateMemberIsInProject(projectId, userDetails);
-        List<MemberProject> memberProjects = memberProjectRepository.findAllByProjectId(projectId);
-        LocalDateTime sundayOfWeek = calculateStartDay(condition);
 
-        List<Schedule> schedules = scheduleRepository.findMembersWeekSchedule(memberProjects.stream().map(MemberProject::getId).toList(), sundayOfWeek, sundayOfWeek.plusDays(7));
+        List<MemberProject> memberProjects = memberProjectRepository.findAllByProjectId(projectId);
+        MemberProject me = memberProjectRepository.findByMemberId(((CustomUserDetails) userDetails).getId()).get();
+        memberProjects.remove(me); // 본인 제외, 같은 트랜잭션 내에서 같은 객체를 공유할 것임.
+
+        List<Long> memberProjectIds = memberProjects.stream().map(MemberProject::getId).collect(Collectors.toList());
+        LocalDateTime sundayOfWeek = calculateStartDay(condition);
+        LocalDateTime endOfWeek = sundayOfWeek.plusDays(7);
+
+        // (본인 제외) 모든 프로젝트 멤버들의 스케줄 조회
+        List<Schedule> schedules = scheduleRepository.findMembersWeekSchedule(memberProjectIds, sundayOfWeek,
+                endOfWeek);
+
+        Map<Long, List<Schedule>> schedulesByMemberProjectId = schedules.stream()
+                .collect(Collectors.groupingBy(schedule -> schedule.getMemberProject().getId()));
+
+        Map<Long, Map<DayOfWeek, List<Schedule>>> schedulesByDayOfWeekByMemberProjectId = new HashMap<>();
+        for (Map.Entry<Long, List<Schedule>> entry : schedulesByMemberProjectId.entrySet()) {
+            schedulesByDayOfWeekByMemberProjectId.put(entry.getKey(), groupingByDayOfWeek(entry.getValue()));
+        }
+
         return memberProjects.stream()
-                .filter(memberProject -> !memberProject.getMember().getId().equals(((CustomUserDetails) userDetails).getId()))
                 .map(memberProject ->
                         new ScheduleWeekResponse(memberProject.getNickname(),
-                                schedules.stream()
-                                        .filter(schedule -> schedule.getMemberProject().getId().equals(memberProject.getId()))
-                                        .map(schedule -> schedule.getStartTime().getDayOfWeek())
-                                        .distinct()
-                                        .map(dayOfWeek -> ScheduleDayResponse.of(dayOfWeek,
-                                                schedules.stream()
-                                                        .filter(schedule -> schedule.getMemberProject().getId().equals(memberProject.getId()))
-                                                        .filter(schedule -> schedule
-                                                                .getStartTime()
-                                                                .getDayOfWeek()
-                                                                .equals(dayOfWeek))
-                                                        .map(ScheduleDto::from)
-                                                        .collect(Collectors.toList())))
-                                        .collect(Collectors.toList())))
-                .collect(Collectors.toList());
+                                ScheduleDtoFactory.scheduleDayResponsesFrom(
+                                        schedulesByDayOfWeekByMemberProjectId.get(memberProject.getId())))
+                ).toList();
+    }
+
+    private Map<DayOfWeek, List<Schedule>> groupingByDayOfWeek(List<Schedule> schedules) {
+        return schedules.stream().collect(Collectors.groupingBy(schedule -> schedule.getStartTime().getDayOfWeek()));
     }
 
     /**
@@ -112,25 +133,20 @@ public class ScheduleService {
      * @return
      */
     @Transactional(readOnly = true)
-    public ScheduleWeekResponse findSchedule(Long projectId, Long memberId, LocalDate condition, UserDetails userDetails) {
+    public ScheduleWeekResponse findSchedule(Long projectId, Long memberId, LocalDate condition,
+                                             UserDetails userDetails) {
         validateMemberIsInProject(projectId, userDetails);
-
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
-        LocalDateTime sundayOfWeek = calculateStartDay(condition);
 
-        List<Schedule> schedules = scheduleRepository.findMemberWeekSchedule(memberProject.getId(), sundayOfWeek, sundayOfWeek.plusDays(7));
-        return new ScheduleWeekResponse(memberProject.getNickname(), schedules.stream()
-                .map(schedule -> schedule.getStartTime().getDayOfWeek())
-                .distinct()
-                .map(dayOfWeek -> ScheduleDayResponse.of(dayOfWeek, schedules.stream()
-                        .filter(schedule -> schedule
-                                .getStartTime()
-                                .getDayOfWeek()
-                                .equals(dayOfWeek))
-                        .map(ScheduleDto::from)
-                        .collect(Collectors.toList())))
-                .collect(Collectors.toList()));
+        LocalDateTime sundayOfWeek = calculateStartDay(condition);
+        LocalDateTime endOfWeek = sundayOfWeek.plusDays(7);
+        List<Schedule> schedules = scheduleRepository.findMemberWeekSchedule(memberProject.getId(), sundayOfWeek,
+                endOfWeek);
+
+        Map<DayOfWeek, List<Schedule>> scheduleByDayOfWeek = groupingByDayOfWeek(schedules);
+        return new ScheduleWeekResponse(memberProject.getNickname(),
+                ScheduleDtoFactory.scheduleDayResponsesFrom(scheduleByDayOfWeek));
     }
 
     // todo: ProjectService와 중복코드
@@ -173,8 +189,7 @@ public class ScheduleService {
     /**
      * {@summary 기존 스케줄 삭제 후 새 스케줄 저장}
      * <p>request에 존재하는 첫번째 스케줄의 날짜로, 해당 주차의 첫번째 요일(일요일)을 계산,
-     * 계산한 첫번째 요일 ~ (첫번째 요일 + 7)일의 기간에 속하는 스케줄을 DB에서 삭제하고 request로 받은
-     * 수정 후 스케줄을 저장
+     * 계산한 첫번째 요일 ~ (첫번째 요일 + 7)일의 기간에 속하는 스케줄을 DB에서 삭제하고 request로 받은 수정 후 스케줄을 저장
      *
      * @param request
      * @param projectId
@@ -191,7 +206,8 @@ public class ScheduleService {
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
 
         // todo: IndexOutOfBoundsException!! 발생 가능 -> Not Null, Not Empty하면 될 듯?
-        LocalDateTime sundayOfWeek = calculateStartDay(request.getSchedule().get(0).getSchedule().get(0).getStartTime());
+        LocalDateTime sundayOfWeek = calculateStartDay(
+                request.getSchedule().get(0).getSchedule().get(0).getStartTime());
         scheduleRepository.deleteMemberSchedulesBetween(memberProject.getId(), sundayOfWeek, sundayOfWeek.plusDays(7));
 
         List<Schedule> schedulesToSave = request.getSchedule().stream()
@@ -237,8 +253,7 @@ public class ScheduleService {
     }
 
     /**
-     * ScheduleCreateUpdateRequest에 대한 모든 유효성 검사를 위임하는 메서드<br>
-     * Week, Day 범위로 검증을 위임한다.
+     * ScheduleCreateUpdateRequest에 대한 모든 유효성 검사를 위임하는 메서드<br> Week, Day 범위로 검증을 위임한다.
      *
      * @param req     ScheduleCreateUpdateRequest
      * @param project Project
@@ -264,11 +279,9 @@ public class ScheduleService {
     }
 
     /**
-     * ScheduleCreateUpdateRequest Week 단위 검증 <br>
-     * 수행목록 <br>
-     * 1. validateIsIdenticalWeek - 일주일(일-토요일) 단위의 요청이 맞는지 검사 <br>
-     * 2. validateIsIdenticalDayPerWeek - 중복된 날짜의 요청이 있는지 검사 <br>
-     * 3. validateIsAppropriatePeriodPerWeek - (생성 시 정했던)프로젝트 기간 내인지 검사
+     * ScheduleCreateUpdateRequest Week 단위 검증 <br> 수행목록 <br> 1. validateIsIdenticalWeek - 일주일(일-토요일) 단위의 요청이 맞는지 검사 <br>
+     * 2. validateIsIdenticalDayPerWeek - 중복된 날짜의 요청이 있는지 검사 <br> 3. validateIsAppropriatePeriodPerWeek - (생성 시 정했던)프로젝트
+     * 기간 내인지 검사
      *
      * @param req     ScheduleCreateUpdateRequest
      * @param project Project
@@ -280,7 +293,8 @@ public class ScheduleService {
     }
 
     private void validateIsIdenticalWeek(ScheduleCreateUpdateRequest req) {
-        LocalDate criteria = calculateStartDay(req.getSchedule().get(0).getSchedule().get(0).getStartTime()).toLocalDate();
+        LocalDate criteria = calculateStartDay(
+                req.getSchedule().get(0).getSchedule().get(0).getStartTime()).toLocalDate();
         for (ScheduleDayRequest scheduleDayRequest : req.getSchedule()) {
             LocalDateTime validTarget = calculateStartDay(scheduleDayRequest.getSchedule().get(0).getStartTime());
             if (!Objects.equals(criteria, validTarget.toLocalDate())) {
@@ -291,6 +305,7 @@ public class ScheduleService {
 
     /**
      * 전날 Schedule이 다음날 00시에 종료하고, 다음날 Schedule이 존재한다면? -> StartTime으로만 확인한다.
+     *
      * @param req
      */
     private void validateIsIdenticalDayPerWeek(ScheduleCreateUpdateRequest req) {
@@ -305,6 +320,7 @@ public class ScheduleService {
 
     /**
      * 마지막날 24시 -> (마지막+1)일 00시는 허용토록 해야한다.
+     *
      * @param req
      * @param project
      */
@@ -313,17 +329,16 @@ public class ScheduleService {
                 .map(scheduleDayRequest ->
                         scheduleDayRequest.getSchedule().get(0)
                                 .getStartTime().toLocalDate()).sorted().toList();
-        if (dates.get(0).isBefore(project.getStartDate()) || dates.get(dates.size() - 1).isAfter(project.getEndDate())) {
+        if (dates.get(0).isBefore(project.getStartDate()) || dates.get(dates.size() - 1)
+                .isAfter(project.getEndDate())) {
             throw new IllegalArgumentException(ExceptionMessage.INVALID_PROJECT_PERIOD.getMessage());
         }
     }
 
     /**
-     * ScheduleCreateUpdateRequest 일(Day) 단위 검증 <br>
-     * 수행목록 <br>
-     * 1. validateIsIdenticalDay - 모든 ScheduleDto의 동일한 날짜인지 검사<br>
-     * 2. validateDuplicateSchedulePerDay - ScheduleDto 간 요청 시간이 중복/교차되는지 검사<br>
-     * 3. validateIsAppropriateDayOfWeekPerDay - (생성 시 정했던)프로젝트 요일인지 검사
+     * ScheduleCreateUpdateRequest 일(Day) 단위 검증 <br> 수행목록 <br> 1. validateIsIdenticalDay - 모든 ScheduleDto의 동일한 날짜인지
+     * 검사<br> 2. validateDuplicateSchedulePerDay - ScheduleDto 간 요청 시간이 중복/교차되는지 검사<br> 3.
+     * validateIsAppropriateDayOfWeekPerDay - (생성 시 정했던)프로젝트 요일인지 검사
      *
      * @param req     ScheduleDayRequest
      * @param project Project
@@ -354,8 +369,8 @@ public class ScheduleService {
     }
 
     /**
-     * startTime으로 비교
-     * 주의: 스케줄 생성 요청에 24시(00시)가 포함되는 경우, endTime에는 허용 요일의 다음날 00시가 포함될 수 있음
+     * startTime으로 비교 주의: 스케줄 생성 요청에 24시(00시)가 포함되는 경우, endTime에는 허용 요일의 다음날 00시가 포함될 수 있음
+     *
      * @param req
      * @param project
      */
@@ -368,12 +383,10 @@ public class ScheduleService {
     }
 
     /**
-     * ScheduleCreateUpdateRequest ScheduleDto 단위 검증 <br>
-     * 수행목록 <br>
-     * 1. validateIsMultipleOfHalfHourPerSchedule - startTime, endTime이 30분 단위인지 검사 <br>
-     * 2. validateTimeSequencePerSchedule - startTime < endTime을 만족하는지 검사 <br>
-     * 3. validateIsSameDayPerSchedule - startDate == endDate를 만족하는지 검사 <br>
-     * 4. validateIsAppropriateTimePerSchedule - (생성 시 정했던)프로젝트 시간 내인지 검사
+     * ScheduleCreateUpdateRequest ScheduleDto 단위 검증 <br> 수행목록 <br> 1. validateIsMultipleOfHalfHourPerSchedule -
+     * startTime, endTime이 30분 단위인지 검사 <br> 2. validateTimeSequencePerSchedule - startTime < endTime을 만족하는지 검사 <br> 3.
+     * validateIsSameDayPerSchedule - startDate == endDate를 만족하는지 검사 <br> 4. validateIsAppropriateTimePerSchedule - (생성
+     * 시 정했던)프로젝트 시간 내인지 검사
      *
      * @param req     ScheduleDto
      * @param project Project
@@ -400,21 +413,22 @@ public class ScheduleService {
     }
 
     /**
-     * 스케줄 생성 요청의 endTime이 자정일 경우, endDate가 startDate 보다 하루 이후여야 합니다.
-     * 자정이 아닐 경우, 동일 날짜이고 startTime < endTime을 만족해야 합니다.
+     * 스케줄 생성 요청의 endTime이 자정일 경우, endDate가 startDate 보다 하루 이후여야 합니다. 자정이 아닐 경우, 동일 날짜이고 startTime < endTime을 만족해야 합니다.
+     *
      * @param startDate
      * @param startTime
      * @param endDate
      * @param endTime
      */
-    private void validateIsSameDayAndTimeSequencePerSchedule(LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+    private void validateIsSameDayAndTimeSequencePerSchedule(LocalDate startDate, LocalTime startTime,
+                                                             LocalDate endDate, LocalTime endTime) {
         if (endTime.equals(LocalTime.MIN)) {
             if (startDate.plusDays(1).equals(endDate)) {
                 return;
             }
             throw new IllegalArgumentException(ExceptionMessage.INVALID_TIME_SEQUENCE.getMessage());
         }
-        if (Objects.equals(startDate, endDate))  {
+        if (Objects.equals(startDate, endDate)) {
             if (startTime.isAfter(endTime)) {
                 throw new IllegalArgumentException(ExceptionMessage.INVALID_TIME_SEQUENCE.getMessage());
             }
@@ -425,13 +439,14 @@ public class ScheduleService {
 
     /**
      * 프로젝트 종료 시간이 00시인 경우 처리가 필요합니다.
+     *
      * @param startTime
      * @param endTime
      * @param project
      */
     private void validateIsAppropriateTimePerSchedule(LocalTime startTime, LocalTime endTime, Project project) {
         LocalTime lastTime = (project.getEndTime().equals(LocalTime.MIN)) ?
-                LocalTime.of(23,59, 59, 59) : project.getEndTime();
+                LocalTime.of(23, 59, 59, 59) : project.getEndTime();
         if (startTime.isBefore(project.getStartTime()) || endTime.isAfter(lastTime)) {
             throw new IllegalArgumentException(ExceptionMessage.INVALID_PROJECT_TIME.getMessage());
         }
