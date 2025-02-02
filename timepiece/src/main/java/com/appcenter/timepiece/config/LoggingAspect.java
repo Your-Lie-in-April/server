@@ -1,5 +1,6 @@
 package com.appcenter.timepiece.config;
 
+import java.lang.reflect.Method;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -7,8 +8,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
-
-import java.lang.reflect.Method;
 
 @Aspect
 @Component
@@ -28,9 +27,13 @@ public class LoggingAspect {
 
         // 파라미터 받아오기
         Object[] args = proceedingJoinPoint.getArgs();
-        if (args.length == 0) log.info("no parameter");
+        if (args.length == 0) {
+            log.info("no parameter");
+        }
         for (Object arg : args) {
-            log.info("parameter = {}, {}", arg.getClass().getSimpleName(), arg.toString());
+            if (arg != null) {
+                log.info("parameter = {}, {}", arg.getClass().getSimpleName(), arg.toString());
+            }
         }
 
         // proceed()를 호출하여 실제 메서드 실행
