@@ -5,11 +5,10 @@ import com.appcenter.timepiece.domain.QMember;
 import com.appcenter.timepiece.domain.QNotification;
 import com.appcenter.timepiece.domain.QProject;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
-
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
@@ -23,7 +22,8 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
     private QProject project = QProject.project;
 
     @Override
-    public List<Notification> findAllByTimestampAfter(Long receiverId, LocalDateTime cursorTimestamp, Boolean isChecked, int pageSize) {
+    public List<Notification> findAllByTimestampAfter(Long receiverId, LocalDateTime cursorTimestamp, Boolean isChecked,
+                                                      int pageSize) {
         return queryFactory.selectFrom(notification)
                 .leftJoin(notification.receiver, receiver)
                 .leftJoin(notification.sender, sender)
@@ -38,7 +38,8 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
 
 
     @Override
-    public List<Notification> findAllByTimestampAfter(Long receiverId, Long projectId, LocalDateTime timestamp, Boolean isChecked, int pageSize) {
+    public List<Notification> findAllByTimestampAfter(Long receiverId, Long projectId, LocalDateTime timestamp,
+                                                      Boolean isChecked, int pageSize) {
         return queryFactory.selectFrom(notification)
                 .leftJoin(notification.receiver, receiver)
                 .leftJoin(notification.sender, sender)
@@ -49,8 +50,32 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
                         .and(notification.isDeleted.isFalse())
                         .and(notification.createdAt.lt(timestamp)))
                 .orderBy(notification.isChecked.asc(), notification.createdAt.desc())
-                .limit(pageSize)
                 .fetch();
     }
 
+    @Override
+    public List<Notification> findAllByReceiverLargerThanNotificationId(Long receiverId, Long notificationId) {
+        return queryFactory.selectFrom(notification)
+                .leftJoin(notification.receiver, receiver).fetchJoin()
+                .leftJoin(notification.sender, sender).fetchJoin()
+                .leftJoin(notification.project, project).fetchJoin()
+                .where(notification.receiver.id.eq(receiverId)
+                        .and(notification.id.gt(notificationId)))
+                .orderBy(notification.isChecked.asc(), notification.createdAt.desc())
+                .fetch();
+    }
+
+    @Override
+    public List<Notification> findAllByReceiverLargerThanNotificationId(Long receiverId, Long projectId,
+                                                                        Long notificationId) {
+        return queryFactory.selectFrom(notification)
+                .leftJoin(notification.receiver, receiver).fetchJoin()
+                .leftJoin(notification.sender, sender).fetchJoin()
+                .leftJoin(notification.project, project).fetchJoin()
+                .where(notification.receiver.id.eq(receiverId)
+                        .and(notification.project.id.eq(projectId))
+                        .and(notification.id.gt(notificationId)))
+                .orderBy(notification.isChecked.asc(), notification.createdAt.desc())
+                .fetch();
+    }
 }

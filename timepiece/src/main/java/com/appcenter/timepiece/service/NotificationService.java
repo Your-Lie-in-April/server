@@ -13,6 +13,14 @@ import com.appcenter.timepiece.dto.notify.NotificationResponse;
 import com.appcenter.timepiece.repository.MemberProjectRepository;
 import com.appcenter.timepiece.repository.NotificationRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,14 +33,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +52,7 @@ public class NotificationService {
     private final MemberProjectRepository memberProjectRepository;
 
 
-    public SseEmitter subscribe(UserDetails userDetails) {
+    public SseEmitter subscribe(UserDetails userDetails, Long lastEventId, Long projectId) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
         SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
         emitters.put(memberId, emitter);
@@ -77,6 +77,10 @@ public class NotificationService {
             emitter.completeWithError(e);
         }
 
+        if (Objects.nonNull(lastEventId)) {
+            recoverNotification(memberId, lastEventId, projectId);
+        }
+
         return emitter;
     }
 
@@ -86,7 +90,8 @@ public class NotificationService {
 
         NotifyProjectCollection notifyProjectCollection = new NotifyProjectCollection(memberProjects);
         notifyProjectCollection.excludeSender(sender).forEach(memberProject -> {
-            sendNotification(message, project, memberProject.getMember(), sender, Notification.NotificationType.SCHEDULE);
+            sendNotification(message, project, memberProject.getMember(), sender,
+                    Notification.NotificationType.SCHEDULE);
         });
     }
 
@@ -105,10 +110,24 @@ public class NotificationService {
         sendNotification(message, project, receiver, sender, Notification.NotificationType.SYSTEM);
     }
 
-    private void sendNotification(String message, Project project, Member receiver, Member sender, Notification.NotificationType type) {
+    private void sendNotification(String message, Project project, Member receiver, Member sender,
+                                  Notification.NotificationType type) {
         Notification notification = Notification.of(message, project, receiver, sender, type);
         notification = notificationRepository.save(notification);
         publishNotification(notification);
+    }
+
+    // 재연결 시 유실된 메시지를 찾아 재전송
+    private void recoverNotification(Long memberId, Long lastNotificationId, Long projectId) {
+        List<Notification> notifications;
+        if (projectId == null) {
+            notifications = notificationRepository.findAllByReceiverLargerThanNotificationId(
+                    memberId, lastNotificationId);
+        } else {
+            notifications = notificationRepository.findAllByReceiverLargerThanNotificationId(
+                    memberId, projectId, lastNotificationId);
+        }
+        notifications.forEach(this::publishNotification);
     }
 
     protected void publishNotification(Notification notification) {
@@ -169,31 +188,38 @@ public class NotificationService {
 
     // todo: paging, sorting, | exclude Checked/Deleted(soft) Notification
     @Transactional
-    public CommonCursorPagingResponse<?> getNotifications(LocalDateTime cursor, Boolean isChecked, Integer size, UserDetails userDetails) {
+    public CommonCursorPagingResponse<?> getNotifications(LocalDateTime cursor, Boolean isChecked, Integer size,
+                                                          UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        List<Notification> notifications = notificationRepository.findAllByTimestampAfter(memberId, cursor, isChecked, size+1);
+        List<Notification> notifications = notificationRepository.findAllByTimestampAfter(memberId, cursor, isChecked,
+                size + 1);
         Boolean hasMore = notifications.size() > size;
         LocalDateTime nextCursor = null;
         if (hasMore) {
             notifications.remove(notifications.size() - 1);
             nextCursor = notifications.get(notifications.size() - 1).getCreatedAt();
         }
-        List<NotificationResponse> notificationResponses =  notifications.stream().map(NotificationResponse::from).toList();
+        List<NotificationResponse> notificationResponses = notifications.stream().map(NotificationResponse::from)
+                .toList();
 
         return new CommonCursorPagingResponse<>(size, nextCursor, hasMore, notificationResponses);
     }
 
     @Transactional
-    public CommonCursorPagingResponse<?> getNotificationsInProject(Long projectId, LocalDateTime cursor, Boolean isChecked, Integer size, UserDetails userDetails) {
+    public CommonCursorPagingResponse<?> getNotificationsInProject(Long projectId, LocalDateTime cursor,
+                                                                   Boolean isChecked, Integer size,
+                                                                   UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        List<Notification> notifications = notificationRepository.findAllByTimestampAfter(memberId, projectId, cursor, isChecked, size+1);
+        List<Notification> notifications = notificationRepository.findAllByTimestampAfter(memberId, projectId, cursor,
+                isChecked, size + 1);
         Boolean hasMore = notifications.size() > size;
         LocalDateTime nextCursor = null;
         if (hasMore) {
             notifications.remove(notifications.size() - 1);
             nextCursor = notifications.get(notifications.size() - 1).getCreatedAt();
         }
-        List<NotificationResponse> notificationResponses =  notifications.stream().map(NotificationResponse::from).toList();
+        List<NotificationResponse> notificationResponses = notifications.stream().map(NotificationResponse::from)
+                .toList();
         return new CommonCursorPagingResponse<>(size, nextCursor, hasMore, notificationResponses);
     }
 
@@ -218,7 +244,8 @@ public class NotificationService {
     }
 
     private static void validateOwnershipOfNotification(Notification notification, Long memberId) {
-        if (!notification.getReceiver().getId().equals(memberId))
+        if (!notification.getReceiver().getId().equals(memberId)) {
             throw new NotEnoughPrivilegeException(ExceptionMessage.MEMBER_UNAUTHENTICATED);
+        }
     }
 }
