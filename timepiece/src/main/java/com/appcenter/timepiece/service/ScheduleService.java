@@ -123,7 +123,7 @@ public class ScheduleService {
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
 
         LocalDateTime sundayOfWeek = calculateStartDay(condition);
-        LocalDateTime endOfWeek = sundayOfWeek.plusDays(7);
+        LocalDateTime endOfWeek = sundayOfWeek.plusDays(DAYS_IN_A_WEEK);
         List<Schedule> schedules = scheduleRepository.findMemberWeekSchedule(memberProject.getId(), sundayOfWeek,
                 endOfWeek);
 
@@ -191,7 +191,8 @@ public class ScheduleService {
         // todo: IndexOutOfBoundsException!! 발생 가능 -> Not Null, Not Empty하면 될 듯?
         LocalDateTime sundayOfWeek = calculateStartDay(
                 request.getSchedule().get(0).getSchedule().get(0).getStartTime());
-        scheduleRepository.deleteMemberSchedulesBetween(memberProject.getId(), sundayOfWeek, sundayOfWeek.plusDays(7));
+        scheduleRepository.deleteMemberSchedulesBetween(memberProject.getId(), sundayOfWeek,
+                sundayOfWeek.plusDays(DAYS_IN_A_WEEK));
 
         List<Schedule> schedulesToSave = request.getSchedule().stream()
                 .flatMap(scheduleDayRequest -> scheduleDayRequest.getSchedule().stream())
@@ -206,12 +207,12 @@ public class ScheduleService {
 
     private LocalDateTime calculateStartDay(LocalDate localDate) {
         LocalDateTime condition = LocalDateTime.of(localDate, LocalTime.MIN);
-        return condition.minusDays(condition.getDayOfWeek().getValue() % 7);
+        return condition.minusDays(condition.getDayOfWeek().getValue() % DAYS_IN_A_WEEK);
     }
 
     private LocalDateTime calculateStartDay(LocalDateTime localDateTime) {
         LocalDateTime condition = LocalDateTime.of(localDateTime.toLocalDate(), LocalTime.MIN);
-        return condition.minusDays(condition.getDayOfWeek().getValue() % 7);
+        return condition.minusDays(condition.getDayOfWeek().getValue() % DAYS_IN_A_WEEK);
     }
 
 
