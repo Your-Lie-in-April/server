@@ -7,7 +7,7 @@ import com.appcenter.timepiece.common.security.CustomUserDetails;
 import com.appcenter.timepiece.domain.MemberProject;
 import com.appcenter.timepiece.domain.Project;
 import com.appcenter.timepiece.domain.Schedule;
-import com.appcenter.timepiece.domain.ScheduleDtoFactory;
+import com.appcenter.timepiece.domain.ScheduleCollection;
 import com.appcenter.timepiece.dto.schedule.ScheduleCreateUpdateRequest;
 import com.appcenter.timepiece.dto.schedule.ScheduleDayRequest;
 import com.appcenter.timepiece.dto.schedule.ScheduleDeleteRequest;
@@ -21,7 +21,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +38,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @RequiredArgsConstructor
 public class ScheduleService {
+
+    private static final int DAYS_IN_A_WEEK = 7;
 
     private final MemberProjectRepository memberProjectRepository;
     private final ScheduleRepository scheduleRepository;
@@ -62,26 +63,31 @@ public class ScheduleService {
         List<MemberProject> memberProjects = memberProjectRepository.findAllByProjectId(projectId);
 
         List<Long> memberProjectIds = memberProjects.stream().map(MemberProject::getId).toList();
+        return getScheduleWeekResponses(condition, memberProjects, memberProjectIds);
+    }
+
+    private List<ScheduleWeekResponse> getScheduleWeekResponses(LocalDate condition, List<MemberProject> memberProjects,
+                                                                List<Long> memberProjectIds) {
         LocalDateTime sundayOfWeek = calculateStartDay(condition);
-        LocalDateTime endOfWeek = sundayOfWeek.plusDays(7);
+        LocalDateTime endOfWeek = sundayOfWeek.plusDays(DAYS_IN_A_WEEK);
 
         List<Schedule> schedules = scheduleRepository.findMembersWeekSchedule(memberProjectIds, sundayOfWeek,
                 endOfWeek);
 
-        Map<Long, List<Schedule>> schedulesByMemberProjectId = schedules.stream()
-                .collect(Collectors.groupingBy(schedule -> schedule.getMemberProject().getId()));
-
-        Map<Long, Map<DayOfWeek, List<Schedule>>> schedulesByDayOfWeekByMemberProjectId = new HashMap<>();
-        for (Map.Entry<Long, List<Schedule>> entry : schedulesByMemberProjectId.entrySet()) {
-            schedulesByDayOfWeekByMemberProjectId.put(entry.getKey(), groupingByDayOfWeek(entry.getValue()));
-        }
+        Map<Long, ScheduleCollection> scheduleCollectionsByMemberProjectId = schedules.stream()
+                .collect(Collectors.groupingBy(schedule -> schedule.getMemberProject().getId(),
+                        Collectors.collectingAndThen(Collectors.toList(), ScheduleCollection::from)));
 
         return memberProjects.stream()
-                .map(memberProject ->
-                        new ScheduleWeekResponse(memberProject.getNickname(),
-                                ScheduleDtoFactory.scheduleDayResponsesFrom(
-                                        schedulesByDayOfWeekByMemberProjectId.get(memberProject.getId())))
-                ).toList();
+                .map(memberProject -> {
+                    ScheduleCollection scheduleCollection = scheduleCollectionsByMemberProjectId.get(
+                            memberProject.getId());
+                    if (scheduleCollection != null) {
+                        return new ScheduleWeekResponse(memberProject.getNickname(),
+                                scheduleCollection.toScheduleDayResponses());
+                    }
+                    return null;
+                }).filter(Objects::nonNull).toList();
     }
 
     @Transactional(readOnly = true)
@@ -90,35 +96,12 @@ public class ScheduleService {
         validateMemberIsInProject(projectId, userDetails);
 
         List<MemberProject> memberProjects = memberProjectRepository.findAllByProjectId(projectId);
-        MemberProject me = memberProjectRepository.findByMemberId(((CustomUserDetails) userDetails).getId()).get();
+        MemberProject me = memberProjectRepository.findByMemberIdAndProjectId(((CustomUserDetails) userDetails).getId(),
+                projectId).get();
         memberProjects.remove(me); // 본인 제외, 같은 트랜잭션 내에서 같은 객체를 공유할 것임.
 
         List<Long> memberProjectIds = memberProjects.stream().map(MemberProject::getId).collect(Collectors.toList());
-        LocalDateTime sundayOfWeek = calculateStartDay(condition);
-        LocalDateTime endOfWeek = sundayOfWeek.plusDays(7);
-
-        // (본인 제외) 모든 프로젝트 멤버들의 스케줄 조회
-        List<Schedule> schedules = scheduleRepository.findMembersWeekSchedule(memberProjectIds, sundayOfWeek,
-                endOfWeek);
-
-        Map<Long, List<Schedule>> schedulesByMemberProjectId = schedules.stream()
-                .collect(Collectors.groupingBy(schedule -> schedule.getMemberProject().getId()));
-
-        Map<Long, Map<DayOfWeek, List<Schedule>>> schedulesByDayOfWeekByMemberProjectId = new HashMap<>();
-        for (Map.Entry<Long, List<Schedule>> entry : schedulesByMemberProjectId.entrySet()) {
-            schedulesByDayOfWeekByMemberProjectId.put(entry.getKey(), groupingByDayOfWeek(entry.getValue()));
-        }
-
-        return memberProjects.stream()
-                .map(memberProject ->
-                        new ScheduleWeekResponse(memberProject.getNickname(),
-                                ScheduleDtoFactory.scheduleDayResponsesFrom(
-                                        schedulesByDayOfWeekByMemberProjectId.get(memberProject.getId())))
-                ).toList();
-    }
-
-    private Map<DayOfWeek, List<Schedule>> groupingByDayOfWeek(List<Schedule> schedules) {
-        return schedules.stream().collect(Collectors.groupingBy(schedule -> schedule.getStartTime().getDayOfWeek()));
+        return getScheduleWeekResponses(condition, memberProjects, memberProjectIds);
     }
 
     /**
@@ -144,9 +127,9 @@ public class ScheduleService {
         List<Schedule> schedules = scheduleRepository.findMemberWeekSchedule(memberProject.getId(), sundayOfWeek,
                 endOfWeek);
 
-        Map<DayOfWeek, List<Schedule>> scheduleByDayOfWeek = groupingByDayOfWeek(schedules);
+        ScheduleCollection scheduleCollection = ScheduleCollection.from(schedules);
         return new ScheduleWeekResponse(memberProject.getNickname(),
-                ScheduleDtoFactory.scheduleDayResponsesFrom(scheduleByDayOfWeek));
+                scheduleCollection.toScheduleDayResponses());
     }
 
     // todo: ProjectService와 중복코드
