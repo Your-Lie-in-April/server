@@ -7,6 +7,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
@@ -29,7 +31,7 @@ public class JwtProvider {
 
     private final CustomUserDetailsService customUserDetailsService;
     @Value("${spring.jwt.secret}")
-    private String secretKey = "secretKey";
+    private String rawSecretKey;
 
     @Value("${spring.jwt.refresh-token-valid-time}")
     private Long refreshTokenValidTime;
@@ -37,11 +39,14 @@ public class JwtProvider {
     @Value("${spring.jwt.access-token-valid-time}")
     private Long accessTokenValidTime;
 
+    private Key secretKey;
+
 
     @PostConstruct
     protected void init() {
         log.info("[init] 시크릿키 초기화 시작");
-        secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes(StandardCharsets.UTF_8));
+        rawSecretKey = Base64.getEncoder().encodeToString(rawSecretKey.getBytes(StandardCharsets.UTF_8));
+        secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(rawSecretKey));
         log.info("[init] 시크릿키 초기화 성공");
     }
 
@@ -56,10 +61,9 @@ public class JwtProvider {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + refreshTokenValidTime))//유효시간
-                .signWith(SignatureAlgorithm.HS256, secretKey) //HS256알고리즘으로 key를 암호화 해줄것이다.
+                .signWith(secretKey, SignatureAlgorithm.HS256) //HS256알고리즘으로 key를 암호화 해줄것이다.
                 .compact();
     }
-
 
     public String createAccessToken(Long id, String email, List<String> roles) {
         log.info("[createAccessToken] 토큰 생성 시작");
@@ -74,13 +78,12 @@ public class JwtProvider {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + accessTokenValidTime))
-                .signWith(SignatureAlgorithm.HS256, secretKey) // 암호화 알고리즘, secret 값 세팅
+                .signWith(secretKey, SignatureAlgorithm.HS256) // 암호화 알고리즘, secret 값 세팅
                 .compact();
 
         log.info("[createAccessToken] 토큰 생성 완료");
         return token;
     }
-
 
     public Authentication getAuthentication(String token) {
         log.info("[getAuthentication] 토큰 인증 정보 조회 시작");
@@ -91,42 +94,37 @@ public class JwtProvider {
                 userDetails.getAuthorities());
     }
 
-
     private String getMemberEmail(String token) {
         log.info("[getMemberEmail] 토큰 기반 회원 구별 정보 추출");
-        String email = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+        Claims claims = getTokenClaims(token);
+        String email = claims.getSubject();
         log.info("[getMemberEmail] 토큰 기반 회원 구별 정보 추출 완료, info : {}", email);
         return email;
     }
 
-
     public Long getMemberId(String token) {
         log.info("[getUsername] 토큰 기반 회원 구별 정보 추출");
-        Long memberId = Long.valueOf(
-                Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("memberId").toString());
+        Long memberId = (Long) tokenParser(token).getBody().get("memberId");
         log.info("[getUsername] 토큰 기반 회원 구별 정보 추출 완료, info : {}", memberId);
         return memberId;
     }
 
-    public Boolean validAccessToken(String token) {
-        if (Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("type").equals("access")) {
-            return true;
-        } else {
+    public void validAccessToken(String token) {
+        String tokenType = (String) getTokenClaims(token).get("type");
+        if (!tokenType.equals("access")) {
             throw new MismatchTokenTypeException(ExceptionMessage.TOKEN_TYPE_INVALID.getMessage());
         }
     }
 
-    public Boolean validRefreshToken(String token) {
-        if (Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("type").equals("refresh")) {
-            return true;
-        } else {
+    public void validRefreshToken(String token) {
+        String tokenType = (String) getTokenClaims(token).get("type");
+        if (!tokenType.equals("refresh")) {
             throw new MismatchTokenTypeException(ExceptionMessage.TOKEN_TYPE_INVALID.getMessage());
         }
     }
 
     public String getAuthorizationToken(HttpServletRequest request) {
         log.info("[getAuthorizationToken] HTTP 헤더에서 Token 값 추출");
-
         return request.getHeader("Authorization");
     }
 
@@ -144,7 +142,7 @@ public class JwtProvider {
 
     public boolean validDateToken(String token) {
         log.info("[validateToken] 토큰 유효 체크 시작");
-        Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+        Jws<Claims> claims = tokenParser(token);
 
         if (!claims.getBody().getExpiration().before(new Date())) {
             log.info("[validDateToken] 토큰 유효성 체크 성공");
@@ -153,5 +151,17 @@ public class JwtProvider {
             log.info("[validDateToken] 토큰 유효성 체크 실패");
             return false;
         }
+    }
+
+    public Jws<Claims> tokenParser(String token){
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token);
+    }
+
+    public Claims getTokenClaims(String token){
+        Jws<Claims> tokenJws = tokenParser(token);
+        return tokenJws.getBody();
     }
 }
