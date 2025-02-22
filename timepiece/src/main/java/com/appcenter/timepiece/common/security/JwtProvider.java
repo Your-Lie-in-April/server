@@ -10,9 +10,11 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -41,13 +43,36 @@ public class JwtProvider {
 
     private Key secretKey;
 
-
     @PostConstruct
     protected void init() {
         log.info("[init] 시크릿키 초기화 시작");
         rawSecretKey = Base64.getEncoder().encodeToString(rawSecretKey.getBytes(StandardCharsets.UTF_8));
         secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(rawSecretKey));
         log.info("[init] 시크릿키 초기화 성공");
+    }
+
+    public void setCookie(HttpServletResponse response, String accessToken, String refreshToken){
+        // Access Token 쿠키
+        ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("Lax")
+                .maxAge(convertMilliSecondsToSeconds(accessTokenValidTime))
+                .build();
+
+        // Refresh Token 쿠키
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("Lax")
+                .maxAge(convertMilliSecondsToSeconds(refreshTokenValidTime))
+                .build();
+
+        // 응답에 쿠키 추가
+        response.addHeader("Set-Cookie", accessTokenCookie.toString());
+        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
     }
 
     public String createRefreshToken(Long id, String email, List<String> roles) {
@@ -163,5 +188,9 @@ public class JwtProvider {
     public Claims getTokenClaims(String token){
         Jws<Claims> tokenJws = tokenParser(token);
         return tokenJws.getBody();
+    }
+
+    public Long convertMilliSecondsToSeconds(Long time){
+        return time / 1000;
     }
 }
