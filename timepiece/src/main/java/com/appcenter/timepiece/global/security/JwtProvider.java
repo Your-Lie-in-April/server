@@ -54,19 +54,19 @@ public class JwtProvider {
     public void setCookie(HttpServletResponse response, String accessToken, String refreshToken){
         // Access Token 쿠키
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
-                .httpOnly(true)
-                .secure(true)
+                .httpOnly(false)
+                .secure(false)
                 .path("/")
-                .sameSite("Lax")
+                .sameSite("None")
                 .maxAge(convertMilliSecondsToSeconds(accessTokenValidTime))
                 .build();
 
         // Refresh Token 쿠키
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
-                .httpOnly(true)
-                .secure(true)
+                .httpOnly(false)
+                .secure(false)
                 .path("/")
-                .sameSite("Lax")
+                .sameSite("None")
                 .maxAge(convertMilliSecondsToSeconds(refreshTokenValidTime))
                 .build();
 

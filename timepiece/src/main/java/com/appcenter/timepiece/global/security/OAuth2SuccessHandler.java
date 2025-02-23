@@ -16,8 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
@@ -49,36 +47,29 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         DefaultOAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
         Member member = memberRepository.findByEmail(oAuth2User.getName()).get();
 
-        redirectToken(request, response, member);
+        setTokenAtCookie(request, response, member);
     }
 
-    private void redirectToken(HttpServletRequest request, HttpServletResponse response, Member member)
-            throws IOException {
-
+    private void setTokenAtCookie(HttpServletRequest request, HttpServletResponse response, Member member) throws IOException {
         Long memberId = member.getId();
         String email = member.getEmail();
 
         String accessToken = jwtProvider.createAccessToken(memberId, email, List.of(Role.ROLE_USER.getRole()));
         String refreshToken = jwtProvider.createRefreshToken(memberId, email, List.of(Role.ROLE_USER.getRole()));
 
+        jwtProvider.setCookie(response, accessToken, refreshToken);
         refreshTokenRepository.save(new RefreshToken(memberId, refreshToken));
 
-        String uri = createURI(accessToken, refreshToken, memberId).toString();
+        String uri = createURI().toString();
         getRedirectStrategy().sendRedirect(request, response, uri);
     }
 
-    private URI createURI(String accessToken, String refreshToken, Long memberId) {
-        MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
-        queryParams.add("member_id", String.valueOf(memberId));
-        queryParams.add("access_token", accessToken);
-        queryParams.add("refresh_token", refreshToken);
-        log.info("{}", frontHost);
+    private URI createURI() {
         return UriComponentsBuilder.newInstance()
                 .scheme(frontScheme)
                 .host(frontHost)
                 .port(frontPort)
                 .path(frontPath)
-                .queryParams(queryParams)
                 .build()
                 .toUri();
     }
