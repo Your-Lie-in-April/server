@@ -33,7 +33,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         log.info("[doFilterInternal] Token ={}", token);
 
         if (token != null) {
-            String jwtToken = token.substring(7);
+            String jwtToken = token;
             log.info("[doFilterInternal] jwtToken:{}", jwtToken);
 
             log.info("[doFilterInternal] 토큰 타입 확인");

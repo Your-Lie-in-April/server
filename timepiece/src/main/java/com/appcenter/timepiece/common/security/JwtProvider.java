@@ -9,6 +9,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -54,20 +55,20 @@ public class JwtProvider {
     public void setCookie(HttpServletResponse response, String accessToken, String refreshToken){
         // Access Token 쿠키
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
-                .httpOnly(false)
+                .httpOnly(true)
                 .secure(false)
                 .path("/")
-                .sameSite("None")
                 .maxAge(convertMilliSecondsToSeconds(accessTokenValidTime))
+                .sameSite("Strict")
                 .build();
 
         // Refresh Token 쿠키
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
-                .httpOnly(false)
+                .httpOnly(true)
                 .secure(false)
                 .path("/")
-                .sameSite("None")
                 .maxAge(convertMilliSecondsToSeconds(refreshTokenValidTime))
+                .sameSite("Strict")
                 .build();
 
         // 응답에 쿠키 추가
@@ -149,8 +150,16 @@ public class JwtProvider {
     }
 
     public String getAuthorizationToken(HttpServletRequest request) {
-        log.info("[getAuthorizationToken] HTTP 헤더에서 Token 값 추출");
-        return request.getHeader("Authorization");
+        log.info("[getAuthorizationToken] 쿠키에서 Token 값 추출");
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 
     public String resolveServiceToken(HttpServletRequest request) {
