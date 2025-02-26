@@ -1,17 +1,38 @@
 package com.appcenter.timepiece.service;
 
+import static java.util.Objects.requireNonNull;
+
 import com.appcenter.timepiece.common.dto.CommonPagingResponse;
 import com.appcenter.timepiece.common.exception.ExceptionMessage;
 import com.appcenter.timepiece.common.exception.NotEnoughPrivilegeException;
 import com.appcenter.timepiece.common.exception.NotFoundElementException;
 import com.appcenter.timepiece.common.security.CustomUserDetails;
-import com.appcenter.timepiece.domain.*;
+import com.appcenter.timepiece.domain.Cover;
+import com.appcenter.timepiece.domain.Invitation;
+import com.appcenter.timepiece.domain.Member;
+import com.appcenter.timepiece.domain.MemberProject;
+import com.appcenter.timepiece.domain.Project;
 import com.appcenter.timepiece.dto.cover.CoverDataResponse;
 import com.appcenter.timepiece.dto.member.MemberResponse;
-import com.appcenter.timepiece.dto.project.*;
-import com.appcenter.timepiece.repository.*;
+import com.appcenter.timepiece.dto.project.InvitationLinkResponse;
+import com.appcenter.timepiece.dto.project.InvitationResponse;
+import com.appcenter.timepiece.dto.project.PinProjectResponse;
+import com.appcenter.timepiece.dto.project.ProjectCreateUpdateRequest;
+import com.appcenter.timepiece.dto.project.ProjectResponse;
+import com.appcenter.timepiece.dto.project.ProjectThumbnailResponse;
+import com.appcenter.timepiece.dto.project.TransferPrivilegeRequest;
+import com.appcenter.timepiece.repository.CoverRepository;
+import com.appcenter.timepiece.repository.InvitationRepository;
+import com.appcenter.timepiece.repository.MemberProjectRepository;
+import com.appcenter.timepiece.repository.MemberRepository;
+import com.appcenter.timepiece.repository.ProjectRepository;
 import com.appcenter.timepiece.util.AESEncoder;
 import com.appcenter.timepiece.util.LinkValidTime;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -19,14 +40,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
-
-import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @Service
@@ -42,11 +55,6 @@ public class ProjectService {
     private final MemberProjectRepository memberProjectRepository;
     private final NotificationService notificationService;
 
-    @Transactional(readOnly = true)
-    public List<ProjectResponse> findAll() {
-        return projectRepository.findAllWithCover().stream().map(p ->
-                ProjectResponse.of(p, p.getCover())).toList();
-    }
 
     @Transactional(readOnly = true)
     public ProjectResponse findProject(Long projectId, UserDetails userDetails) {
@@ -63,21 +71,23 @@ public class ProjectService {
     public CommonPagingResponse<?> findProjects(Integer page, Integer size, Long memberId, UserDetails userDetails) {
         validateMemberIsOwner(memberId, userDetails);
         PageRequest pageable = PageRequest.of(page, size);
-        Page<MemberProject> projectPage = memberProjectRepository.findMemberProjectsWithProjectAndCover(pageable, memberId);
+        Page<MemberProject> projectPage = memberProjectRepository.findMemberProjectsWithProjectAndCover(pageable,
+                memberId);
 
         List<MemberProject> projects = projectPage.getContent();
         List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream()
                 .map(MemberProject::getProject)
-                .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getThumbnailUrl()))).toList();
+                .map(p -> ProjectThumbnailResponse.of(p,
+                        ((p.getCover() == null) ? null : p.getCover().getThumbnailUrl()))).toList();
 
-        return new CommonPagingResponse<>(page, size, projectPage.getTotalElements(), projectPage.getTotalPages(), projectThumbnailResponses);
+        return new CommonPagingResponse<>(page, size, projectPage.getTotalElements(), projectPage.getTotalPages(),
+                projectThumbnailResponses);
     }
 
     /**
      * {@summary 핀 설정된 프로젝트 정보를 조회한다.}
      * <p>조회되는 정보에는 프로젝트 정보 이외에도 이번 주차의 모든 멤버들의 스케줄도 포함된다.
-     * 두 개 이상의 프로젝트를 핀 설정할 수 있도록 List 형태로 반환한다.
-     * 이 메서드는 내부적으로 ScheduleService 클래스의 findMemebersSchedules를 사용한다.</p>
+     * 두 개 이상의 프로젝트를 핀 설정할 수 있도록 List 형태로 반환한다. 이 메서드는 내부적으로 ScheduleService 클래스의 findMemebersSchedules를 사용한다.</p>
      *
      * @param memberId
      * @param userDetails
@@ -93,7 +103,8 @@ public class ProjectService {
         for (MemberProject memberProject : memberProjects) {
             Project project = memberProject.getProject();
             // todo: List<ScheduleWeekResponse>를 생성하는 로직 작성
-            pinProjectResponses.add(PinProjectResponse.of(project, ((project.getCover() == null) ? null : project.getCover().getCoverImageUrl()),
+            pinProjectResponses.add(PinProjectResponse.of(project,
+                    ((project.getCover() == null) ? null : project.getCover().getCoverImageUrl()),
                     scheduleService.findMembersSchedules(project.getId(), LocalDate.now(), userDetails)));
         }
         return pinProjectResponses;
@@ -105,15 +116,18 @@ public class ProjectService {
     }
 
     @Transactional
-    public CommonPagingResponse<?> searchProjects(Integer page, Integer size, Boolean isStored, Long memberId, String keyword, UserDetails userDetails) {
+    public CommonPagingResponse<?> searchProjects(Integer page, Integer size, Boolean isStored, Long memberId,
+                                                  String keyword, UserDetails userDetails) {
         validateMemberIsOwner(memberId, userDetails);
 
         PageRequest pageable = PageRequest.of(page, size);
         Page<Project> projectPage = projectRepository.searchProjects(memberId, keyword, isStored, pageable);
         List<Project> projects = projectPage.getContent();
         List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream()
-                .map(p -> ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getThumbnailUrl()))).toList();
-        return new CommonPagingResponse<>(page, size, projectPage.getTotalElements(), projectPage.getTotalPages(), projectThumbnailResponses);
+                .map(p -> ProjectThumbnailResponse.of(p,
+                        ((p.getCover() == null) ? null : p.getCover().getThumbnailUrl()))).toList();
+        return new CommonPagingResponse<>(page, size, projectPage.getTotalElements(), projectPage.getTotalPages(),
+                projectThumbnailResponses);
 
     }
 
@@ -256,7 +270,9 @@ public class ProjectService {
         Long memberId = ((CustomUserDetails) userDetails).getId();
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
-        if (memberProject.getIsPrivileged()) return;
+        if (memberProject.getIsPrivileged()) {
+            return;
+        }
         throw new NotEnoughPrivilegeException(ExceptionMessage.INSUFFICIENT_PRIVILEGE);
     }
 
@@ -295,7 +311,8 @@ public class ProjectService {
         fromMemberProject.releasePrivilege();
         toMemberProject.grantPrivilege();
 
-        notificationService.notifyBecomingOwner(toMemberProject.getProject(), toMemberProject.getMember(), fromMemberProject.getMember());
+        notificationService.notifyBecomingOwner(toMemberProject.getProject(), toMemberProject.getMember(),
+                fromMemberProject.getMember());
         memberProjectRepository.save(fromMemberProject);
         memberProjectRepository.save(toMemberProject);
     }
@@ -309,8 +326,10 @@ public class ProjectService {
         List<Project> projects = projectPage.getContent();
 
         List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream().map(p ->
-                ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getThumbnailUrl()))).toList();
-        return new CommonPagingResponse<>(page, size, projectPage.getTotalElements(), projectPage.getTotalPages(), projectThumbnailResponses);
+                        ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getThumbnailUrl())))
+                .toList();
+        return new CommonPagingResponse<>(page, size, projectPage.getTotalElements(), projectPage.getTotalPages(),
+                projectThumbnailResponses);
     }
 
     public InvitationResponse decodeInviteLink(String url) {
@@ -319,7 +338,8 @@ public class ProjectService {
         String invitator = st.nextToken();
         LocalDateTime linkTime = LocalDateTime.parse(st.nextToken());
 
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
         return InvitationResponse.of(project, invitator, linkTime);
     }
 
