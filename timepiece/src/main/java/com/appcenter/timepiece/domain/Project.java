@@ -2,18 +2,25 @@ package com.appcenter.timepiece.domain;
 
 import com.appcenter.timepiece.common.BaseTimeEntity;
 import com.appcenter.timepiece.dto.project.ProjectCreateUpdateRequest;
-import jakarta.persistence.*;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -46,15 +53,8 @@ public class Project extends BaseTimeEntity {
             joinColumns = @JoinColumn(name = "project_id"))
     private Set<DayOfWeek> daysOfWeek;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    private List<MemberProject> memberProjects = new ArrayList<>();
-
-    @OneToMany(mappedBy = "project")
-    private List<Invitation> invitations = new ArrayList<>();
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cover_id")
-    private Cover cover;
+    @Column(name = "cover_id")
+    private Long coverId;
 
     private String color;
 
@@ -63,8 +63,7 @@ public class Project extends BaseTimeEntity {
     @Builder
     private Project(String title, String description,
                     LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime,
-                    Set<DayOfWeek> daysOfWeek, List<MemberProject> memberProjects, List<Invitation> invitations,
-                    Cover cover, String color, Boolean isDeleted) {
+                    Set<DayOfWeek> daysOfWeek, Long coverId, String color, Boolean isDeleted) {
         this.title = title;
         this.description = description;
         this.startDate = startDate;
@@ -72,9 +71,7 @@ public class Project extends BaseTimeEntity {
         this.startTime = startTime;
         this.endTime = endTime;
         this.daysOfWeek = daysOfWeek;
-        this.memberProjects = memberProjects;
-        this.invitations = invitations;
-        this.cover = cover;
+        this.coverId = coverId;
         this.color = color;
         this.isDeleted = isDeleted;
     }
@@ -87,7 +84,7 @@ public class Project extends BaseTimeEntity {
                 .startTime(request.getStartTime()).endTime(request.getEndTime())
                 .daysOfWeek(request.getDaysOfWeek())
                 .color(request.getColor())
-                .cover(cover)
+                .coverId(cover.getId())
                 .isDeleted(false)
                 .build();
     }
@@ -101,7 +98,7 @@ public class Project extends BaseTimeEntity {
         this.endTime = request.getEndTime();
         this.daysOfWeek = request.getDaysOfWeek();
         this.color = request.getColor();
-        this.cover = cover;
+        this.coverId = cover.getId();
     }
 
     public void deleteProject() {

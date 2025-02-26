@@ -1,14 +1,18 @@
 package com.appcenter.timepiece.domain;
 
 import com.appcenter.timepiece.common.BaseTimeEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -36,12 +40,9 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private List<String> role;
 
-    @OneToMany(mappedBy = "member")
-    private List<MemberProject> memberProjects = new ArrayList<>();
-
-
     @Builder
-    public Member(String provider, String nickname, String email, String state, String profileImageUrl, List<String> role) {
+    public Member(String provider, String nickname, String email, String state, String profileImageUrl,
+                  List<String> role) {
         this.provider = provider;
         this.nickname = nickname;
         this.email = email;

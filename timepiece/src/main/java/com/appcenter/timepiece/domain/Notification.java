@@ -1,7 +1,13 @@
 package com.appcenter.timepiece.domain;
 
 import com.appcenter.timepiece.common.BaseTimeEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,17 +23,14 @@ public class Notification extends BaseTimeEntity {
 
     private String message;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id")
-    private Project project;
+    @Column(name = "project_id")
+    private Long projectId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver_id")
-    private Member receiver;
+    @Column(name = "receiver_id")
+    private Long receiverId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id")
-    private Member sender;
+    @Column(name = "sender_id")
+    private Long senderId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -44,22 +47,23 @@ public class Notification extends BaseTimeEntity {
     }
 
     @Builder(access = AccessLevel.PRIVATE)
-    private Notification(String message, Project project, Member receiver, Member sender, NotificationType type) {
+    private Notification(String message, Long projectId, Long receiverId, Long senderId, NotificationType type) {
         this.message = message;
-        this.project = project;
-        this.receiver = receiver;
-        this.sender = sender;
+        this.projectId = projectId;
+        this.receiverId = receiverId;
+        this.senderId = senderId;
         this.type = type;
         this.isChecked = false;
         this.isDeleted = false;
     }
 
-    public static Notification of(String message, Project project, Member receiver, Member sender, NotificationType type) {
+    public static Notification of(String message, Long projectId, Long receiverId, Long senderId,
+                                  NotificationType type) {
         return Notification.builder()
                 .message(message)
-                .project(project)
-                .receiver(receiver)
-                .sender(sender)
+                .projectId(projectId)
+                .receiverId(receiverId)
+                .senderId(senderId)
                 .type(type)
                 .build();
     }

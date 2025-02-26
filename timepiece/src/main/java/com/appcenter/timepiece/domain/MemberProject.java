@@ -1,14 +1,15 @@
 package com.appcenter.timepiece.domain;
 
 import com.appcenter.timepiece.common.BaseTimeEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -19,16 +20,11 @@ public class MemberProject extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @Column(name = "member_id")
+    private Long memberId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id")
-    private Project project;
-
-    @OneToMany(mappedBy = "memberProject", cascade = CascadeType.ALL)
-    private List<Schedule> schedules = new ArrayList<>();
+    @Column(name = "project_id")
+    private Long projectId;
 
     private String nickname;
 
@@ -42,9 +38,9 @@ public class MemberProject extends BaseTimeEntity {
     private Boolean isPrivileged;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private MemberProject(Member member, Project project, String nickname) {
-        this.member = member;
-        this.project = project;
+    private MemberProject(Long memberId, Long projectId, String nickname) {
+        this.memberId = memberId;
+        this.projectId = projectId;
         this.nickname = nickname;
         this.isPinned = false;
         this.isPrivileged = false;
@@ -53,8 +49,8 @@ public class MemberProject extends BaseTimeEntity {
 
     public static MemberProject of(Member member, Project project) {
         return MemberProject.builder()
-                .member(member)
-                .project(project)
+                .memberId(member.getId())
+                .projectId(project.getId())
                 .nickname(member.getNickname())
                 .build();
     }
