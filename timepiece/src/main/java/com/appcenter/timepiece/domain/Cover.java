@@ -1,12 +1,13 @@
 package com.appcenter.timepiece.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -22,9 +23,6 @@ public class Cover {
 
     @Column(name = "cover_image_url", columnDefinition = "TEXT")
     private String coverImageUrl;
-
-    @OneToMany(mappedBy = "cover")
-    private List<Project> projects = new ArrayList<>();
 
     private Cover(String thumbnailUrl, String coverImageUrl) {
         this.thumbnailUrl = thumbnailUrl;

@@ -1,7 +1,11 @@
 package com.appcenter.timepiece.domain;
 
 import com.appcenter.timepiece.common.BaseTimeEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,18 +19,17 @@ public class Invitation extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id")
-    private Project project;
+    @Column(name = "project_id")
+    private Long projectId;
 
     private String url;
 
-    private Invitation(Project project, String url) {
-        this.project = project;
+    private Invitation(Long projectId, String url) {
+        this.projectId = projectId;
         this.url = url;
     }
 
     public static Invitation of(Project project, String url) {
-        return new Invitation(project, url);
+        return new Invitation(project.getId(), url);
     }
 }
