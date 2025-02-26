@@ -63,8 +63,7 @@ public class JwtExceptionHandlerFilter extends OncePerRequestFilter {
         response.setStatus(exceptionMessage.getHttpStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        CommonResponse commonResponse = new CommonResponse(exceptionMessage.getErrorCode(),
-                exceptionMessage.getMessage(), null);
+        CommonResponse<?> commonResponse = CommonResponse.error(exceptionMessage.getMessage(), null);
         try {
             response.getWriter().write(objectMapper.writeValueAsString(commonResponse));
         } catch (IOException e) {
