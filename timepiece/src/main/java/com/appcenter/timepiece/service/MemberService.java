@@ -8,13 +8,12 @@ import com.appcenter.timepiece.domain.MemberProject;
 import com.appcenter.timepiece.dto.member.MemberResponse;
 import com.appcenter.timepiece.repository.MemberProjectRepository;
 import com.appcenter.timepiece.repository.MemberRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -78,12 +77,14 @@ public class MemberService {
     public MemberResponse editMemberNickname(Long projectId, String nickName, UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
 
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
         MemberProject memberProject = memberProjectRepository.findByMemberIdAndProjectId(memberId, projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
-
         memberProject.editNickName(nickName);
         memberProjectRepository.save(memberProject);
-        return MemberResponse.of(memberProject.getMember(), memberProject);
+
+        return MemberResponse.of(member, memberProject);
     }
 
 }
