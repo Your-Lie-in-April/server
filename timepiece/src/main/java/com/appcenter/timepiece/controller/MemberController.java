@@ -9,7 +9,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 
 @Slf4j
@@ -38,10 +43,12 @@ public class MemberController {
         return CommonResponse.success("멤버 정보 조회 성공", memberService.getMemberInfo(memberId));
     }
 
+    @Deprecated
     @PutMapping(value = "/v1/projects/members/nickname")
     @Operation(summary = "닉네임 재설정", description = "", deprecated = true)
     @SwaggerApiResponses
-    public CommonResponse<?> editUserNickname(Long projectId, String nickname, @AuthenticationPrincipal UserDetails userDetails) {
+    public CommonResponse<?> editUserNickname(Long projectId, String nickname,
+                                              @AuthenticationPrincipal UserDetails userDetails) {
         memberService.editMemberNickname(projectId, nickname, userDetails);
         return CommonResponse.success("닉네임 재설정 성공", null);
     }
@@ -49,14 +56,17 @@ public class MemberController {
     @PutMapping(value = "/v2/projects/members/nickname")
     @Operation(summary = "닉네임 재설정 v2", description = "")
     @SwaggerApiResponses
-    public CommonResponse<?> editUserNickname2(Long projectId, String nickname, @AuthenticationPrincipal UserDetails userDetails) {
-        return CommonResponse.success("사용자 닉네임 수정 성공했습니다.", memberService.editMemberNickname(projectId, nickname, userDetails));
+    public CommonResponse<?> editUserNickname2(Long projectId, String nickname,
+                                               @AuthenticationPrincipal UserDetails userDetails) {
+        return CommonResponse.success("사용자 닉네임 수정 성공했습니다.",
+                memberService.editMemberNickname(projectId, nickname, userDetails));
     }
 
     @PutMapping(value = "/v1/members/{state}")
     @Operation(summary = "상태메시지 설정", description = "")
     @SwaggerApiResponses
-    public CommonResponse<?> editUserState(@PathVariable String state, @AuthenticationPrincipal UserDetails userDetails) {
+    public CommonResponse<?> editUserState(@PathVariable String state,
+                                           @AuthenticationPrincipal UserDetails userDetails) {
         memberService.editMemberState(state, userDetails);
         return CommonResponse.success("상태메시지 설정 성공", null);
 
@@ -65,7 +75,8 @@ public class MemberController {
     @PatchMapping("/v1/members/storage/{projectId}")
     @Operation(summary = "프로젝트 보관 설정/해제", description = "", deprecated = true)
     @SwaggerApiResponses
-    public CommonResponse<?> storeProject(@PathVariable Long projectId, @AuthenticationPrincipal UserDetails userDetails) {
+    public CommonResponse<?> storeProject(@PathVariable Long projectId,
+                                          @AuthenticationPrincipal UserDetails userDetails) {
         memberService.storeProject(projectId, userDetails);
         return CommonResponse.success("성공", null);
     }
@@ -73,14 +84,16 @@ public class MemberController {
     @PatchMapping("/v2/members/storage/{projectId}")
     @Operation(summary = "프로젝트 보관설정/해제 v2(프로젝트 보관 여부 반환)")
     @SwaggerApiResponses
-    public CommonResponse<?> storeProject2(@PathVariable Long projectId, @AuthenticationPrincipal UserDetails userDetails) {
+    public CommonResponse<?> storeProject2(@PathVariable Long projectId,
+                                           @AuthenticationPrincipal UserDetails userDetails) {
         return CommonResponse.success("프로젝트 보관상태 변경", memberService.storeProject2(projectId, userDetails));
     }
 
     @PatchMapping("/v1/members/pin/{projectId}")
     @Operation(summary = "프로젝트 핀 설정/해제", description = "")
     @SwaggerApiResponses
-    public CommonResponse<?> pinProject(@PathVariable Long projectId, @AuthenticationPrincipal UserDetails userDetails) {
+    public CommonResponse<?> pinProject(@PathVariable Long projectId,
+                                        @AuthenticationPrincipal UserDetails userDetails) {
         projectService.pinProject(projectId, userDetails);
         return CommonResponse.success("프로젝트 핀 상태 변경", null);
     }
