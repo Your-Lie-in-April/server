@@ -6,6 +6,7 @@ import com.appcenter.timepiece.global.common.dto.CommonResponse;
 import com.appcenter.timepiece.global.config.SwaggerApiResponses;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,8 +24,9 @@ public class AuthController {
     @PostMapping(value = "/v1/auth/reissue")
     @Operation(summary = "토큰 재발급", description = "")
     @SwaggerApiResponses
-    public CommonResponse<?> reissueAccessToken(HttpServletRequest request) {
-        return CommonResponse.success("토큰 재발급 성공", authService.reissueAccessToken(request));
+    public CommonResponse<?> reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
+        authService.reissueAccessToken(request, response);
+        return CommonResponse.success("토큰 재발급 성공", null);
     }
 
 }

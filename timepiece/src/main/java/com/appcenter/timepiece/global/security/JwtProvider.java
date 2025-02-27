@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
@@ -44,6 +45,9 @@ public class JwtProvider {
 
     private Key secretKey;
 
+    private final String ACCESS_TOKEN = "accessToken";
+    private final String REFRESH_TOKEN = "refreshToken";
+
     @PostConstruct
     protected void init() {
         log.info("[init] 시크릿키 초기화 시작");
@@ -54,7 +58,7 @@ public class JwtProvider {
 
     public void setCookie(HttpServletResponse response, String accessToken, String refreshToken){
         // Access Token 쿠키
-        ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
+        ResponseCookie accessTokenCookie = ResponseCookie.from(ACCESS_TOKEN, accessToken)
                 .httpOnly(true)
                 .secure(false)
                 .path("/")
@@ -63,7 +67,7 @@ public class JwtProvider {
                 .build();
 
         // Refresh Token 쿠키
-        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
+        ResponseCookie refreshTokenCookie = ResponseCookie.from(REFRESH_TOKEN, refreshToken)
                 .httpOnly(true)
                 .secure(false)
                 .path("/")
@@ -76,39 +80,26 @@ public class JwtProvider {
         response.addHeader("Set-Cookie", refreshTokenCookie.toString());
     }
 
-    public String createRefreshToken(Long id, String email, List<String> roles) {
-        Claims claims = Jwts.claims().setSubject(email);
-        claims.put("memberId", id);
-        claims.put("roles", roles);
-        claims.put("type", "refresh");
-        Date now = new Date();
-        return Jwts
-                .builder()
-                .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + refreshTokenValidTime))//유효시간
-                .signWith(secretKey, SignatureAlgorithm.HS256) //HS256알고리즘으로 key를 암호화 해줄것이다.
-                .compact();
+    public String createAccessToken(Long id, String email, List<String> roles) {
+        return createToken(id, email, roles, ACCESS_TOKEN, accessTokenValidTime);
     }
 
-    public String createAccessToken(Long id, String email, List<String> roles) {
-        log.info("[createAccessToken] 토큰 생성 시작");
+    public String createRefreshToken(Long id, String email, List<String> roles) {
+        return createToken(id, email, roles, REFRESH_TOKEN, refreshTokenValidTime);
+    }
+
+    private String createToken(Long id, String email, List<String> roles, String tokenType, long validTime) {
         Claims claims = Jwts.claims().setSubject(email);
-        claims.put("roles", roles);
         claims.put("memberId", id);
-        claims.put("type", "access");
-
+        claims.put("roles", roles);
+        claims.put("type", tokenType);
         Date now = new Date();
-
-        String token = Jwts.builder()
+        return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + accessTokenValidTime))
-                .signWith(secretKey, SignatureAlgorithm.HS256) // 암호화 알고리즘, secret 값 세팅
+                .setExpiration(new Date(now.getTime() + validTime))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
-
-        log.info("[createAccessToken] 토큰 생성 완료");
-        return token;
     }
 
     public Authentication getAuthentication(String token) {
@@ -128,50 +119,50 @@ public class JwtProvider {
         return email;
     }
 
+    //Json 파서가 memberId를 Integer로 강제 형변환하는 문제 해결을 위해 Number로 Long 형변환 후 반환
+    //oauth2 로그인 과정에서의 토큰 발급엔 잘 동작하지만, accessToken reissue 과정에서 위와 같은 문제 발생
     public Long getMemberId(String token) {
         log.info("[getUsername] 토큰 기반 회원 구별 정보 추출");
-        Long memberId = (Long) tokenParser(token).getBody().get("memberId");
+        Object memberIdObj = tokenParser(token).getBody().get("memberId");
+        Long memberId = ((Number) memberIdObj).longValue();
         log.info("[getUsername] 토큰 기반 회원 구별 정보 추출 완료, info : {}", memberId);
         return memberId;
     }
 
     public void validAccessToken(String token) {
         String tokenType = (String) getTokenClaims(token).get("type");
-        if (!tokenType.equals("access")) {
+        if (!tokenType.equals(ACCESS_TOKEN)) {
             throw new MismatchTokenTypeException(ExceptionMessage.TOKEN_TYPE_INVALID.getMessage());
         }
     }
 
     public void validRefreshToken(String token) {
         String tokenType = (String) getTokenClaims(token).get("type");
-        if (!tokenType.equals("refresh")) {
+        if (!tokenType.equals(REFRESH_TOKEN)) {
             throw new MismatchTokenTypeException(ExceptionMessage.TOKEN_TYPE_INVALID.getMessage());
         }
     }
 
-    public String getAuthorizationToken(HttpServletRequest request) {
-        log.info("[getAuthorizationToken] 쿠키에서 Token 값 추출");
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("accessToken".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
+    public String getAccessToken(HttpServletRequest request) {
+        log.info("[getAccessToken] 쿠키에서 Token 값 추출");
+        return getAuthorizationToken(request, ACCESS_TOKEN);
     }
 
-    public String resolveServiceToken(HttpServletRequest request) {
-        log.info("[resolveServiceToken] HTTP 헤더에서 Token 값 추출");
+    public String getRefreshToken(HttpServletRequest request) {
+        log.info("[getRefreshToken] 쿠키에서 Token 값 추출");
+        return getAuthorizationToken(request, REFRESH_TOKEN);
+    }
 
-        String token = request.getHeader("Authorization");
-
-        if (token == null) {
-            throw new JwtEmptyException(ExceptionMessage.TOKEN_NOT_FOUND.getMessage());
-        } else {
-            return token.substring(7);
+    public String getAuthorizationToken(HttpServletRequest request, String tokenType){
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            return Arrays.stream(cookies)
+                    .filter(cookie -> tokenType.equals(cookie.getName()))
+                    .findFirst()
+                    .map(Cookie::getValue)
+                    .orElse(null);
         }
+        return null;
     }
 
     public boolean validDateToken(String token) {

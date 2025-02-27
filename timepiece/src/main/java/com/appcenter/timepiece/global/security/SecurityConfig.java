@@ -78,7 +78,8 @@ public class SecurityConfig {
             "/swagger-ui/**", //스웨거 명세
             "/v3/api-docs/**", //스웨거 명세
             "/v1/invitation/{url}", //회원 초대(추가)
-            "/cover-image/**"
+            "/cover-image/**",
+            "/v1/auth/reissue" //리프레시 토큰 재생성
     };
 
     String[] PERMIT_USER_GET = {
@@ -97,7 +98,6 @@ public class SecurityConfig {
             "/v1/projects", //프로젝트 생성
             "/v1/projects/{projectId}/invitation", //초대링크 생성
             "/v1/projects/{projectId}/schedules", //시간표 생성
-            "/v1/auth/reissue" //리프레시 토큰 재생성
     };
 
     String[] PERMIT_USER_PUT = {

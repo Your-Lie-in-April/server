@@ -9,7 +9,10 @@ import com.appcenter.timepiece.global.exception.NotFoundElementException;
 import com.appcenter.timepiece.global.redis.RefreshToken;
 import com.appcenter.timepiece.global.redis.RefreshTokenRepository;
 import com.appcenter.timepiece.global.security.JwtProvider;
+import com.appcenter.timepiece.domain.Member;
+import com.appcenter.timepiece.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,9 +29,10 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     //accessToken 재발급과 동시에 refreshToken 도 새로 발급한다.(유효시간을 늘리기 위함.)
-    public TokenResponse reissueAccessToken(HttpServletRequest request) {
+    public void reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
 
-        String token = jwtProvider.resolveServiceToken(request);
+        String token = jwtProvider.getRefreshToken(request);
+        jwtProvider.validRefreshToken(token);
 
         Long memberId = jwtProvider.getMemberId(token);
 
@@ -47,16 +51,10 @@ public class AuthService {
 
         String newRefreshToken = jwtProvider.createRefreshToken(memberId, member.getEmail(), member.getRole());
 
-        TokenResponse tokenResponse = TokenResponse.builder()
-                .refreshToken(newRefreshToken)
-                .accessToken(accessToken)
-                .build();
-
         //redis 에 토큰 저장
         refreshTokenRepository.save(new RefreshToken(memberId, newRefreshToken));
 
-        return tokenResponse;
+        //쿠키에 토큰 세팅
+        jwtProvider.setCookie(response, accessToken, newRefreshToken);
     }
-
-
 }
