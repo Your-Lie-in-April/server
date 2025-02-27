@@ -35,9 +35,8 @@ public class CustomOAuth2Service implements OAuth2UserService<OAuth2UserRequest,
         String provider = userRequest.getClientRegistration().getRegistrationId();
 
         OAuth2Attributes attributes = OAuth2Attributes.of(provider, originAttributes);
-        saveOrUpdate(attributes);
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
-
+        Member member = saveOrUpdate(attributes);
+        List<? extends GrantedAuthority> authorities = getAuthorities(member);
         return new DefaultOAuth2User(authorities, attributes.getAttributes(), attributes.getNameAttributesKey());
     }
 
@@ -54,5 +53,10 @@ public class CustomOAuth2Service implements OAuth2UserService<OAuth2UserRequest,
         }
 
         return memberRepository.save(returnMember);
+    }
+
+    private List<SimpleGrantedAuthority> getAuthorities(Member member){
+        List<String> roles = member.getRole();
+        return roles.stream().map(SimpleGrantedAuthority::new).toList();
     }
 }
