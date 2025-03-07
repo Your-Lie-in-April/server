@@ -16,4 +16,8 @@ public class TransferPrivilegeRequest {
     public String toString() {
         return "toMemberId = " + toMemberId;
     }
+
+    public TransferPrivilegeRequest(Long toMemberId) {
+        this.toMemberId = toMemberId;
+    }
 }

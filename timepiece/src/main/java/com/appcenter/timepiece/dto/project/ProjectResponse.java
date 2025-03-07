@@ -40,6 +40,7 @@ public class ProjectResponse {
         private String thumbnailUrl;
         private String coverImageUrl;
 
+        @Builder(access = AccessLevel.PUBLIC)
         public CoverInfo(Long thumbnailId, String thumbnailUrl, String coverImageUrl) {
             this.id = thumbnailId;
             this.thumbnailUrl = thumbnailUrl;
@@ -53,7 +54,7 @@ public class ProjectResponse {
 
     }
 
-    @Builder(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PUBLIC)
     private ProjectResponse(Long projectId, String title, String description,
                             LocalDate startDate, LocalDate endDate,
                             LocalTime startTime, LocalTime endTime,

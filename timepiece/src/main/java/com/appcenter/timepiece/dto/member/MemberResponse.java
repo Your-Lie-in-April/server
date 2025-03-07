@@ -21,7 +21,7 @@ public class MemberResponse {
 
     private Boolean isPrivileged;
 
-    @Builder(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PUBLIC)
     private MemberResponse(Long memberId, String email, String nickname, String state, String profileImageUrl, Boolean isPrivileged) {
         this.memberId = memberId;
         this.email = email;

@@ -1,6 +1,8 @@
 package com.appcenter.timepiece.dto.project;
 
 import com.appcenter.timepiece.domain.Project;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +15,7 @@ public class InvitationResponse {
     String invitator;
     Boolean isExpired;
 
+    @Builder(access = AccessLevel.PUBLIC)
     private InvitationResponse(String title, String invitator, Boolean isExpired) {
         this.title = title;
         this.invitator = invitator;

@@ -18,7 +18,7 @@ public class ProjectThumbnailResponse {
 
     private String thumbnailUrl;
 
-    @Builder(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PUBLIC)
     private ProjectThumbnailResponse(Long projectId, String title, String description,
                                      String color, String thumbnailUrl) {
         this.projectId = projectId;
