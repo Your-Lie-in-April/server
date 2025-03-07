@@ -3,7 +3,6 @@ package com.appcenter.timepiece.repository;
 import static com.appcenter.timepiece.domain.QCover.cover;
 
 import com.appcenter.timepiece.domain.Project;
-import com.appcenter.timepiece.domain.QMember;
 import com.appcenter.timepiece.domain.QMemberProject;
 import com.appcenter.timepiece.domain.QProject;
 import com.querydsl.core.Tuple;
@@ -24,13 +23,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     private QProject project = QProject.project;
-    private QMember member = QMember.member;
     private QMemberProject memberProject = QMemberProject.memberProject;
-
-    @Override
-    public Page<Project> searchProjects(Long memberId, String keyword, Boolean isStored, Pageable pageable) {
-        return findProjects(memberId, keyword, isStored, false, pageable);
-    }
 
     @Override
     public Page<Project> findProjectIsStored(Long memberId, Pageable pageable) {

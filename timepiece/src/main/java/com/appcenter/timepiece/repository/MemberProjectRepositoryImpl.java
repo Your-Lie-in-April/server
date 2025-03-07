@@ -25,11 +25,6 @@ public class MemberProjectRepositoryImpl implements MemberProjectRepositoryCusto
     private QMemberProject memberProject = QMemberProject.memberProject;
 
     @Override
-    public Page<MemberProject> findMemberProjectsWithProjectAndCover(Pageable pageable, Long memberId) {
-        return findMemberProjects(pageable, memberId, false);
-    }
-
-    @Override
     public List<MemberProject> findByMemberIdAndIsPinnedIsTrue(Long memberId) {
         return findMemberProjects(memberId, null, true, null, false);
     }
