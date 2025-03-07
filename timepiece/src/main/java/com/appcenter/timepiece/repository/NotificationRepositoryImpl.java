@@ -1,9 +1,11 @@
 package com.appcenter.timepiece.repository;
 
 import com.appcenter.timepiece.domain.Notification;
-import com.appcenter.timepiece.domain.QMember;
+import com.appcenter.timepiece.domain.QMemberProject;
 import com.appcenter.timepiece.domain.QNotification;
 import com.appcenter.timepiece.domain.QProject;
+import com.appcenter.timepiece.dto.notify.NotificationResponse;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,17 +19,15 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
     private final JPAQueryFactory queryFactory;
 
     private QNotification notification = QNotification.notification;
-    private QMember receiver = new QMember("receiver");
-    private QMember sender = new QMember("sender");
+    private QMemberProject receiver = new QMemberProject("receiver");
+    private QMemberProject sender = new QMemberProject("sender");
     private QProject project = QProject.project;
 
     @Override
     public List<Notification> findAllByTimestampAfter(Long receiverId, LocalDateTime cursorTimestamp, Boolean isChecked,
                                                       int pageSize) {
         return queryFactory.selectFrom(notification)
-                .leftJoin(notification.receiver, receiver)
-                .leftJoin(notification.sender, sender)
-                .where(notification.receiver.id.eq(receiverId)
+                .where(notification.receiverId.eq(receiverId)
                         .and(notification.isChecked.eq(isChecked))
                         .and(notification.isDeleted.isFalse())
                         .and(notification.createdAt.lt(cursorTimestamp)))
@@ -36,30 +36,24 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
                 .fetch();
     }
 
-
     @Override
     public List<Notification> findAllByTimestampAfter(Long receiverId, Long projectId, LocalDateTime timestamp,
                                                       Boolean isChecked, int pageSize) {
         return queryFactory.selectFrom(notification)
-                .leftJoin(notification.receiver, receiver)
-                .leftJoin(notification.sender, sender)
-                .leftJoin(notification.project, project)
-                .where(notification.receiver.id.eq(receiverId)
-                        .and(notification.project.id.eq(projectId))
+                .where(notification.receiverId.eq(receiverId)
+                        .and(notification.projectId.eq(projectId))
                         .and(notification.isChecked.eq(isChecked))
                         .and(notification.isDeleted.isFalse())
                         .and(notification.createdAt.lt(timestamp)))
                 .orderBy(notification.isChecked.asc(), notification.createdAt.desc())
+                .limit(pageSize)
                 .fetch();
     }
 
     @Override
     public List<Notification> findAllByReceiverLargerThanNotificationId(Long receiverId, Long notificationId) {
         return queryFactory.selectFrom(notification)
-                .leftJoin(notification.receiver, receiver).fetchJoin()
-                .leftJoin(notification.sender, sender).fetchJoin()
-                .leftJoin(notification.project, project).fetchJoin()
-                .where(notification.receiver.id.eq(receiverId)
+                .where(notification.receiverId.eq(receiverId)
                         .and(notification.id.gt(notificationId)))
                 .orderBy(notification.isChecked.asc(), notification.createdAt.desc())
                 .fetch();
@@ -69,13 +63,47 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
     public List<Notification> findAllByReceiverLargerThanNotificationId(Long receiverId, Long projectId,
                                                                         Long notificationId) {
         return queryFactory.selectFrom(notification)
-                .leftJoin(notification.receiver, receiver).fetchJoin()
-                .leftJoin(notification.sender, sender).fetchJoin()
-                .leftJoin(notification.project, project).fetchJoin()
-                .where(notification.receiver.id.eq(receiverId)
-                        .and(notification.project.id.eq(projectId))
+                .where(notification.receiverId.eq(receiverId)
+                        .and(notification.projectId.eq(projectId))
                         .and(notification.id.gt(notificationId)))
                 .orderBy(notification.isChecked.asc(), notification.createdAt.desc())
+                .fetch();
+    }
+
+    @Override
+    public List<NotificationResponse> finaAllByReceiverId(Long receiverId, LocalDateTime cursor, Boolean isChecked,
+                                                          int size) {
+        return queryFactory
+                .select(Projections.constructor(NotificationResponse.class, notification, project, sender, receiver))
+                .from(notification)
+                .leftJoin(sender).on(notification.senderId.eq(sender.id))
+                .leftJoin(receiver).on(notification.receiverId.eq(receiver.id))
+                .leftJoin(project).on(notification.projectId.eq(project.id))
+                .where(notification.receiverId.eq(receiverId)
+                        .and(notification.isChecked.eq(isChecked))
+                        .and(notification.isDeleted.isFalse())
+                        .and(notification.createdAt.lt(cursor)))
+                .orderBy(notification.isChecked.asc(), notification.createdAt.desc())
+                .limit(size)
+                .fetch();
+    }
+
+    @Override
+    public List<NotificationResponse> finaAllByReceiverIdInProject(Long receiverId, Long projectId,
+                                                                   LocalDateTime cursor, Boolean isChecked, int size) {
+        return queryFactory
+                .select(Projections.constructor(NotificationResponse.class, notification, project, sender, receiver))
+                .from(notification)
+                .leftJoin(sender).on(notification.senderId.eq(sender.id))
+                .leftJoin(receiver).on(notification.receiverId.eq(receiver.id))
+                .leftJoin(project).on(notification.projectId.eq(project.id))
+                .where(notification.receiverId.eq(receiverId)
+                        .and(notification.projectId.eq(projectId))
+                        .and(notification.isChecked.eq(isChecked))
+                        .and(notification.isDeleted.isFalse())
+                        .and(notification.createdAt.lt(cursor)))
+                .orderBy(notification.isChecked.asc(), notification.createdAt.desc())
+                .limit(size)
                 .fetch();
     }
 }

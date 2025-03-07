@@ -6,14 +6,13 @@ import com.appcenter.timepiece.domain.QMemberProject;
 import com.appcenter.timepiece.domain.QProject;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Repository
@@ -52,32 +51,35 @@ public class MemberProjectRepositoryImpl implements MemberProjectRepositoryCusto
 
     private Page<MemberProject> findMemberProjects(Pageable pageable, Long memberId, Boolean isDeleted) {
         List<MemberProject> content = queryFactory.selectFrom(memberProject)
-                .join(memberProject.project, project).fetchJoin()
-                .leftJoin(project.cover, cover).fetchJoin()
-                .where(memberProject.member.id.eq(memberId)
+                .innerJoin(project).on(memberProject.projectId.eq(project.id))
+                .leftJoin(cover).on(project.coverId.eq(cover.id))
+                .where(memberProject.memberId.eq(memberId)
                         .and(memberProject.isStored.isFalse())
-                        .and(isDeletedEq(isDeleted)))
+                        .and(project.isDeleted.eq(isDeleted)))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
+                .orderBy(project.updatedAt.desc())
                 .fetch();
 
         Long total = queryFactory.selectFrom(memberProject)
-                .where(memberProject.member.id.eq(memberId)
+                .innerJoin(project).on(memberProject.projectId.eq(project.id))
+                .where(memberProject.memberId.eq(memberId)
                         .and(memberProject.isStored.isFalse())
-                        .and(isDeletedEq(isDeleted)))
+                        .and(project.isDeleted.eq(isDeleted)))
                 .fetchCount();
 
         return new PageImpl<>(content, pageable, total);
     }
 
-    private List<MemberProject> findMemberProjects(Long memberId, Long projectId, Boolean isPinned, Boolean isStored, Boolean isDeleted) {
+    private List<MemberProject> findMemberProjects(Long memberId, Long projectId, Boolean isPinned, Boolean isStored,
+                                                   Boolean isDeleted) {
         List<MemberProject> content = queryFactory.selectFrom(memberProject)
-                .join(memberProject.project, project).fetchJoin()
+                .innerJoin(project).on(memberProject.projectId.eq(project.id))
                 .where(memberIdEq(memberId),
                         projectIdEq(projectId),
                         isPinnedEq(isPinned),
                         isStoredEq(isStored),
-                        isDeletedEq(isDeleted))
+                        (project.isDeleted.eq(isDeleted)))
                 .fetch();
 
         return content;
@@ -85,28 +87,26 @@ public class MemberProjectRepositoryImpl implements MemberProjectRepositoryCusto
 
     private Optional<MemberProject> findMemberProject(Long memberId, Long projectId, Boolean isDeleted) {
         Optional<MemberProject> content = queryFactory.selectFrom(memberProject)
-                .join(memberProject.project, project).fetchJoin()
+                .innerJoin(project).on(memberProject.projectId.eq(project.id))
                 .where(memberIdEq(memberId),
                         projectIdEq(projectId),
-                        isDeletedEq(isDeleted))
+                        (project.isDeleted.eq(isDeleted)))
                 .stream().findAny();
 
         return content;
     }
 
-    private boolean existsMemberProject(Long memberId, Long projectId, Boolean isPinned, Boolean isStored, Boolean isDeleted) {
+    private boolean existsMemberProject(Long memberId, Long projectId, Boolean isPinned, Boolean isStored,
+                                        Boolean isDeleted) {
         Integer content = queryFactory.selectOne().from(memberProject)
-                .where(memberProject.member.id.eq(memberId),
-                        memberProject.project.id.eq(projectId),
-                        isDeletedEq(isDeleted),
+                .join(project).on(memberProject.projectId.eq(project.id))
+                .where(memberProject.memberId.eq(memberId),
+                        memberProject.projectId.eq(projectId),
+                        (project.isDeleted.eq(isDeleted)),
                         isPinnedEq(isPinned),
                         isStoredEq(isStored)).fetchFirst();
 
         return content != null;
-    }
-
-    private BooleanExpression isDeletedEq(Boolean isDeletedCond) {
-        return isDeletedCond != null ? project.isDeleted.eq(isDeletedCond) : null;
     }
 
     private BooleanExpression isStoredEq(Boolean isStoredCond) {
@@ -118,10 +118,10 @@ public class MemberProjectRepositoryImpl implements MemberProjectRepositoryCusto
     }
 
     private BooleanExpression memberIdEq(Long memberIdCond) {
-        return memberIdCond != null ? memberProject.member.id.eq(memberIdCond) : null;
+        return memberIdCond != null ? memberProject.memberId.eq(memberIdCond) : null;
     }
 
     private BooleanExpression projectIdEq(Long projectIdCond) {
-        return projectIdCond != null ? memberProject.project.id.eq(projectIdCond) : null;
+        return projectIdCond != null ? memberProject.projectId.eq(projectIdCond) : null;
     }
 }
