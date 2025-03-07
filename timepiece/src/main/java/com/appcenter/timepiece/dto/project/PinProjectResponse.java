@@ -39,7 +39,7 @@ public class PinProjectResponse {
 
     private List<ScheduleWeekResponse> schedule;
 
-    @Builder(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PUBLIC)
     private PinProjectResponse(Long projectId, String title, String description, LocalDate startDate, LocalDate endDate,
                                LocalTime startTime, LocalTime endTime,
                                Set<DayOfWeek> daysOfWeek,

@@ -1,6 +1,7 @@
 package com.appcenter.timepiece.dto.project;
 
 import com.appcenter.timepiece.domain.Project;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ public class InvitationLinkResponse {
     String title;
     String link;
 
+    @Builder
     private InvitationLinkResponse(Long projectId, String title, String link) {
         this.projectId = projectId;
         this.title = title;
