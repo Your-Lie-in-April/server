@@ -1,5 +1,8 @@
 package com.appcenter.timepiece.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.appcenter.timepiece.common.exception.ExceptionMessage;
 import com.appcenter.timepiece.common.security.CustomUserDetails;
 import com.appcenter.timepiece.domain.Member;
@@ -11,14 +14,6 @@ import com.appcenter.timepiece.dto.schedule.ScheduleDto;
 import com.appcenter.timepiece.repository.MemberProjectRepository;
 import com.appcenter.timepiece.repository.ProjectRepository;
 import com.appcenter.timepiece.repository.ScheduleRepository;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,9 +23,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class ScheduleServiceTest {
@@ -67,13 +66,15 @@ class ScheduleServiceTest {
                 LocalDateTime.of(2024, 4, 21, 9, 30),
                 LocalDateTime.of(2024, 4, 21, 10, 30));
 
-        ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto1, scheduleDto2)));
+        ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(
+                new ArrayList<>(List.of(scheduleDto1, scheduleDto2)));
         ScheduleDayRequest scheduleDayRequest2 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto3)));
         ScheduleDayRequest scheduleDayRequest3 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto4)));
         ScheduleDayRequest scheduleDayRequest4 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto5)));
 
         ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
-                new ScheduleCreateUpdateRequest(List.of(scheduleDayRequest1, scheduleDayRequest2, scheduleDayRequest3, scheduleDayRequest4));
+                new ScheduleCreateUpdateRequest(
+                        List.of(scheduleDayRequest1, scheduleDayRequest2, scheduleDayRequest3, scheduleDayRequest4));
         Member member = new Member(null, "namu", "namu2024@gmail.com", "", "", List.of("ROLE_USER"));
         Project project = Project.builder()
                 .title("test").description("설명")
@@ -81,17 +82,15 @@ class ScheduleServiceTest {
                 .endDate(LocalDate.of(2025, 1, 1))
                 .startTime(LocalTime.MIN).endTime(LocalTime.MAX)
                 .daysOfWeek(Arrays.stream(DayOfWeek.values()).collect(Collectors.toSet()))
-                .memberProjects(new ArrayList<>()).invitations(new ArrayList<>())
-                .cover(null).color("FFFFFF")
+                .coverId(null).color("FFFFFF")
                 .build();
         MemberProject memberProject = MemberProject.of(member, project);
 
         Mockito.when(projectRepository.findById(1L))
                 .thenReturn(Optional.of(project));
-//        Mockito.when(memberProjectRepository.findMemberProjectByMemberIdAndProjectId(1L, 1L))
-//                        .thenReturn(Optional.of(memberProject));
 
-        Throwable exception = assertThrows(IllegalArgumentException.class, () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
+        Throwable exception = assertThrows(IllegalArgumentException.class,
+                () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
         assertEquals(ExceptionMessage.INVALID_WEEK.getMessage(), exception.getMessage());
     }
 
@@ -115,13 +114,15 @@ class ScheduleServiceTest {
                 LocalDateTime.of(2024, 4, 19, 19, 30),
                 LocalDateTime.of(2024, 4, 19, 20, 30));
 
-        ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto1, scheduleDto2)));
+        ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(
+                new ArrayList<>(List.of(scheduleDto1, scheduleDto2)));
         ScheduleDayRequest scheduleDayRequest2 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto3)));
         ScheduleDayRequest scheduleDayRequest3 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto4)));
         ScheduleDayRequest scheduleDayRequest4 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto5)));
 
         ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
-                new ScheduleCreateUpdateRequest(List.of(scheduleDayRequest1, scheduleDayRequest2, scheduleDayRequest3, scheduleDayRequest4));
+                new ScheduleCreateUpdateRequest(
+                        List.of(scheduleDayRequest1, scheduleDayRequest2, scheduleDayRequest3, scheduleDayRequest4));
         Member member = new Member(null, "namu", "namu2024@gmail.com", "", "", List.of("ROLE_USER"));
         Project project = Project.builder()
                 .title("test").description("설명")
@@ -129,13 +130,13 @@ class ScheduleServiceTest {
                 .endDate(LocalDate.of(2025, 1, 1))
                 .startTime(LocalTime.MIN).endTime(LocalTime.MAX)
                 .daysOfWeek(Arrays.stream(DayOfWeek.values()).collect(Collectors.toSet()))
-                .memberProjects(new ArrayList<>()).invitations(new ArrayList<>())
-                .cover(null).color("FFFFFF")
+                .coverId(null).color("FFFFFF")
                 .build();
 
         Mockito.when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
-        Throwable exception = assertThrows(IllegalArgumentException.class, () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
+        Throwable exception = assertThrows(IllegalArgumentException.class,
+                () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
         assertEquals(ExceptionMessage.DUPLICATE_DATE.getMessage(), exception.getMessage());
     }
 
@@ -162,10 +163,12 @@ class ScheduleServiceTest {
         ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto1)));
         ScheduleDayRequest scheduleDayRequest2 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto2)));
         ScheduleDayRequest scheduleDayRequest3 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto3)));
-        ScheduleDayRequest scheduleDayRequest4 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto4, scheduleDto5)));
+        ScheduleDayRequest scheduleDayRequest4 = new ScheduleDayRequest(
+                new ArrayList<>(List.of(scheduleDto4, scheduleDto5)));
 
         ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
-                new ScheduleCreateUpdateRequest(List.of(scheduleDayRequest1, scheduleDayRequest2, scheduleDayRequest3, scheduleDayRequest4));
+                new ScheduleCreateUpdateRequest(
+                        List.of(scheduleDayRequest1, scheduleDayRequest2, scheduleDayRequest3, scheduleDayRequest4));
         Member member = new Member(null, "namu", "namu2024@gmail.com", "", "", List.of("ROLE_USER"));
         Project project = Project.builder()
                 .title("test").description("설명")
@@ -173,13 +176,13 @@ class ScheduleServiceTest {
                 .endDate(LocalDate.of(2025, 1, 1))
                 .startTime(LocalTime.MIN).endTime(LocalTime.MAX)
                 .daysOfWeek(Arrays.stream(DayOfWeek.values()).collect(Collectors.toSet()))
-                .memberProjects(new ArrayList<>()).invitations(new ArrayList<>())
-                .cover(null).color("FFFFFF")
+                .coverId(null).color("FFFFFF")
                 .build();
 
         Mockito.when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
-        Throwable exception = assertThrows(IllegalArgumentException.class, () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
+        Throwable exception = assertThrows(IllegalArgumentException.class,
+                () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
         assertEquals(ExceptionMessage.INVALID_PROJECT_PERIOD.getMessage(), exception.getMessage());
     }
 
@@ -203,13 +206,15 @@ class ScheduleServiceTest {
                 LocalDateTime.of(2024, 4, 20, 19, 30),
                 LocalDateTime.of(2024, 4, 20, 21, 30));
 
-        ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto1, scheduleDto2)));
+        ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(
+                new ArrayList<>(List.of(scheduleDto1, scheduleDto2)));
         ScheduleDayRequest scheduleDayRequest2 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto3)));
         ScheduleDayRequest scheduleDayRequest3 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto4)));
         ScheduleDayRequest scheduleDayRequest4 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto5)));
 
         ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
-                new ScheduleCreateUpdateRequest(List.of(scheduleDayRequest1, scheduleDayRequest2, scheduleDayRequest3, scheduleDayRequest4));
+                new ScheduleCreateUpdateRequest(
+                        List.of(scheduleDayRequest1, scheduleDayRequest2, scheduleDayRequest3, scheduleDayRequest4));
         Member member = new Member(null, "namu", "namu2024@gmail.com", "", "", List.of("ROLE_USER"));
         Project project = Project.builder()
                 .title("test").description("설명")
@@ -217,13 +222,13 @@ class ScheduleServiceTest {
                 .endDate(LocalDate.of(2025, 1, 1))
                 .startTime(LocalTime.MIN).endTime(LocalTime.MAX)
                 .daysOfWeek(Arrays.stream(DayOfWeek.values()).collect(Collectors.toSet()))
-                .memberProjects(new ArrayList<>()).invitations(new ArrayList<>())
-                .cover(null).color("FFFFFF")
+                .coverId(null).color("FFFFFF")
                 .build();
 
         Mockito.when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
-        Throwable exception = assertThrows(IllegalArgumentException.class, () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
+        Throwable exception = assertThrows(IllegalArgumentException.class,
+                () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
         assertEquals(ExceptionMessage.INVALID_DATE.getMessage(), exception.getMessage());
     }
 
@@ -258,8 +263,7 @@ class ScheduleServiceTest {
                 .endDate(LocalDate.of(2025, 1, 1))
                 .startTime(LocalTime.MIN).endTime(LocalTime.MAX)
                 .daysOfWeek(Arrays.stream(DayOfWeek.values()).collect(Collectors.toSet()))
-                .memberProjects(new ArrayList<>()).invitations(new ArrayList<>())
-                .cover(null).color("FFFFFF")
+                .coverId(null).color("FFFFFF")
                 .build();
 
         Mockito.when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
@@ -282,7 +286,8 @@ class ScheduleServiceTest {
                 LocalDateTime.of(2024, 4, 19, 19, 30),
                 LocalDateTime.of(2024, 4, 19, 20, 30));
 
-        ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto1, scheduleDto2, scheduleDto3)));
+        ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(
+                new ArrayList<>(List.of(scheduleDto1, scheduleDto2, scheduleDto3)));
 
         ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
                 new ScheduleCreateUpdateRequest(List.of(scheduleDayRequest1));
@@ -293,13 +298,13 @@ class ScheduleServiceTest {
                 .endDate(LocalDate.of(2025, 1, 1))
                 .startTime(LocalTime.MIN).endTime(LocalTime.MAX)
                 .daysOfWeek(Arrays.stream(DayOfWeek.values()).collect(Collectors.toSet()))
-                .memberProjects(new ArrayList<>()).invitations(new ArrayList<>())
-                .cover(null).color("FFFFFF")
+                .coverId(null).color("FFFFFF")
                 .build();
 
         Mockito.when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
-        Throwable exception = assertThrows(IllegalArgumentException.class, () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
+        Throwable exception = assertThrows(IllegalArgumentException.class,
+                () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
         assertEquals(ExceptionMessage.INVALID_TIME_UNIT.getMessage(), exception.getMessage());
     }
 
@@ -316,8 +321,8 @@ class ScheduleServiceTest {
                 LocalDateTime.of(2024, 4, 19, 19, 30),
                 LocalDateTime.of(2024, 4, 19, 20, 30));
 
-        ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto1, scheduleDto2, scheduleDto3)));
-
+        ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(
+                new ArrayList<>(List.of(scheduleDto1, scheduleDto2, scheduleDto3)));
 
         ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
                 new ScheduleCreateUpdateRequest(List.of(scheduleDayRequest1));
@@ -328,13 +333,13 @@ class ScheduleServiceTest {
                 .endDate(LocalDate.of(2025, 1, 1))
                 .startTime(LocalTime.MIN).endTime(LocalTime.MAX)
                 .daysOfWeek(Arrays.stream(DayOfWeek.values()).collect(Collectors.toSet()))
-                .memberProjects(new ArrayList<>()).invitations(new ArrayList<>())
-                .cover(null).color("FFFFFF")
+                .coverId(null).color("FFFFFF")
                 .build();
 
         Mockito.when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
-        Throwable exception = assertThrows(IllegalArgumentException.class, () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
+        Throwable exception = assertThrows(IllegalArgumentException.class,
+                () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
         assertEquals(ExceptionMessage.INVALID_TIME_SEQUENCE.getMessage(), exception.getMessage());
     }
 
@@ -351,7 +356,8 @@ class ScheduleServiceTest {
                 LocalDateTime.of(2024, 4, 19, 19, 30),
                 LocalDateTime.of(2024, 4, 20, 20, 30));
 
-        ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto1, scheduleDto2, scheduleDto3)));
+        ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(
+                new ArrayList<>(List.of(scheduleDto1, scheduleDto2, scheduleDto3)));
 
         ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
                 new ScheduleCreateUpdateRequest(List.of(scheduleDayRequest1));
@@ -362,13 +368,13 @@ class ScheduleServiceTest {
                 .endDate(LocalDate.of(2025, 1, 1))
                 .startTime(LocalTime.MIN).endTime(LocalTime.MAX)
                 .daysOfWeek(Arrays.stream(DayOfWeek.values()).collect(Collectors.toSet()))
-                .memberProjects(new ArrayList<>()).invitations(new ArrayList<>())
-                .cover(null).color("FFFFFF")
+                .coverId(null).color("FFFFFF")
                 .build();
 
         Mockito.when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
-        Throwable exception = assertThrows(IllegalArgumentException.class, () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
+        Throwable exception = assertThrows(IllegalArgumentException.class,
+                () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
         assertEquals(ExceptionMessage.IS_NOT_SAME_DAY.getMessage(), exception.getMessage());
     }
 
@@ -385,7 +391,8 @@ class ScheduleServiceTest {
                 LocalDateTime.of(2024, 4, 19, 19, 30),
                 LocalDateTime.of(2024, 4, 19, 22, 30));
 
-        ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto1, scheduleDto2, scheduleDto3)));
+        ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(
+                new ArrayList<>(List.of(scheduleDto1, scheduleDto2, scheduleDto3)));
 
         ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
                 new ScheduleCreateUpdateRequest(List.of(scheduleDayRequest1));
@@ -396,13 +403,13 @@ class ScheduleServiceTest {
                 .endDate(LocalDate.of(2025, 1, 1))
                 .startTime(LocalTime.of(9, 0)).endTime(LocalTime.of(22, 0))
                 .daysOfWeek(Arrays.stream(DayOfWeek.values()).collect(Collectors.toSet()))
-                .memberProjects(new ArrayList<>()).invitations(new ArrayList<>())
-                .cover(null).color("FFFFFF")
+                .coverId(null).color("FFFFFF")
                 .build();
 
         Mockito.when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
-        Throwable exception = assertThrows(IllegalArgumentException.class, () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
+        Throwable exception = assertThrows(IllegalArgumentException.class,
+                () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
         assertEquals(ExceptionMessage.INVALID_PROJECT_TIME.getMessage(), exception.getMessage());
     }
 }
