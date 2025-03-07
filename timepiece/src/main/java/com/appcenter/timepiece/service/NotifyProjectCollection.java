@@ -1,8 +1,6 @@
 package com.appcenter.timepiece.service;
 
-import com.appcenter.timepiece.domain.Member;
 import com.appcenter.timepiece.domain.MemberProject;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -13,8 +11,8 @@ public class NotifyProjectCollection {
         this.projectMembers = projectMembers;
     }
 
-    public List<MemberProject> excludeSender(Member sender) {
+    public List<MemberProject> excludeSender(Long senderId) {
         return this.projectMembers.stream()
-                .filter(memberProject -> !Objects.equals(memberProject.getMember().getId(), sender.getId())).toList();
+                .filter(memberProject -> !Objects.equals(memberProject.getMemberId(), senderId)).toList();
     }
 }

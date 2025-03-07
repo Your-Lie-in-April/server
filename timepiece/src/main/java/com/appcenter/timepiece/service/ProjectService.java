@@ -26,6 +26,7 @@ import com.appcenter.timepiece.repository.InvitationRepository;
 import com.appcenter.timepiece.repository.MemberProjectRepository;
 import com.appcenter.timepiece.repository.MemberRepository;
 import com.appcenter.timepiece.repository.ProjectRepository;
+import com.appcenter.timepiece.repository.ProjectWithCoverDTO;
 import com.appcenter.timepiece.util.AESEncoder;
 import com.appcenter.timepiece.util.LinkValidTime;
 import java.time.LocalDate;
@@ -61,7 +62,11 @@ public class ProjectService {
         validateMemberIsInProject(projectId, userDetails);
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
-        return ProjectResponse.of(project, project.getCover());
+        if (project.getCoverId() == null) {
+            return ProjectResponse.of(project, null);
+        }
+        Cover cover = coverRepository.findById(project.getCoverId()).orElse(null);
+        return ProjectResponse.of(project, cover);
     }
 
     /**
@@ -71,17 +76,13 @@ public class ProjectService {
     public CommonPagingResponse<?> findProjects(Integer page, Integer size, Long memberId, UserDetails userDetails) {
         validateMemberIsOwner(memberId, userDetails);
         PageRequest pageable = PageRequest.of(page, size);
-        Page<MemberProject> projectPage = memberProjectRepository.findMemberProjectsWithProjectAndCover(pageable,
-                memberId);
 
-        List<MemberProject> projects = projectPage.getContent();
-        List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream()
-                .map(MemberProject::getProject)
-                .map(p -> ProjectThumbnailResponse.of(p,
-                        ((p.getCover() == null) ? null : p.getCover().getThumbnailUrl()))).toList();
+        Page<ProjectThumbnailResponse> projectThumbnailResponses = memberProjectRepository.fetchProjectThumbnailResponse(
+                pageable, memberId);
 
-        return new CommonPagingResponse<>(page, size, projectPage.getTotalElements(), projectPage.getTotalPages(),
-                projectThumbnailResponses);
+        return new CommonPagingResponse<>(page, size, projectThumbnailResponses.getTotalElements(),
+                projectThumbnailResponses.getTotalPages(),
+                projectThumbnailResponses.getContent());
     }
 
     /**
@@ -101,11 +102,20 @@ public class ProjectService {
         List<PinProjectResponse> pinProjectResponses = new ArrayList<>();
 
         for (MemberProject memberProject : memberProjects) {
-            Project project = memberProject.getProject();
+            Long projectId = memberProject.getProjectId();
+            Project project = projectRepository.findById(projectId)
+                    .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
+
+            if (project.getCoverId() == null) {
+                pinProjectResponses.add(PinProjectResponse.of(project, null,
+                        scheduleService.findMembersSchedules(projectId, LocalDate.now(), userDetails)));
+                continue;
+            }
+            Cover cover = coverRepository.findById(project.getCoverId()).orElse(null);
             // todo: List<ScheduleWeekResponse>를 생성하는 로직 작성
             pinProjectResponses.add(PinProjectResponse.of(project,
-                    ((project.getCover() == null) ? null : project.getCover().getCoverImageUrl()),
-                    scheduleService.findMembersSchedules(project.getId(), LocalDate.now(), userDetails)));
+                    ((cover == null) ? null : cover.getCoverImageUrl()),
+                    scheduleService.findMembersSchedules(projectId, LocalDate.now(), userDetails)));
         }
         return pinProjectResponses;
     }
@@ -121,14 +131,23 @@ public class ProjectService {
         validateMemberIsOwner(memberId, userDetails);
 
         PageRequest pageable = PageRequest.of(page, size);
-        Page<Project> projectPage = projectRepository.searchProjects(memberId, keyword, isStored, pageable);
-        List<Project> projects = projectPage.getContent();
-        List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream()
-                .map(p -> ProjectThumbnailResponse.of(p,
-                        ((p.getCover() == null) ? null : p.getCover().getThumbnailUrl()))).toList();
-        return new CommonPagingResponse<>(page, size, projectPage.getTotalElements(), projectPage.getTotalPages(),
-                projectThumbnailResponses);
 
+        // 프로젝트 및 커버 정보를 함께 조회하는 쿼리로 수정
+        Page<ProjectWithCoverDTO> projectPage = projectRepository.searchProjectsWithCover(memberId, keyword, isStored,
+                pageable);
+
+        List<ProjectThumbnailResponse> projectThumbnailResponses = projectPage.getContent().stream()
+                .map(dto -> ProjectThumbnailResponse.of(
+                        dto.getProject(),
+                        dto.getThumbnailUrl()))
+                .toList();
+
+        return new CommonPagingResponse<>(
+                page,
+                size,
+                projectPage.getTotalElements(),
+                projectPage.getTotalPages(),
+                projectThumbnailResponses);
     }
 
     @Transactional(readOnly = true)
@@ -136,7 +155,9 @@ public class ProjectService {
         validateMemberIsInProject(projectId, userDetails);
         return memberProjectRepository.findAllByProjectId(projectId).stream()
                 .map(memberProject -> {
-                    Member member = requireNonNull(memberProject.getMember()); // NPE!
+                    Long memberId = requireNonNull(memberProject.getMemberId()); // NPE!
+                    Member member = memberRepository.findById(memberId)
+                            .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
                     return MemberResponse.of(member, memberProject);
                 }).toList();
     }
@@ -161,12 +182,12 @@ public class ProjectService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
 
-        Cover cover = null;
+        Long coverId = null;
         if (request.getCoverImageId() != null && !request.getCoverImageId().isEmpty()) {
-            cover = coverRepository.findById(Long.valueOf(request.getCoverImageId())).orElse(null);
+            coverId = Long.valueOf(request.getCoverImageId());
         }
 
-        Project project = projectRepository.save(Project.of(request, cover));
+        Project project = projectRepository.save(Project.of(request, coverId));
         MemberProject memberProject = MemberProject.of(member, project);
         memberProject.grantPrivilege();
 
@@ -187,15 +208,15 @@ public class ProjectService {
     public void updateProject(Long projectId, ProjectCreateUpdateRequest request, UserDetails userDetails) {
         validateRequesterIsPrivileged(projectId, userDetails);
 
-        Cover cover = null;
+        Long coverId = null;
         if (request.getCoverImageId() != null && !request.getCoverImageId().isEmpty()) {
-            cover = coverRepository.findById(Long.valueOf(request.getCoverImageId())).orElse(null);
+            coverId = Long.valueOf(request.getCoverImageId());
         }
 
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
 
-        project.updateFrom(request, cover);
+        project.updateFrom(request, coverId);
     }
 
     @Transactional
@@ -220,10 +241,9 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
 
-        String urlData = new StringBuilder().append(projectId)
-                .append("?").append(member.getNickname())
-                .append("?").append(LocalDateTime.now().plusDays(LinkValidTime.WEEK.value()))
-                .toString();
+        String urlData = projectId
+                + "?" + member.getNickname()
+                + "?" + LocalDateTime.now().plusDays(LinkValidTime.WEEK.value());
 
         String url = aesEncoder.encryptAES256(urlData);
         invitationRepository.save(Invitation.of(project, url));
@@ -237,9 +257,8 @@ public class ProjectService {
         StringTokenizer st = new StringTokenizer(aesEncoder.decryptAES256(url), "?");
         Long projectId = Long.valueOf(st.nextToken());
 
-        String invitator = st.nextToken();
+        st.nextToken();
 
-//        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
         LocalDateTime linkTime = LocalDateTime.parse(st.nextToken());
         if (linkTime.isBefore(LocalDateTime.now())) {
             throw new IllegalStateException(ExceptionMessage.LINK_EXPIRED.getMessage());
@@ -311,8 +330,10 @@ public class ProjectService {
         fromMemberProject.releasePrivilege();
         toMemberProject.grantPrivilege();
 
-        notificationService.notifyBecomingOwner(toMemberProject.getProject(), toMemberProject.getMember(),
-                fromMemberProject.getMember());
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
+
+        notificationService.notifyBecomingOwner(project, toMemberId, fromMemberId);
         memberProjectRepository.save(fromMemberProject);
         memberProjectRepository.save(toMemberProject);
     }
@@ -325,8 +346,14 @@ public class ProjectService {
         Page<Project> projectPage = projectRepository.findProjectIsStored(memberId, pageable);
         List<Project> projects = projectPage.getContent();
 
-        List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream().map(p ->
-                        ProjectThumbnailResponse.of(p, ((p.getCover() == null) ? null : p.getCover().getThumbnailUrl())))
+        List<ProjectThumbnailResponse> projectThumbnailResponses = projects.stream().map(p -> {
+                            if (p.getCoverId() == null) {
+                                return ProjectThumbnailResponse.of(p, null);
+                            }
+                            Cover cover = coverRepository.findById(p.getCoverId()).orElse(null);
+                            return ProjectThumbnailResponse.of(p, ((cover == null) ? null : cover.getThumbnailUrl()));
+                        }
+                )
                 .toList();
         return new CommonPagingResponse<>(page, size, projectPage.getTotalElements(), projectPage.getTotalPages(),
                 projectThumbnailResponses);
@@ -349,3 +376,4 @@ public class ProjectService {
                 covers.stream().map(CoverDataResponse::of).toList());
     }
 }
+

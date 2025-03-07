@@ -4,6 +4,7 @@ import com.appcenter.timepiece.common.exception.ExceptionMessage;
 import com.appcenter.timepiece.common.exception.NotEnoughPrivilegeException;
 import com.appcenter.timepiece.common.exception.NotFoundElementException;
 import com.appcenter.timepiece.common.security.CustomUserDetails;
+import com.appcenter.timepiece.domain.Member;
 import com.appcenter.timepiece.domain.MemberProject;
 import com.appcenter.timepiece.domain.Project;
 import com.appcenter.timepiece.domain.Schedule;
@@ -14,6 +15,7 @@ import com.appcenter.timepiece.dto.schedule.ScheduleDeleteRequest;
 import com.appcenter.timepiece.dto.schedule.ScheduleDto;
 import com.appcenter.timepiece.dto.schedule.ScheduleWeekResponse;
 import com.appcenter.timepiece.repository.MemberProjectRepository;
+import com.appcenter.timepiece.repository.MemberRepository;
 import com.appcenter.timepiece.repository.ProjectRepository;
 import com.appcenter.timepiece.repository.ScheduleRepository;
 import java.time.DayOfWeek;
@@ -45,6 +47,7 @@ public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final ProjectRepository projectRepository;
     private final NotificationService notificationService;
+    private final MemberRepository memberRepository;
 
     /**
      * {@summary 프로젝트 내 모든 멤버의 스케줄을 조회한다(본인포함)}
@@ -75,7 +78,7 @@ public class ScheduleService {
                 endOfWeek);
 
         Map<Long, ScheduleCollection> scheduleCollectionsByMemberProjectId = schedules.stream()
-                .collect(Collectors.groupingBy(schedule -> schedule.getMemberProject().getId(),
+                .collect(Collectors.groupingBy(schedule -> schedule.getMemberProjectId(),
                         Collectors.collectingAndThen(Collectors.toList(), ScheduleCollection::from)));
 
         return memberProjects.stream()
@@ -165,7 +168,10 @@ public class ScheduleService {
 
         scheduleRepository.saveAll(schedulesToSave);
 
-        notificationService.notifyScheduleChanging(project, memberProject.getMember());
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
+
+        notificationService.notifyScheduleChanging(project, member);
     }
 
 
@@ -201,7 +207,10 @@ public class ScheduleService {
 
         scheduleRepository.saveAll(schedulesToSave);
 
-        notificationService.notifyScheduleChanging(project, memberProject.getMember());
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
+
+        notificationService.notifyScheduleChanging(project, member);
     }
 
 
@@ -233,7 +242,11 @@ public class ScheduleService {
                 LocalDateTime.of(request.getStartDate(), LocalTime.MIN),
                 LocalDateTime.of(request.getEndDate(), LocalTime.MIN));
 
-        notificationService.notifyScheduleChanging(memberProject.getProject(), memberProject.getMember());
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_NOT_FOUND));
+        notificationService.notifyScheduleChanging(project, member);
     }
 
     /**

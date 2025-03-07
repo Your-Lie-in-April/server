@@ -76,7 +76,7 @@ public class Project extends BaseTimeEntity {
         this.isDeleted = isDeleted;
     }
 
-    public static Project of(ProjectCreateUpdateRequest request, Cover cover) {
+    public static Project of(ProjectCreateUpdateRequest request, Long coverId) {
         return Project.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -84,12 +84,12 @@ public class Project extends BaseTimeEntity {
                 .startTime(request.getStartTime()).endTime(request.getEndTime())
                 .daysOfWeek(request.getDaysOfWeek())
                 .color(request.getColor())
-                .coverId(cover.getId())
+                .coverId(coverId)
                 .isDeleted(false)
                 .build();
     }
 
-    public void updateFrom(ProjectCreateUpdateRequest request, Cover cover) {
+    public void updateFrom(ProjectCreateUpdateRequest request, Long coverId) {
         this.title = request.getTitle();
         this.description = request.getDescription();
         this.startDate = request.getStartDate();
@@ -98,7 +98,7 @@ public class Project extends BaseTimeEntity {
         this.endTime = request.getEndTime();
         this.daysOfWeek = request.getDaysOfWeek();
         this.color = request.getColor();
-        this.coverId = cover.getId();
+        this.coverId = coverId;
     }
 
     public void deleteProject() {
