@@ -28,6 +28,14 @@ public class ProjectThumbnailResponse {
         this.thumbnailUrl = thumbnailUrl;
     }
 
+    public ProjectThumbnailResponse(Project project, String thumbnailUrl) {
+        this.projectId = project.getId();
+        this.title = project.getTitle();
+        this.description = project.getDescription();
+        this.color = project.getColor();
+        this.thumbnailUrl = thumbnailUrl;
+    }
+
     public static ProjectThumbnailResponse of(Project project, String thumbnailUrl) {
         return ProjectThumbnailResponse.builder()
                 .projectId(project.getId())
