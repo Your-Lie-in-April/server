@@ -7,11 +7,6 @@ import java.util.List;
 
 
 public interface NotificationRepositoryCustom {
-    List<Notification> findAllByTimestampAfter(Long receiverId, LocalDateTime timestamp, Boolean isChecked,
-                                               int pageSize);
-
-    List<Notification> findAllByTimestampAfter(Long receiverId, Long projectId, LocalDateTime timestamp,
-                                               Boolean isChecked, int pageSize);
 
     List<Notification> findAllByReceiverLargerThanNotificationId(Long receiverId, Long notificationId);
 

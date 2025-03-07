@@ -24,33 +24,6 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
     private QProject project = QProject.project;
 
     @Override
-    public List<Notification> findAllByTimestampAfter(Long receiverId, LocalDateTime cursorTimestamp, Boolean isChecked,
-                                                      int pageSize) {
-        return queryFactory.selectFrom(notification)
-                .where(notification.receiverId.eq(receiverId)
-                        .and(notification.isChecked.eq(isChecked))
-                        .and(notification.isDeleted.isFalse())
-                        .and(notification.createdAt.lt(cursorTimestamp)))
-                .orderBy(notification.isChecked.asc(), notification.createdAt.desc())
-                .limit(pageSize)
-                .fetch();
-    }
-
-    @Override
-    public List<Notification> findAllByTimestampAfter(Long receiverId, Long projectId, LocalDateTime timestamp,
-                                                      Boolean isChecked, int pageSize) {
-        return queryFactory.selectFrom(notification)
-                .where(notification.receiverId.eq(receiverId)
-                        .and(notification.projectId.eq(projectId))
-                        .and(notification.isChecked.eq(isChecked))
-                        .and(notification.isDeleted.isFalse())
-                        .and(notification.createdAt.lt(timestamp)))
-                .orderBy(notification.isChecked.asc(), notification.createdAt.desc())
-                .limit(pageSize)
-                .fetch();
-    }
-
-    @Override
     public List<Notification> findAllByReceiverLargerThanNotificationId(Long receiverId, Long notificationId) {
         return queryFactory.selectFrom(notification)
                 .where(notification.receiverId.eq(receiverId)
