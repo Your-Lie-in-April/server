@@ -12,6 +12,7 @@ import com.appcenter.timepiece.domain.Project;
 import com.appcenter.timepiece.dto.notify.NotificationResponse;
 import com.appcenter.timepiece.repository.MemberProjectRepository;
 import com.appcenter.timepiece.repository.NotificationRepository;
+import com.appcenter.timepiece.repository.ProjectRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -50,6 +51,7 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final MemberProjectRepository memberProjectRepository;
+    private final ProjectRepository projectRepository;
 
 
     public SseEmitter subscribe(UserDetails userDetails, Long lastEventId, Long projectId) {
@@ -89,8 +91,8 @@ public class NotificationService {
         List<MemberProject> memberProjects = memberProjectRepository.findAllByProjectId(project.getId());
 
         NotifyProjectCollection notifyProjectCollection = new NotifyProjectCollection(memberProjects);
-        notifyProjectCollection.excludeSender(sender).forEach(memberProject -> {
-            sendNotification(message, project, memberProject.getMember(), sender,
+        notifyProjectCollection.excludeSender(sender.getId()).forEach(memberProject -> {
+            sendNotification(message, project.getId(), memberProject.getMemberId(), sender.getId(),
                     Notification.NotificationType.SCHEDULE);
         });
     }
@@ -100,19 +102,20 @@ public class NotificationService {
         List<MemberProject> memberProjects = memberProjectRepository.findAllByProjectId(project.getId());
 
         NotifyProjectCollection notifyProjectCollection = new NotifyProjectCollection(memberProjects);
-        notifyProjectCollection.excludeSender(sender).forEach(memberProject -> {
-            sendNotification(message, project, memberProject.getMember(), sender, Notification.NotificationType.SIGN);
+        notifyProjectCollection.excludeSender(sender.getId()).forEach(memberProject -> {
+            sendNotification(message, project.getId(), memberProject.getMemberId(), sender.getId(),
+                    Notification.NotificationType.SIGN);
         });
     }
 
-    public void notifyBecomingOwner(Project project, Member receiver, Member sender) {
+    public void notifyBecomingOwner(Project project, Long receiverId, Long senderId) {
         String message = project.getTitle() + "의 관리자가 되었습니다.";
-        sendNotification(message, project, receiver, sender, Notification.NotificationType.SYSTEM);
+        sendNotification(message, project.getId(), receiverId, senderId, Notification.NotificationType.SYSTEM);
     }
 
-    private void sendNotification(String message, Project project, Member receiver, Member sender,
+    private void sendNotification(String message, Long projectId, Long receiverId, Long senderId,
                                   Notification.NotificationType type) {
-        Notification notification = Notification.of(message, project, receiver, sender, type);
+        Notification notification = Notification.of(message, projectId, receiverId, senderId, type);
         notification = notificationRepository.save(notification);
         publishNotification(notification);
     }
@@ -131,7 +134,16 @@ public class NotificationService {
     }
 
     protected void publishNotification(Notification notification) {
-        NotificationResponse notificationResponse = NotificationResponse.from(notification);
+        Project project = projectRepository.findById(notification.getProjectId())
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
+        MemberProject sender = memberProjectRepository.findByMemberIdAndProjectId(notification.getSenderId(),
+                        notification.getProjectId())
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
+        MemberProject receiver = memberProjectRepository.findByMemberIdAndProjectId(notification.getReceiverId(),
+                        notification.getProjectId())
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
+
+        NotificationResponse notificationResponse = NotificationResponse.from(notification, project, sender, receiver);
         redisTemplate.convertAndSend("notificationTopic", notificationResponse);
     }
 
@@ -191,18 +203,18 @@ public class NotificationService {
     public CommonCursorPagingResponse<?> getNotifications(LocalDateTime cursor, Boolean isChecked, Integer size,
                                                           UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        List<Notification> notifications = notificationRepository.findAllByTimestampAfter(memberId, cursor, isChecked,
+
+        List<NotificationResponse> notifications = notificationRepository.finaAllByReceiverId(memberId, cursor,
+                isChecked,
                 size + 1);
+
         Boolean hasMore = notifications.size() > size;
         LocalDateTime nextCursor = null;
         if (hasMore) {
             notifications.remove(notifications.size() - 1);
             nextCursor = notifications.get(notifications.size() - 1).getCreatedAt();
         }
-        List<NotificationResponse> notificationResponses = notifications.stream().map(NotificationResponse::from)
-                .toList();
-
-        return new CommonCursorPagingResponse<>(size, nextCursor, hasMore, notificationResponses);
+        return new CommonCursorPagingResponse<>(size, nextCursor, hasMore, notifications);
     }
 
     @Transactional
@@ -210,17 +222,18 @@ public class NotificationService {
                                                                    Boolean isChecked, Integer size,
                                                                    UserDetails userDetails) {
         Long memberId = ((CustomUserDetails) userDetails).getId();
-        List<Notification> notifications = notificationRepository.findAllByTimestampAfter(memberId, projectId, cursor,
+
+        List<NotificationResponse> notifications = notificationRepository.finaAllByReceiverIdInProject(memberId,
+                projectId, cursor,
                 isChecked, size + 1);
+
         Boolean hasMore = notifications.size() > size;
         LocalDateTime nextCursor = null;
         if (hasMore) {
             notifications.remove(notifications.size() - 1);
             nextCursor = notifications.get(notifications.size() - 1).getCreatedAt();
         }
-        List<NotificationResponse> notificationResponses = notifications.stream().map(NotificationResponse::from)
-                .toList();
-        return new CommonCursorPagingResponse<>(size, nextCursor, hasMore, notificationResponses);
+        return new CommonCursorPagingResponse<>(size, nextCursor, hasMore, notifications);
     }
 
     @Transactional
@@ -231,7 +244,16 @@ public class NotificationService {
         validateOwnershipOfNotification(notification, memberId);
         notification.check();
         notification = notificationRepository.save(notification);
-        return NotificationResponse.from(notification);
+
+        Project project = projectRepository.findById(notification.getProjectId())
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.PROJECT_NOT_FOUND));
+        MemberProject sender = memberProjectRepository.findByMemberIdAndProjectId(notification.getSenderId(),
+                        notification.getProjectId())
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
+        MemberProject receiver = memberProjectRepository.findByMemberIdAndProjectId(notification.getReceiverId(),
+                        notification.getProjectId())
+                .orElseThrow(() -> new NotFoundElementException(ExceptionMessage.MEMBER_PROJECT_NOT_FOUND));
+        return NotificationResponse.from(notification, project, sender, receiver);
     }
 
     @Transactional
@@ -244,7 +266,7 @@ public class NotificationService {
     }
 
     private static void validateOwnershipOfNotification(Notification notification, Long memberId) {
-        if (!notification.getReceiver().getId().equals(memberId)) {
+        if (!notification.getReceiverId().equals(memberId)) {
             throw new NotEnoughPrivilegeException(ExceptionMessage.MEMBER_UNAUTHENTICATED);
         }
     }
