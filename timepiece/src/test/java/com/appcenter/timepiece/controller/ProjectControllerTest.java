@@ -1,19 +1,38 @@
 package com.appcenter.timepiece.controller;
 
-import com.appcenter.timepiece.common.dto.CommonPagingResponse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.appcenter.timepiece.config.TestSecurityConfig;
-import com.appcenter.timepiece.dto.member.MemberResponse;
-import com.appcenter.timepiece.dto.project.InvitationLinkResponse;
-import com.appcenter.timepiece.dto.project.InvitationResponse;
-import com.appcenter.timepiece.dto.project.PinProjectResponse;
-import com.appcenter.timepiece.dto.project.ProjectCreateUpdateRequest;
-import com.appcenter.timepiece.dto.project.ProjectResponse;
-import com.appcenter.timepiece.dto.project.ProjectThumbnailResponse;
-import com.appcenter.timepiece.dto.project.TransferPrivilegeRequest;
-import com.appcenter.timepiece.service.ProjectService;
+import com.appcenter.timepiece.domain.member.dto.MemberResponse;
+import com.appcenter.timepiece.domain.project.controller.ProjectController;
+import com.appcenter.timepiece.domain.project.dto.InvitationLinkResponse;
+import com.appcenter.timepiece.domain.project.dto.InvitationResponse;
+import com.appcenter.timepiece.domain.project.dto.PinProjectResponse;
+import com.appcenter.timepiece.domain.project.dto.ProjectCreateUpdateRequest;
+import com.appcenter.timepiece.domain.project.dto.ProjectResponse;
+import com.appcenter.timepiece.domain.project.dto.ProjectThumbnailResponse;
+import com.appcenter.timepiece.domain.project.dto.TransferPrivilegeRequest;
+import com.appcenter.timepiece.domain.project.service.ProjectService;
+import com.appcenter.timepiece.global.common.dto.CommonPagingResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,18 +43,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.time.LocalDate;
-import java.util.*;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProjectController.class)
 @Import(TestSecurityConfig.class)
