@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MemberProjectRepository extends JpaRepository<MemberProject, Long>, MemberProjectRepositoryCustom {
 
-    @Query("SELECT new com.appcenter.timepiece.dto.project.ProjectThumbnailResponse(p, c.thumbnailUrl) " +
+    @Query("SELECT new com.appcenter.timepiece.domain.project.dto.ProjectThumbnailResponse(p, c.thumbnailUrl) " +
             "FROM Project p " +
             "INNER JOIN MemberProject mp ON mp.projectId = p.id " +
             "LEFT JOIN Cover c ON p.coverId = c.id " +
