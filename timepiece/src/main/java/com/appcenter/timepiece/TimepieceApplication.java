@@ -1,6 +1,6 @@
 package com.appcenter.timepiece;
 
-import com.appcenter.timepiece.common.security.CorsProperties;
+import com.appcenter.timepiece.global.security.CorsProperties;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.boot.SpringApplication;
