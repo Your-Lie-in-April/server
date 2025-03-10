@@ -2,6 +2,7 @@ package com.appcenter.timepiece.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 import com.appcenter.timepiece.domain.member.entity.Member;
 import com.appcenter.timepiece.domain.project.entity.MemberProject;
@@ -12,6 +13,7 @@ import com.appcenter.timepiece.domain.schedule.dto.ScheduleCreateUpdateRequest;
 import com.appcenter.timepiece.domain.schedule.dto.ScheduleDayRequest;
 import com.appcenter.timepiece.domain.schedule.dto.ScheduleDto;
 import com.appcenter.timepiece.domain.schedule.repository.ScheduleRepository;
+import com.appcenter.timepiece.domain.schedule.service.ScheduleCreateUpdateValidator;
 import com.appcenter.timepiece.domain.schedule.service.ScheduleService;
 import com.appcenter.timepiece.global.exception.ExceptionMessage;
 import com.appcenter.timepiece.global.security.CustomUserDetails;
@@ -29,7 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,6 +39,9 @@ class ScheduleServiceTest {
 
     @InjectMocks
     private ScheduleService scheduleService;
+
+    @Spy
+    private ScheduleCreateUpdateValidator scheduleValidator;
 
     @Mock
     private ScheduleRepository scheduleRepository;
@@ -87,7 +92,7 @@ class ScheduleServiceTest {
                 .build();
         MemberProject memberProject = MemberProject.of(member, project);
 
-        Mockito.when(projectRepository.findById(1L))
+        when(projectRepository.findById(1L))
                 .thenReturn(Optional.of(project));
 
         Throwable exception = assertThrows(IllegalArgumentException.class,
@@ -134,7 +139,7 @@ class ScheduleServiceTest {
                 .coverId(null).color("FFFFFF")
                 .build();
 
-        Mockito.when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
         Throwable exception = assertThrows(IllegalArgumentException.class,
                 () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
@@ -180,7 +185,7 @@ class ScheduleServiceTest {
                 .coverId(null).color("FFFFFF")
                 .build();
 
-        Mockito.when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
         Throwable exception = assertThrows(IllegalArgumentException.class,
                 () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
@@ -226,7 +231,7 @@ class ScheduleServiceTest {
                 .coverId(null).color("FFFFFF")
                 .build();
 
-        Mockito.when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
         Throwable exception = assertThrows(IllegalArgumentException.class,
                 () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
@@ -267,7 +272,7 @@ class ScheduleServiceTest {
                 .coverId(null).color("FFFFFF")
                 .build();
 
-        Mockito.when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
         Throwable exception = assertThrows(IllegalArgumentException.class, () ->
                 scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
@@ -302,7 +307,7 @@ class ScheduleServiceTest {
                 .coverId(null).color("FFFFFF")
                 .build();
 
-        Mockito.when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
         Throwable exception = assertThrows(IllegalArgumentException.class,
                 () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
@@ -337,7 +342,7 @@ class ScheduleServiceTest {
                 .coverId(null).color("FFFFFF")
                 .build();
 
-        Mockito.when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
         Throwable exception = assertThrows(IllegalArgumentException.class,
                 () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
@@ -372,7 +377,7 @@ class ScheduleServiceTest {
                 .coverId(null).color("FFFFFF")
                 .build();
 
-        Mockito.when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
         Throwable exception = assertThrows(IllegalArgumentException.class,
                 () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
@@ -407,7 +412,7 @@ class ScheduleServiceTest {
                 .coverId(null).color("FFFFFF")
                 .build();
 
-        Mockito.when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
         Throwable exception = assertThrows(IllegalArgumentException.class,
                 () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
