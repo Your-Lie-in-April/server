@@ -71,7 +71,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .host(frontHost)
                 .port(frontPort)
                 .path(frontPath)
-                .queryParam("member_id", memberId)
+                .queryParam("member_id", String.valueOf(memberId))
                 .build()
                 .toUri();
     }
