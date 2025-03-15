@@ -6,9 +6,6 @@ import com.appcenter.timepiece.global.redis.RefreshToken;
 import com.appcenter.timepiece.global.redis.RefreshTokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URI;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +14,10 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -60,16 +61,17 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         jwtProvider.setCookie(response, accessToken, refreshToken);
         refreshTokenRepository.save(new RefreshToken(memberId, refreshToken));
 
-        String uri = createURI().toString();
+        String uri = createURI(memberId).toString();
         getRedirectStrategy().sendRedirect(request, response, uri);
     }
 
-    private URI createURI() {
+    private URI createURI(Long memberId) {
         return UriComponentsBuilder.newInstance()
                 .scheme(frontScheme)
                 .host(frontHost)
                 .port(frontPort)
                 .path(frontPath)
+                .queryParam("member_id", memberId)
                 .build()
                 .toUri();
     }
