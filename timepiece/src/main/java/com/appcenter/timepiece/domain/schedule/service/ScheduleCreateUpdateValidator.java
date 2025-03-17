@@ -31,7 +31,7 @@ public class ScheduleCreateUpdateValidator {
     public void validate(ScheduleCreateUpdateRequest req, Project project) {
         validateScheduleWeekRequest(req, project);
         for (ScheduleDayRequest scheduleDayRequest : req.getSchedule()) {
-            validateDayAndLowLevelRequest(scheduleDayRequest, project);
+            validateDayAndSingleSchedule(scheduleDayRequest, project);
         }
     }
 
@@ -70,10 +70,6 @@ public class ScheduleCreateUpdateValidator {
         }
     }
 
-
-    /**
-     * 마지막날 24시 -> (마지막+1)일 00시는 허용토록 해야한다.
-     */
     private void validateIsInProjectPeriod(ScheduleCreateUpdateRequest req, Project project) {
         List<LocalDate> dates = req.getSchedule().stream()
                 .map(dayRequest -> extractFirstScheduleDate(dayRequest).toLocalDate())
@@ -86,9 +82,9 @@ public class ScheduleCreateUpdateValidator {
     }
 
     /**
-     * ScheduleCreateUpdateRequest를 일(Day) 단위 및 ScheduleDto 단위 검증으로 위임한다.
+     * 일(Day) 단위 및 ScheduleDto 단위 검증 호출
      */
-    private void validateDayAndLowLevelRequest(ScheduleDayRequest req, Project project) {
+    private void validateDayAndSingleSchedule(ScheduleDayRequest req, Project project) {
         validateScheduleDayRequest(req, project);
         for (ScheduleDto scheduleDto : req.getSchedule()) {
             validateScheduleDto(scheduleDto, project);
@@ -96,8 +92,8 @@ public class ScheduleCreateUpdateValidator {
     }
 
     /**
-     * // ScheduleCreateUpdateRequest 일(Day) 단위 검증 <br> 수행목록 <br> 1. validateIsIdenticalDay - 모든 ScheduleDto의 동일한 날짜인지
-     * // 검사<br> 2. validateDuplicateSchedulePerDay - ScheduleDto 간 요청 시간이 중복/교차되는지 검사<br> 3. //
+     * ScheduleCreateUpdateRequest 일(Day) 단위 검증 <br> 수행목록 <br> 1. validateIsIdenticalDay - 모든 ScheduleDto의 동일한 날짜인지
+     * /검사<br> 2. validateDuplicateSchedulePerDay - ScheduleDto 간 요청 시간이 중복/교차되는지 검사<br> 3.
      * validateIsAppropriateDayOfWeekPerDay - (생성 시 정했던)프로젝트 요일인지 검사
      */
     private void validateScheduleDayRequest(ScheduleDayRequest req, Project project) {
@@ -107,9 +103,11 @@ public class ScheduleCreateUpdateValidator {
     }
 
     private void validateIsIdenticalDay(ScheduleDayRequest req) {
-        if (req.getSchedule().stream()
-                .map(ScheduleDto::getStartTime)
-                .map(LocalDateTime::toLocalDate).distinct().count() != 1L) {
+        long count = req.getSchedule().stream()
+                .map(scheduleDto -> scheduleDto.getStartTime().toLocalDate())
+                .distinct()
+                .count();
+        if (count != 1L) {
             throw new IllegalArgumentException(ExceptionMessage.INVALID_DATE.getMessage());
         }
     }
