@@ -1,4 +1,4 @@
-package com.appcenter.timepiece.controller;
+package com.appcenter.timepiece.domain.project.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -13,9 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.appcenter.timepiece.config.TestSecurityConfig;
 import com.appcenter.timepiece.domain.member.dto.MemberResponse;
-import com.appcenter.timepiece.domain.project.controller.ProjectController;
 import com.appcenter.timepiece.domain.project.dto.InvitationLinkResponse;
 import com.appcenter.timepiece.domain.project.dto.InvitationResponse;
 import com.appcenter.timepiece.domain.project.dto.PinProjectResponse;
@@ -25,6 +23,7 @@ import com.appcenter.timepiece.domain.project.dto.ProjectThumbnailResponse;
 import com.appcenter.timepiece.domain.project.dto.TransferPrivilegeRequest;
 import com.appcenter.timepiece.domain.project.service.ProjectService;
 import com.appcenter.timepiece.global.common.dto.CommonPagingResponse;
+import com.appcenter.timepiece.global.config.TestSecurityConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.DayOfWeek;
 import java.time.LocalDate;

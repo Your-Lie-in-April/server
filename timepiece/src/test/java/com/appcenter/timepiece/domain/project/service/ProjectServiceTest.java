@@ -1,4 +1,4 @@
-package com.appcenter.timepiece.service;
+package com.appcenter.timepiece.domain.project.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -8,7 +8,6 @@ import static org.mockito.BDDMockito.then;
 
 import com.appcenter.timepiece.domain.project.dto.ProjectThumbnailResponse;
 import com.appcenter.timepiece.domain.project.repository.MemberProjectRepository;
-import com.appcenter.timepiece.domain.project.service.ProjectService;
 import com.appcenter.timepiece.global.common.dto.CommonPagingResponse;
 import com.appcenter.timepiece.global.exception.ExceptionMessage;
 import com.appcenter.timepiece.global.exception.NotEnoughPrivilegeException;

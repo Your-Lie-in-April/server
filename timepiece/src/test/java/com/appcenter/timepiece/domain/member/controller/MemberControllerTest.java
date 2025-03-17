@@ -1,4 +1,4 @@
-package com.appcenter.timepiece.controller;
+package com.appcenter.timepiece.domain.member.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -12,12 +12,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.appcenter.timepiece.config.TestSecurityConfig;
-import com.appcenter.timepiece.domain.member.controller.MemberController;
 import com.appcenter.timepiece.domain.member.dto.MemberResponse;
 import com.appcenter.timepiece.domain.member.entity.Member;
 import com.appcenter.timepiece.domain.member.service.MemberService;
 import com.appcenter.timepiece.domain.project.service.ProjectService;
+import com.appcenter.timepiece.global.config.TestSecurityConfig;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package com.appcenter.timepiece.service;
+package com.appcenter.timepiece.domain.schedule.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -13,8 +13,6 @@ import com.appcenter.timepiece.domain.schedule.dto.ScheduleCreateUpdateRequest;
 import com.appcenter.timepiece.domain.schedule.dto.ScheduleDayRequest;
 import com.appcenter.timepiece.domain.schedule.dto.ScheduleDto;
 import com.appcenter.timepiece.domain.schedule.repository.ScheduleRepository;
-import com.appcenter.timepiece.domain.schedule.service.ScheduleCreateUpdateValidator;
-import com.appcenter.timepiece.domain.schedule.service.ScheduleService;
 import com.appcenter.timepiece.global.exception.ExceptionMessage;
 import com.appcenter.timepiece.global.security.CustomUserDetails;
 import java.time.DayOfWeek;

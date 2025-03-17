@@ -1,4 +1,4 @@
-package com.appcenter.timepiece.config;
+package com.appcenter.timepiece.global.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Collections;

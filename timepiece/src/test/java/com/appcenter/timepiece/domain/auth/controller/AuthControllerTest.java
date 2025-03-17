@@ -1,4 +1,4 @@
-package com.appcenter.timepiece.controller;
+package com.appcenter.timepiece.domain.auth.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -7,10 +7,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.appcenter.timepiece.config.TestSecurityConfig;
-import com.appcenter.timepiece.domain.auth.controller.AuthController;
 import com.appcenter.timepiece.domain.auth.dto.TokenResponse;
 import com.appcenter.timepiece.domain.auth.service.AuthService;
+import com.appcenter.timepiece.global.config.TestSecurityConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
