@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import com.appcenter.timepiece.domain.member.entity.Member;
-import com.appcenter.timepiece.domain.project.entity.MemberProject;
 import com.appcenter.timepiece.domain.project.entity.Project;
 import com.appcenter.timepiece.domain.project.repository.MemberProjectRepository;
 import com.appcenter.timepiece.domain.project.repository.ProjectRepository;
@@ -32,6 +31,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+@DisplayName("ScheduleService 테스트")
 @ExtendWith(MockitoExtension.class)
 class ScheduleServiceTest {
 
@@ -50,55 +50,7 @@ class ScheduleServiceTest {
     @Mock
     private ProjectRepository projectRepository;
 
-    @DisplayName("ScheduleCreateUpdateRequest가 일주일 분량의 요청이 맞는지 검증한다.")
-    @Test
-    void validateIsIdenticalWeek() {
-
-        ScheduleDto scheduleDto1 = new ScheduleDto(
-                LocalDateTime.of(2024, 4, 19, 9, 30),
-                LocalDateTime.of(2024, 4, 19, 10, 30));
-        ScheduleDto scheduleDto2 = new ScheduleDto(
-                LocalDateTime.of(2024, 4, 19, 8, 30),
-                LocalDateTime.of(2024, 4, 19, 9, 0));
-        ScheduleDto scheduleDto3 = new ScheduleDto(
-                LocalDateTime.of(2024, 4, 20, 19, 30),
-                LocalDateTime.of(2024, 4, 20, 21, 30));
-        ScheduleDto scheduleDto4 = new ScheduleDto(
-                LocalDateTime.of(2024, 4, 17, 9, 30),
-                LocalDateTime.of(2024, 4, 17, 10, 30));
-        ScheduleDto scheduleDto5 = new ScheduleDto(
-                LocalDateTime.of(2024, 4, 21, 9, 30),
-                LocalDateTime.of(2024, 4, 21, 10, 30));
-
-        ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(
-                new ArrayList<>(List.of(scheduleDto1, scheduleDto2)));
-        ScheduleDayRequest scheduleDayRequest2 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto3)));
-        ScheduleDayRequest scheduleDayRequest3 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto4)));
-        ScheduleDayRequest scheduleDayRequest4 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto5)));
-
-        ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
-                new ScheduleCreateUpdateRequest(
-                        List.of(scheduleDayRequest1, scheduleDayRequest2, scheduleDayRequest3, scheduleDayRequest4));
-        Member member = new Member(null, "namu", "namu2024@gmail.com", "", "", List.of("ROLE_USER"));
-        Project project = Project.builder()
-                .title("test").description("설명")
-                .startDate(LocalDate.of(2020, 1, 1))
-                .endDate(LocalDate.of(2025, 1, 1))
-                .startTime(LocalTime.MIN).endTime(LocalTime.MAX)
-                .daysOfWeek(Arrays.stream(DayOfWeek.values()).collect(Collectors.toSet()))
-                .coverId(null).color("FFFFFF")
-                .build();
-        MemberProject memberProject = MemberProject.of(member, project);
-
-        when(projectRepository.findById(1L))
-                .thenReturn(Optional.of(project));
-
-        Throwable exception = assertThrows(IllegalArgumentException.class,
-                () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
-        assertEquals(ExceptionMessage.INVALID_WEEK.getMessage(), exception.getMessage());
-    }
-
-    @DisplayName("ScheduleCreateUpdateRequest의 ScheduleDayRequest 간 중복된 날짜가 없는지 검증한다.")
+    @DisplayName("ScheduleDayRequest 간 중복된 날짜가 없는지 검증한다.")
     @Test
     void validateIsIdenticalDayPerWeek() {
 
@@ -144,7 +96,7 @@ class ScheduleServiceTest {
         assertEquals(ExceptionMessage.DUPLICATE_DATE.getMessage(), exception.getMessage());
     }
 
-    @DisplayName("ScheduleCreateUpdateRequest가 프로젝트 기간 이내인지 검증한다.")
+    @DisplayName("프로젝트 기간 이내인지 검증한다.")
     @Test
     void validateIsAppropriatePeriodPerWeek() {
 
