@@ -7,7 +7,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @DisplayName("ScheduleService 테스트")
@@ -17,8 +16,7 @@ class ScheduleServiceTest {
     @InjectMocks
     private ScheduleService scheduleService;
 
-    @Spy
-    private ScheduleValidator scheduleValidator;
+    private ScheduleValidator validator = new ScheduleValidator();
 
     @Mock
     private ScheduleRepository scheduleRepository;
