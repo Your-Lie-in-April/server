@@ -31,24 +31,18 @@ class ScheduleCreateUpdateValidatorTest {
         ScheduleDto scheduleDto2 = new ScheduleDto(
                 LocalDateTime.of(2024, 4, 19, 8, 30),
                 LocalDateTime.of(2024, 4, 19, 9, 0));
+
+        // 2024.04.21 = 일요일(다음주)
         ScheduleDto scheduleDto3 = new ScheduleDto(
-                LocalDateTime.of(2024, 4, 20, 19, 30),
-                LocalDateTime.of(2024, 4, 20, 21, 30));
-        ScheduleDto scheduleDto4 = new ScheduleDto(
-                LocalDateTime.of(2024, 4, 17, 9, 30),
-                LocalDateTime.of(2024, 4, 17, 10, 30));
-        ScheduleDto scheduleDto5 = new ScheduleDto(
                 LocalDateTime.of(2024, 4, 21, 9, 30),
                 LocalDateTime.of(2024, 4, 21, 10, 30));
 
         ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(
                 new ArrayList<>(List.of(scheduleDto1, scheduleDto2)));
         ScheduleDayRequest scheduleDayRequest2 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto3)));
-        ScheduleDayRequest scheduleDayRequest3 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto4)));
-        ScheduleDayRequest scheduleDayRequest4 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto5)));
 
         return new ScheduleCreateUpdateRequest(
-                List.of(scheduleDayRequest1, scheduleDayRequest2, scheduleDayRequest3, scheduleDayRequest4));
+                List.of(scheduleDayRequest1, scheduleDayRequest2));
     }
 
     @DisplayName("일주일 분량의 요청이 맞는지 검증한다.")
@@ -70,5 +64,34 @@ class ScheduleCreateUpdateValidatorTest {
                 .hasMessageContaining("일주일 범위를 초과");
     }
 
+    @DisplayName("ScheduleDayRequest 간 중복된 요일이 없는지 검증한다.")
+    @Test
+    void validateIsIdenticalDayPerWeek() {
 
+        ScheduleDto scheduleDto1 = new ScheduleDto(
+                LocalDateTime.of(2024, 4, 19, 9, 30),
+                LocalDateTime.of(2024, 4, 19, 10, 30));
+        ScheduleDto scheduleDto2 = new ScheduleDto(
+                LocalDateTime.of(2024, 4, 19, 10, 30),
+                LocalDateTime.of(2024, 4, 19, 12, 30));
+
+        ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto1)));
+        ScheduleDayRequest scheduleDayRequest2 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto2)));
+
+        ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
+                new ScheduleCreateUpdateRequest(List.of(scheduleDayRequest1, scheduleDayRequest2));
+        Project project = Project.builder()
+                .title("테스트 프로젝트").
+                description("테스트 프로젝트입니다.")
+                .startDate(LocalDate.of(2020, 1, 1))
+                .endDate(LocalDate.of(2025, 1, 1))
+                .startTime(LocalTime.MIN).endTime(LocalTime.MAX)
+                .daysOfWeek(Arrays.stream(DayOfWeek.values()).collect(Collectors.toSet()))
+                .coverId(null).color("FFFFFF")
+                .build();
+
+        assertThatThrownBy(() -> validator.validate(scheduleCreateUpdateRequest, project))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("중복된 날짜");
+    }
 }

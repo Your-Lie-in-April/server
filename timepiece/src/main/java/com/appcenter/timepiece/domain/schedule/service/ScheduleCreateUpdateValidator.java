@@ -60,11 +60,11 @@ public class ScheduleCreateUpdateValidator {
      */
     private void validateIsIdenticalDayPerWeek(ScheduleCreateUpdateRequest req) {
         Set<LocalDate> set = new HashSet<>();
-        for (ScheduleDayRequest scheduleDayRequest : req.getSchedule()) {
-            if (set.contains(scheduleDayRequest.getSchedule().get(0).getStartTime().toLocalDate())) {
+        for (ScheduleDayRequest dayRequest : req.getSchedule()) {
+            if (set.contains(dayRequest.getSchedule().get(0).getStartTime().toLocalDate())) {
                 throw new IllegalArgumentException(ExceptionMessage.DUPLICATE_DATE.getMessage());
             }
-            set.add(req.getSchedule().get(0).getSchedule().get(0).getStartTime().toLocalDate());
+            set.add(dayRequest.getSchedule().get(0).getStartTime().toLocalDate());
         }
     }
 
@@ -73,9 +73,8 @@ public class ScheduleCreateUpdateValidator {
      */
     private void validateIsAppropriatePeriodPerWeek(ScheduleCreateUpdateRequest req, Project project) {
         List<LocalDate> dates = req.getSchedule().stream()
-                .map(scheduleDayRequest ->
-                        scheduleDayRequest.getSchedule().get(0)
-                                .getStartTime().toLocalDate()).sorted().toList();
+                .map(dayRequest -> dayRequest.getSchedule().get(0)
+                        .getStartTime().toLocalDate()).sorted().toList();
         if (dates.get(0).isBefore(project.getStartDate()) || dates.get(dates.size() - 1)
                 .isAfter(project.getEndDate())) {
             throw new IllegalArgumentException(ExceptionMessage.INVALID_PROJECT_PERIOD.getMessage());
