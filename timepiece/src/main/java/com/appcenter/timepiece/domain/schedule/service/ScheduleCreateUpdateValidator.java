@@ -1,6 +1,7 @@
 package com.appcenter.timepiece.domain.schedule.service;
 
 import static com.appcenter.timepiece.domain.schedule.util.ScheduleUtil.calculateStartDay;
+import static com.appcenter.timepiece.domain.schedule.util.ScheduleUtil.extractFirstScheduleDate;
 
 import com.appcenter.timepiece.domain.project.entity.Project;
 import com.appcenter.timepiece.domain.schedule.dto.ScheduleCreateUpdateRequest;
@@ -45,11 +46,10 @@ public class ScheduleCreateUpdateValidator {
     }
 
     private void validateIsIdenticalWeek(ScheduleCreateUpdateRequest req) {
-        LocalDate criteria = calculateStartDay(
-                req.getSchedule().get(0).getSchedule().get(0).getStartTime()).toLocalDate();
-        for (ScheduleDayRequest scheduleDayRequest : req.getSchedule()) {
-            LocalDateTime validTarget = calculateStartDay(scheduleDayRequest.getSchedule().get(0).getStartTime());
-            if (!Objects.equals(criteria, validTarget.toLocalDate())) {
+        LocalDate startDate = calculateStartDay(extractFirstScheduleDate(req)).toLocalDate();
+        for (ScheduleDayRequest dayRequest : req.getSchedule()) {
+            LocalDateTime validTarget = calculateStartDay(extractFirstScheduleDate(dayRequest));
+            if (!Objects.equals(startDate, validTarget.toLocalDate())) {
                 throw new IllegalArgumentException(ExceptionMessage.INVALID_WEEK.getMessage());
             }
         }
@@ -59,22 +59,23 @@ public class ScheduleCreateUpdateValidator {
      * 전날 Schedule이 다음날 00시에 종료하고, 다음날 Schedule이 존재한다면? -> StartTime으로만 확인한다.
      */
     private void validateIsIdenticalDayPerWeek(ScheduleCreateUpdateRequest req) {
-        Set<LocalDate> set = new HashSet<>();
+        Set<LocalDate> uniqueDates = new HashSet<>();
         for (ScheduleDayRequest dayRequest : req.getSchedule()) {
-            if (set.contains(dayRequest.getSchedule().get(0).getStartTime().toLocalDate())) {
+            LocalDate firstScheduleDate = extractFirstScheduleDate(dayRequest).toLocalDate();
+            if (uniqueDates.contains(firstScheduleDate)) {
                 throw new IllegalArgumentException(ExceptionMessage.DUPLICATE_DATE.getMessage());
             }
-            set.add(dayRequest.getSchedule().get(0).getStartTime().toLocalDate());
+            uniqueDates.add(firstScheduleDate);
         }
     }
+
 
     /**
      * 마지막날 24시 -> (마지막+1)일 00시는 허용토록 해야한다.
      */
     private void validateIsAppropriatePeriodPerWeek(ScheduleCreateUpdateRequest req, Project project) {
         List<LocalDate> dates = req.getSchedule().stream()
-                .map(dayRequest -> dayRequest.getSchedule().get(0)
-                        .getStartTime().toLocalDate()).sorted().toList();
+                .map(dayRequest -> extractFirstScheduleDate(dayRequest).toLocalDate()).sorted().toList();
         if (dates.get(0).isBefore(project.getStartDate()) || dates.get(dates.size() - 1)
                 .isAfter(project.getEndDate())) {
             throw new IllegalArgumentException(ExceptionMessage.INVALID_PROJECT_PERIOD.getMessage());
@@ -126,7 +127,7 @@ public class ScheduleCreateUpdateValidator {
      */
     private void validateIsAppropriateDayOfWeekPerDay(ScheduleDayRequest req, Project project) {
         Set<DayOfWeek> dayOfWeeks = project.getDaysOfWeek();
-        DayOfWeek day = req.getSchedule().get(0).getStartTime().getDayOfWeek();
+        DayOfWeek day = extractFirstScheduleDate(req).getDayOfWeek();
         if (!dayOfWeeks.contains(day)) {
             throw new IllegalArgumentException(ExceptionMessage.INVALID_PROJECT_DAY_OF_WEEK.getMessage());
         }

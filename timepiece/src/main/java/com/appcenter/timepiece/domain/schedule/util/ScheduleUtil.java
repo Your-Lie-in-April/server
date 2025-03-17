@@ -1,5 +1,7 @@
 package com.appcenter.timepiece.domain.schedule.util;
 
+import com.appcenter.timepiece.domain.schedule.dto.ScheduleCreateUpdateRequest;
+import com.appcenter.timepiece.domain.schedule.dto.ScheduleDayRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -15,6 +17,14 @@ public class ScheduleUtil {
     public static LocalDateTime calculateStartDay(LocalDateTime localDateTime) {
         LocalDateTime condition = LocalDateTime.of(localDateTime.toLocalDate(), LocalTime.MIN);
         return condition.minusDays(condition.getDayOfWeek().getValue() % DAYS_IN_A_WEEK);
+    }
+
+    public static LocalDateTime extractFirstScheduleDate(ScheduleCreateUpdateRequest weekRequest) {
+        return extractFirstScheduleDate(weekRequest.getSchedule().get(0));
+    }
+
+    public static LocalDateTime extractFirstScheduleDate(ScheduleDayRequest dayRequest) {
+        return dayRequest.getSchedule().get(0).getStartTime();
     }
 
     public static LocalDateTime calculateEndDay(LocalDateTime sundayOfWeek) {
