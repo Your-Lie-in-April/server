@@ -74,8 +74,12 @@ public class ScheduleCreateUpdateValidator {
      * 마지막날 24시 -> (마지막+1)일 00시는 허용토록 해야한다.
      */
     private void validateIsAppropriatePeriodPerWeek(ScheduleCreateUpdateRequest req, Project project) {
+        // 요일 순서대로 정렬
         List<LocalDate> dates = req.getSchedule().stream()
-                .map(dayRequest -> extractFirstScheduleDate(dayRequest).toLocalDate()).sorted().toList();
+                .map(dayRequest -> extractFirstScheduleDate(dayRequest).toLocalDate())
+                .sorted()
+                .toList();
+        // 첫날과 마지막날만 프로젝트 기간 내인지 검사
         if (dates.get(0).isBefore(project.getStartDate()) || dates.get(dates.size() - 1)
                 .isAfter(project.getEndDate())) {
             throw new IllegalArgumentException(ExceptionMessage.INVALID_PROJECT_PERIOD.getMessage());

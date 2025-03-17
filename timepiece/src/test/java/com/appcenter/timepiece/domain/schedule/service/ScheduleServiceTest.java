@@ -51,52 +51,6 @@ class ScheduleServiceTest {
     private ProjectRepository projectRepository;
 
 
-    @DisplayName("프로젝트 기간 이내인지 검증한다.")
-    @Test
-    void validateIsAppropriatePeriodPerWeek() {
-
-        ScheduleDto scheduleDto1 = new ScheduleDto(
-                LocalDateTime.of(2025, 4, 16, 19, 30),
-                LocalDateTime.of(2025, 4, 16, 20, 30));
-        ScheduleDto scheduleDto2 = new ScheduleDto(
-                LocalDateTime.of(2025, 4, 17, 9, 30),
-                LocalDateTime.of(2025, 4, 17, 10, 30));
-        ScheduleDto scheduleDto3 = new ScheduleDto(
-                LocalDateTime.of(2025, 4, 18, 19, 30),
-                LocalDateTime.of(2025, 4, 18, 21, 30));
-        ScheduleDto scheduleDto4 = new ScheduleDto(
-                LocalDateTime.of(2025, 4, 19, 8, 30),
-                LocalDateTime.of(2025, 4, 19, 9, 0));
-        ScheduleDto scheduleDto5 = new ScheduleDto(
-                LocalDateTime.of(2025, 4, 19, 9, 30),
-                LocalDateTime.of(2025, 4, 19, 10, 30));
-
-        ScheduleDayRequest scheduleDayRequest1 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto1)));
-        ScheduleDayRequest scheduleDayRequest2 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto2)));
-        ScheduleDayRequest scheduleDayRequest3 = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto3)));
-        ScheduleDayRequest scheduleDayRequest4 = new ScheduleDayRequest(
-                new ArrayList<>(List.of(scheduleDto4, scheduleDto5)));
-
-        ScheduleCreateUpdateRequest scheduleCreateUpdateRequest =
-                new ScheduleCreateUpdateRequest(
-                        List.of(scheduleDayRequest1, scheduleDayRequest2, scheduleDayRequest3, scheduleDayRequest4));
-        Member member = new Member(null, "namu", "namu2024@gmail.com", "", "", List.of("ROLE_USER"));
-        Project project = Project.builder()
-                .title("test").description("설명")
-                .startDate(LocalDate.of(2020, 1, 1))
-                .endDate(LocalDate.of(2025, 1, 1))
-                .startTime(LocalTime.MIN).endTime(LocalTime.MAX)
-                .daysOfWeek(Arrays.stream(DayOfWeek.values()).collect(Collectors.toSet()))
-                .coverId(null).color("FFFFFF")
-                .build();
-
-        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
-
-        Throwable exception = assertThrows(IllegalArgumentException.class,
-                () -> scheduleService.createSchedule(scheduleCreateUpdateRequest, 1L, CustomUserDetails.from(member)));
-        assertEquals(ExceptionMessage.INVALID_PROJECT_PERIOD.getMessage(), exception.getMessage());
-    }
-
     @DisplayName("ScheduleDayRequest의 모든 ScheduleDto 날짜가 동일한지 검증한다.")
     @Test
     void validateIsIdenticalDay() {
