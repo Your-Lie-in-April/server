@@ -125,7 +125,7 @@ public class ScheduleCreateUpdateValidator {
     }
 
     /**
-     * startTime으로 비교 주의: 스케줄 생성 요청에 24시(00시)가 포함되는 경우, endTime에는 허용 요일의 다음날 00시가 포함될 수 있음
+     * 주의! startTime으로 비교: 스케줄 생성 요청에 24시(00시)가 포함되는 경우, endTime에는 허용 요일의 다음날 00시가 포함될 수 있음
      */
     private void validateIsAppropriateDayOfWeekPerDay(ScheduleDayRequest req, Project project) {
         Set<DayOfWeek> dayOfWeeks = project.getDaysOfWeek();

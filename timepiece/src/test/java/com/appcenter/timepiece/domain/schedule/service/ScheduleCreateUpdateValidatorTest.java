@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
@@ -157,6 +158,29 @@ class ScheduleCreateUpdateValidatorTest {
             assertThatThrownBy(() -> validator.validate(command, project))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("중복/교차되는 시간");
+        }
+
+        @DisplayName("ScheduleDayRequest가 프로젝트 수행일아 아닌 경우 예외를 발생한다")
+        @Test
+        void validateIsAppropriateDayOfWeekPerDay() {
+            // 2024.04.19 = 금요일
+            ScheduleDto scheduleDto1 = new ScheduleDto(
+                    LocalDateTime.of(2024, 4, 19, 10, 30),
+                    LocalDateTime.of(2024, 4, 19, 20, 0));
+            ScheduleDayRequest dayRequest = new ScheduleDayRequest(new ArrayList<>(List.of(scheduleDto1)));
+            ScheduleCreateUpdateRequest command = new ScheduleCreateUpdateRequest(List.of(dayRequest));
+            Project project = Project.builder()
+                    .title("테스트 프로젝트").
+                    description("테스트 프로젝트입니다.")
+                    .startDate(LocalDate.MIN).endDate(LocalDate.MAX)
+                    .startTime(LocalTime.MIN).endTime(LocalTime.MAX)
+                    .daysOfWeek(new HashSet<>(Arrays.asList(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)))
+                    .coverId(null).color("FFFFFF")
+                    .build();
+
+            assertThatThrownBy(() -> validator.validate(command, project))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("프로젝트 수행일이 아님");
         }
     }
 }

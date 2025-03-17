@@ -51,11 +51,6 @@ class ScheduleServiceTest {
     private ProjectRepository projectRepository;
 
 
-    @DisplayName("ScheduleDayRequest가 프로젝트 수행 요일인지 검증한다.")
-    @Test
-    void validateIsAppropriateDayOfWeekPerDay() {
-    }
-
     @DisplayName("ScheduleDto의 start/end 시간이 30분 단위임을 검증한다.")
     @Test
     void validateIsMultipleOfHalfHourPerSchedule() {
