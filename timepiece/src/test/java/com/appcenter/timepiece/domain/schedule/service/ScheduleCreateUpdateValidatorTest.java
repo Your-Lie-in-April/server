@@ -103,4 +103,41 @@ class ScheduleCreateUpdateValidatorTest {
                     .hasMessageContaining("프로젝트 수행 기간을 벗어납니다");
         }
     }
+
+    @DisplayName("일 단위 검증")
+    @Nested
+    class DayTest {
+
+        Project project;
+
+        @BeforeEach
+        void setUp() {
+            project = Project.builder()
+                    .title("테스트 프로젝트").
+                    description("테스트 프로젝트입니다.")
+                    .startDate(LocalDate.MIN).endDate(LocalDate.MAX)
+                    .startTime(LocalTime.MIN).endTime(LocalTime.MAX)
+                    .daysOfWeek(Arrays.stream(DayOfWeek.values()).collect(Collectors.toSet()))
+                    .coverId(null).color("FFFFFF")
+                    .build();
+        }
+
+        @DisplayName("모든 ScheduleDto 날짜가 동일한지 검증한다.")
+        @Test
+        void validateIsIdenticalDay() {
+            ScheduleDto scheduleDto1 = new ScheduleDto(
+                    LocalDateTime.of(2024, 4, 19, 9, 30),
+                    LocalDateTime.of(2024, 4, 19, 10, 30));
+            ScheduleDto scheduleDto2 = new ScheduleDto(
+                    LocalDateTime.of(2024, 4, 18, 8, 30),
+                    LocalDateTime.of(2024, 4, 18, 9, 0));
+            ScheduleDayRequest dayRequest = new ScheduleDayRequest(
+                    new ArrayList<>(List.of(scheduleDto1, scheduleDto2)));
+            ScheduleCreateUpdateRequest command = new ScheduleCreateUpdateRequest(List.of(dayRequest));
+
+            assertThatThrownBy(() -> validator.validate(command, project))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("같은 날짜여야 합니다");
+        }
+    }
 }
