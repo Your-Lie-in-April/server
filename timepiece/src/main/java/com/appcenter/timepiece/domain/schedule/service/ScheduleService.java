@@ -44,7 +44,7 @@ public class ScheduleService {
     private final ProjectRepository projectRepository;
     private final NotificationService notificationService;
     private final MemberRepository memberRepository;
-    private final ScheduleCreateUpdateValidator scheduleValidator;
+    private final ScheduleValidator scheduleValidator;
 
     /**
      * {@summary 프로젝트 내 모든 멤버의 스케줄을 조회한다(본인포함)}

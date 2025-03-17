@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class ScheduleCreateUpdateValidator {
+public class ScheduleValidator {
 
     /**
      * ScheduleCreateUpdateRequest에 대한 모든 유효성 검사를 위임하는 메서드<br> Week, Day 범위로 검증을 위임한다.
@@ -136,7 +136,7 @@ public class ScheduleCreateUpdateValidator {
     }
 
     /**
-     * // ScheduleCreateUpdateRequest ScheduleDto 단위 검증 <br> 수행목록 <br> 1. validateIsMultipleOfHalfHourPerSchedule - //
+     * ScheduleCreateUpdateRequest ScheduleDto 단위 검증 <br> 수행목록 <br> 1. validateIsMultipleOfHalfHourPerSchedule -
      * startTime, endTime이 30분 단위인지 검사 <br> 2. validateTimeSequencePerSchedule - startTime < endTime을 만족하는지 검사 <br> 3.
      * validateIsSameDayPerSchedule - startDate == endDate를 만족하는지 검사 <br> 4. validateIsAppropriateTimePerSchedule - (생성
      * 시 정했던)프로젝트 시간 내인지 검사
@@ -151,29 +151,30 @@ public class ScheduleCreateUpdateValidator {
         LocalTime startTime = startDateTime.toLocalTime();
         LocalTime endTime = endDateTime.toLocalTime();
 
-        validateIsMultipleOfHalfHourPerSchedule(startTime, endTime);
-        validateIsSameDayAndTimeSequencePerSchedule(startDate, startTime, endDate, endTime);
-        validateIsAppropriateTimePerSchedule(startTime, endTime, project);
+        validateIsHalfUnits(startTime, endTime);
+        validateIsIdenticalDate(startDate, startTime, endDate, endTime);
+        validateIsInProjectTimes(startTime, endTime, project);
     }
 
-    private void validateIsMultipleOfHalfHourPerSchedule(LocalTime startTime, LocalTime endTime) {
+    private void validateIsHalfUnits(LocalTime startTime, LocalTime endTime) {
         if ((startTime.getMinute() % 30 != 0) || (endTime.getMinute() % 30 != 0)) {
             throw new IllegalArgumentException(ExceptionMessage.INVALID_TIME_UNIT.getMessage());
         }
     }
 
     /**
-     * 스케줄 생성 요청의 endTime이 자정일 경우, endDate가 startDate 보다 하루 이후여야 합니다. 자정이 아닐 경우, 동일 날짜이고 startTime < endTime을 만족해야 합니다.
+     * endTime이 자정(00:00)일 경우, endDate가 startDate 보다 하루 이후여야 합니다. 자정이 아닌 경우, 동일 날짜이고 'startTime < endTime'을 만족해야 합니다.
      */
-    private void validateIsSameDayAndTimeSequencePerSchedule(LocalDate startDate, LocalTime startTime,
-                                                             LocalDate endDate, LocalTime endTime) {
+    private void validateIsIdenticalDate(LocalDate startDate, LocalTime startTime, LocalDate endDate,
+                                         LocalTime endTime) {
         if (endTime.equals(LocalTime.MIN)) {
-            if (startDate.plusDays(1).equals(endDate)) {
+            if (startDate.equals(endDate.minusDays(1))) {
                 return;
             }
-            throw new IllegalArgumentException(ExceptionMessage.INVALID_TIME_SEQUENCE.getMessage());
+            throw new IllegalArgumentException(ExceptionMessage.IS_NOT_SAME_DAY.getMessage());
         }
-        if (Objects.equals(startDate, endDate)) {
+
+        if (startDate.equals(endDate)) {
             if (startTime.isAfter(endTime)) {
                 throw new IllegalArgumentException(ExceptionMessage.INVALID_TIME_SEQUENCE.getMessage());
             }
@@ -183,9 +184,9 @@ public class ScheduleCreateUpdateValidator {
     }
 
     /**
-     * 프로젝트 종료 시간이 00시인 경우 처리가 필요합니다.
+     * 프로젝트 종료 시간이 00시인 경우, 스케줄의 endTime이 00시가 될 수 있음
      */
-    private void validateIsAppropriateTimePerSchedule(LocalTime startTime, LocalTime endTime, Project project) {
+    private void validateIsInProjectTimes(LocalTime startTime, LocalTime endTime, Project project) {
         LocalTime lastTime = (project.getEndTime().equals(LocalTime.MIN)) ?
                 LocalTime.of(23, 59, 59, 59) : project.getEndTime();
         if (startTime.isBefore(project.getStartTime()) || endTime.isAfter(lastTime)) {
