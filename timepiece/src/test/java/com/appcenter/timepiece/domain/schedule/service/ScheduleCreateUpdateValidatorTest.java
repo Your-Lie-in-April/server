@@ -139,5 +139,24 @@ class ScheduleCreateUpdateValidatorTest {
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("같은 날짜여야 합니다");
         }
+
+        @DisplayName("ScheduleDto 간 시간 중복/교차가 없는지 검증한다.")
+        @Test
+        void validateDuplicateSchedulePerDay() {
+            ScheduleDto scheduleDto1 = new ScheduleDto(
+                    LocalDateTime.of(2024, 4, 19, 10, 30),
+                    LocalDateTime.of(2024, 4, 19, 20, 0));
+            ScheduleDto scheduleDto2 = new ScheduleDto(
+                    LocalDateTime.of(2024, 4, 19, 19, 30),
+                    LocalDateTime.of(2024, 4, 19, 20, 30));
+
+            ScheduleDayRequest dayRequest = new ScheduleDayRequest(
+                    new ArrayList<>(List.of(scheduleDto1, scheduleDto2)));
+            ScheduleCreateUpdateRequest command = new ScheduleCreateUpdateRequest(List.of(dayRequest));
+
+            assertThatThrownBy(() -> validator.validate(command, project))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("중복/교차되는 시간");
+        }
     }
 }

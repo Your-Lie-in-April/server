@@ -112,6 +112,7 @@ public class ScheduleCreateUpdateValidator {
         }
     }
 
+    // Side Effect: req.getSchedule() is sorted by startTime
     private void validateDuplicateSchedulePerDay(ScheduleDayRequest req) {
         req.getSchedule().sort(Comparator.comparing(ScheduleDto::getStartTime));
         LocalTime before = LocalTime.MIN;
