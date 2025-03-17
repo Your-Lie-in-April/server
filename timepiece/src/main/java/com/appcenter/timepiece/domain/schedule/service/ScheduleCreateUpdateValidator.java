@@ -25,9 +25,6 @@ public class ScheduleCreateUpdateValidator {
 
     /**
      * ScheduleCreateUpdateRequest에 대한 모든 유효성 검사를 위임하는 메서드<br> Week, Day 범위로 검증을 위임한다.
-     *
-     * @param req     ScheduleCreateUpdateRequest
-     * @param project Project
      */
     public void validate(ScheduleCreateUpdateRequest req, Project project) {
         validateScheduleWeekRequest(req, project);
@@ -40,9 +37,6 @@ public class ScheduleCreateUpdateValidator {
      * // ScheduleCreateUpdateRequest Week 단위 검증 <br> 수행목록 <br> 1. validateIsIdenticalWeek - 일주일(일-토요일) 단위의 요청이 맞는지 검사
      * <br> // 2. validateIsIdenticalDayPerWeek - 중복된 날짜의 요청이 있는지 검사 <br> 3. validateIsAppropriatePeriodPerWeek - (생성 시
      * 정했던)프로젝트 기간 내인지 검사
-     *
-     * @param req     ScheduleCreateUpdateRequest
-     * @param project Project
      */
     private void validateScheduleWeekRequest(ScheduleCreateUpdateRequest req, Project project) {
         validateIsIdenticalWeek(req);
@@ -63,8 +57,6 @@ public class ScheduleCreateUpdateValidator {
 
     /**
      * 전날 Schedule이 다음날 00시에 종료하고, 다음날 Schedule이 존재한다면? -> StartTime으로만 확인한다.
-     *
-     * @param req
      */
     private void validateIsIdenticalDayPerWeek(ScheduleCreateUpdateRequest req) {
         Set<LocalDate> set = new HashSet<>();
@@ -78,9 +70,6 @@ public class ScheduleCreateUpdateValidator {
 
     /**
      * 마지막날 24시 -> (마지막+1)일 00시는 허용토록 해야한다.
-     *
-     * @param req
-     * @param project
      */
     private void validateIsAppropriatePeriodPerWeek(ScheduleCreateUpdateRequest req, Project project) {
         List<LocalDate> dates = req.getSchedule().stream()
@@ -95,9 +84,6 @@ public class ScheduleCreateUpdateValidator {
 
     /**
      * ScheduleCreateUpdateRequest를 일(Day) 단위 및 ScheduleDto 단위 검증으로 위임한다.
-     *
-     * @param req     ScheduleDayRequest
-     * @param project Project
      */
     private void validateDayAndLowLevelRequest(ScheduleDayRequest req, Project project) {
         validateScheduleDayRequest(req, project);
@@ -110,9 +96,6 @@ public class ScheduleCreateUpdateValidator {
      * // ScheduleCreateUpdateRequest 일(Day) 단위 검증 <br> 수행목록 <br> 1. validateIsIdenticalDay - 모든 ScheduleDto의 동일한 날짜인지
      * // 검사<br> 2. validateDuplicateSchedulePerDay - ScheduleDto 간 요청 시간이 중복/교차되는지 검사<br> 3. //
      * validateIsAppropriateDayOfWeekPerDay - (생성 시 정했던)프로젝트 요일인지 검사
-     *
-     * @param req     ScheduleDayRequest
-     * @param project Project
      */
     private void validateScheduleDayRequest(ScheduleDayRequest req, Project project) {
         validateIsIdenticalDay(req);
@@ -141,9 +124,6 @@ public class ScheduleCreateUpdateValidator {
 
     /**
      * startTime으로 비교 주의: 스케줄 생성 요청에 24시(00시)가 포함되는 경우, endTime에는 허용 요일의 다음날 00시가 포함될 수 있음
-     *
-     * @param req
-     * @param project
      */
     private void validateIsAppropriateDayOfWeekPerDay(ScheduleDayRequest req, Project project) {
         Set<DayOfWeek> dayOfWeeks = project.getDaysOfWeek();
@@ -158,9 +138,6 @@ public class ScheduleCreateUpdateValidator {
      * startTime, endTime이 30분 단위인지 검사 <br> 2. validateTimeSequencePerSchedule - startTime < endTime을 만족하는지 검사 <br> 3.
      * validateIsSameDayPerSchedule - startDate == endDate를 만족하는지 검사 <br> 4. validateIsAppropriateTimePerSchedule - (생성
      * 시 정했던)프로젝트 시간 내인지 검사
-     *
-     * @param req     ScheduleDto
-     * @param project Project
      */
     private void validateScheduleDto(ScheduleDto req, Project project) {
         LocalDateTime startDateTime = req.getStartTime();
@@ -185,11 +162,6 @@ public class ScheduleCreateUpdateValidator {
 
     /**
      * 스케줄 생성 요청의 endTime이 자정일 경우, endDate가 startDate 보다 하루 이후여야 합니다. 자정이 아닐 경우, 동일 날짜이고 startTime < endTime을 만족해야 합니다.
-     *
-     * @param startDate
-     * @param startTime
-     * @param endDate
-     * @param endTime
      */
     private void validateIsSameDayAndTimeSequencePerSchedule(LocalDate startDate, LocalTime startTime,
                                                              LocalDate endDate, LocalTime endTime) {
@@ -210,10 +182,6 @@ public class ScheduleCreateUpdateValidator {
 
     /**
      * 프로젝트 종료 시간이 00시인 경우 처리가 필요합니다.
-     *
-     * @param startTime
-     * @param endTime
-     * @param project
      */
     private void validateIsAppropriateTimePerSchedule(LocalTime startTime, LocalTime endTime, Project project) {
         LocalTime lastTime = (project.getEndTime().equals(LocalTime.MIN)) ?
