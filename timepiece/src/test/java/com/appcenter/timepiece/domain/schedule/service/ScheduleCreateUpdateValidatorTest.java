@@ -82,7 +82,7 @@ class ScheduleCreateUpdateValidatorTest {
 
         @DisplayName("날짜가 'startDate <= [TARGET] <= endDate' 이내인지 검증한다.")
         @Test
-        void validateIsAppropriatePeriodPerWeek() {
+        void validateIsInProjectPeriod() {
             ScheduleDto scheduleDto1 = new ScheduleDto(
                     LocalDateTime.of(2025, 4, 16, 19, 30),
                     LocalDateTime.of(2025, 4, 16, 20, 30));

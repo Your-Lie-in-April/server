@@ -12,6 +12,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -42,7 +43,7 @@ public class ScheduleCreateUpdateValidator {
     private void validateScheduleWeekRequest(ScheduleCreateUpdateRequest req, Project project) {
         validateIsIdenticalWeek(req);
         validateIsIdenticalDayPerWeek(req);
-        validateIsAppropriatePeriodPerWeek(req, project);
+        validateIsInProjectPeriod(req, project);
     }
 
     private void validateIsIdenticalWeek(ScheduleCreateUpdateRequest req) {
@@ -73,15 +74,13 @@ public class ScheduleCreateUpdateValidator {
     /**
      * 마지막날 24시 -> (마지막+1)일 00시는 허용토록 해야한다.
      */
-    private void validateIsAppropriatePeriodPerWeek(ScheduleCreateUpdateRequest req, Project project) {
-        // 요일 순서대로 정렬
+    private void validateIsInProjectPeriod(ScheduleCreateUpdateRequest req, Project project) {
         List<LocalDate> dates = req.getSchedule().stream()
                 .map(dayRequest -> extractFirstScheduleDate(dayRequest).toLocalDate())
-                .sorted()
                 .toList();
-        // 첫날과 마지막날만 프로젝트 기간 내인지 검사
-        if (dates.get(0).isBefore(project.getStartDate()) || dates.get(dates.size() - 1)
-                .isAfter(project.getEndDate())) {
+        LocalDate firstDate = Collections.min(dates);
+        LocalDate lastDate = Collections.max(dates);
+        if (firstDate.isBefore(project.getStartDate()) || lastDate.isAfter(project.getEndDate())) {
             throw new IllegalArgumentException(ExceptionMessage.INVALID_PROJECT_PERIOD.getMessage());
         }
     }
