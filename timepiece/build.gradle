@@ -10,7 +10,7 @@ version = '0.0.1-SNAPSHOT'
 
 jib {
     from {
-        image = 'eclipse-temurin:17-jre'
+        image = 'eclipse-temurin:17.0.11_9-jre-alpine'
     }
     to {
         image = 'jnamu/timepiece-server'
