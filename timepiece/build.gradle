@@ -2,10 +2,24 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.2'
     id 'io.spring.dependency-management' version '1.1.4'
+    id 'com.google.cloud.tools.jib' version '3.4.5'
 }
 
 group = 'com.appcenter'
 version = '0.0.1-SNAPSHOT'
+
+jib {
+    from {
+        image = 'eclipse-temurin:17-jre'
+    }
+    to {
+        image = 'jnamu/timepiece-server'
+        tags = ['latest', "${project.version}"]
+    }
+    container {
+        jvmFlags = ['-Dspring.config.location=file:/resources/application.yml']
+    }
+}
 
 java {
     sourceCompatibility = '17'
