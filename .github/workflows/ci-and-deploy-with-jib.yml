@@ -2,7 +2,7 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "deploy/165-build-with-jib" ]
+    branches: [ "main" ]
 
 jobs:
   build:
