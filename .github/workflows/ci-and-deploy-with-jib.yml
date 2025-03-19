@@ -2,7 +2,7 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "deploy/167-ci-with-cache" ]
+    branches: [ "main" ]
 
 jobs:
   build:
